@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Overseer</string>
+    <string name="tac">Certainly! Below is a sample Terms and Conditions for your app, which is focused on tracking screen time but does not monitor specific app activities. Please ensure that the terms are reviewed by a legal professional to ensure compliance with relevant laws.
+
+Terms and Conditions
+Introduction
+Welcome to [App Name]! These Terms and Conditions govern your use of the [App Name] mobile application (the "App"), which provides a screen time tracking service that monitors and records the total time spent on your device but does not track specific app usage or activity.
+
+By downloading and using the App, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these Terms, please do not use the App.
+
+1. Description of Service
+The App is designed to help users manage their screen time by tracking the total time spent on their device. The App does not monitor or collect data about individual apps, web browsing, or specific activities on the device.
+
+2. Privacy and Data Collection
+The App respects your privacy. We do not collect, store, or share any personal data related to your specific app usage or behavior. The App only tracks the duration of time your device screen is active, without identifying which apps are being used.
+
+For more information on how we handle your data, please refer to our [Privacy Policy].
+
+3. User Responsibilities
+You agree to use the App responsibly and in compliance with all applicable laws and regulations.
+You understand that the App is not intended to monitor or restrict access to specific applications, and is solely focused on tracking overall screen time.
+The App is intended for personal use only and is not a substitute for parental control tools or other monitoring applications.
+4. Disclaimer
+The App provides screen time tracking as a tool to help users become more aware of their digital habits. We make no guarantees regarding the accuracy of the time tracked. The information provided by the App should be used for informational purposes only.
+
+Additionally, while the App seeks to operate smoothly, we do not guarantee that it will be free from bugs or errors, nor that it will function uninterrupted at all times.
+
+5. Limitations of Liability
+In no event shall [App Name], its developers, or its affiliates be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your use or inability to use the App.
+
+You agree that your use of the App is at your sole risk and that [App Name] shall not be held responsible for any loss or damages arising from your reliance on the screen time data provided by the App.
+
+6. Changes to Terms
+We reserve the right to modify these Terms and Conditions at any time. If we make any material changes, we will notify you via the App or through other means. Continued use of the App after changes are made will constitute acceptance of the new Terms.
+
+7. Governing Law
+These Terms and Conditions are governed by and construed in accordance with the laws of [Your Country/State], without regard to its conflict of law principles.
+
+8. Contact Information
+If you have any questions or concerns about these Terms, feel free to contact us at [email address].
+    </string>
+    <string name="accessibility_service_description">aaaaa</string>
+</resources>

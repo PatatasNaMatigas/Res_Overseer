@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageButton
+        android:id="@+id/popDrawer"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="#00000000"
+        android:scaleType="centerInside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/options" />
+
+    <EditText
+        android:id="@+id/pet_name"
+        android:layout_width="0dp"
+        android:layout_height="73dp"
+        android:backgroundTint="@color/none"
+        android:ems="10"
+        android:fontFamily="@font/segoeuithibd"
+        android:hint="NAME"
+        android:maxLength="7"
+        android:textAlignment="center"
+        android:textSize="40sp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="76dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toEndOf="@id/popDrawer"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.009" />
+
+    <ImageView
+        android:id="@+id/coin_image"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="centerInside"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.95"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.086"
+        app:srcCompat="@drawable/coins" />
+
+    <TextView
+        android:id="@+id/coinAmount"
+        android:layout_width="60dp"
+        android:layout_height="15dp"
+        android:fontFamily="@font/segoeuithibd"
+        android:text="100"
+        android:textAlignment="center"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="@+id/coin_image"
+        app:layout_constraintEnd_toEndOf="@+id/coin_image"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/coin_image"
+        app:layout_constraintTop_toTopOf="@+id/coin_image"
+        app:layout_constraintVertical_bias="0.68" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="60dp"
+        android:layout_height="15dp"
+        android:fontFamily="@font/segoeuithibd"
+        android:text="COINS"
+        android:textAlignment="center"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="@+id/coin_image"
+        app:layout_constraintEnd_toEndOf="@+id/coin_image"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/coin_image"
+        app:layout_constraintTop_toTopOf="@+id/coin_image"
+        app:layout_constraintVertical_bias="0.9" />
+
+    <ImageView
+        android:id="@+id/healthBar"
+        android:layout_width="60dp"
+        android:layout_height="0dp"
+        android:scaleType="fitXY"
+        android:paddingTop="10dp"
+        app:layout_constraintBottom_toTopOf="@id/healthText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.95"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/coin_image"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/health" />
+
+    <TextView
+        android:id="@+id/healthText"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:fontFamily="@font/segoeuithibd"
+        android:text="HEALTH"
+        android:textAlignment="center"
+        android:textColor="@color/health_color"
+        app:layout_constraintBottom_toTopOf="@+id/div"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.95"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/div"
+        android:layout_width="match_parent"
+        android:layout_height="26dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="16dp"
+            android:layout_weight="0.3"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5"
+            app:srcCompat="@drawable/divider" />
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_weight="0.05"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imageView4"
+            app:layout_constraintStart_toEndOf="@+id/imageView3"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5"
+            app:srcCompat="@drawable/middle" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="26dp"
+            android:layout_marginEnd="16dp"
+            android:layout_weight="0.3"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5"
+            app:srcCompat="@drawable/divider2" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/daily_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="DAY"
+        android:fontFamily="@font/segoeuithibd"
+        android:layout_marginStart="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.55" />
+
+    <TextView
+        android:id="@+id/weekly_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/segoeuithibd"
+        android:textAlignment="center"
+        android:text="WEEK"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.55" />
+
+    <TextView
+        android:id="@+id/monthly_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/segoeuithibd"
+        android:text="MONTH"
+        android:textAlignment="viewEnd"
+        android:textSize="20sp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintVertical_bias="0.55" />
+
+    <View
+        android:id="@+id/daily"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/rounded_corner"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/weekly"
+        app:layout_constraintHeight_percent="0.4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/daily_text"
+        app:layout_constraintWidth_percent="0.3"
+        app:layout_constraintVertical_bias="0.8" />
+
+    <ImageView
+        android:id="@+id/dailyApp1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/dailyAppName1"
+        app:layout_constraintEnd_toEndOf="@+id/daily"
+        app:layout_constraintStart_toStartOf="@+id/daily"
+        app:layout_constraintTop_toTopOf="@id/daily" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/dailyAppName1"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:textAlignment="center"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/dailyAppTime1"
+        app:layout_constraintEnd_toEndOf="@+id/daily"
+        app:layout_constraintStart_toStartOf="@+id/daily"
+        app:layout_constraintTop_toBottomOf="@+id/dailyApp1" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/dailyAppTime1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textAlignment="center"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/dailyApp2"
+        app:layout_constraintEnd_toEndOf="@+id/daily"
+        app:layout_constraintStart_toStartOf="@+id/daily"
+        app:layout_constraintTop_toBottomOf="@+id/dailyAppName1" />
+
+    <ImageView
+        android:id="@+id/dailyApp2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/dailyAppName2"
+        app:layout_constraintEnd_toEndOf="@+id/daily"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/daily"
+        app:layout_constraintTop_toBottomOf="@id/dailyAppTime1" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/dailyAppName2"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:textAlignment="center"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/dailyAppTime2"
+        app:layout_constraintEnd_toEndOf="@+id/daily"
+        app:layout_constraintStart_toStartOf="@+id/daily"
+        app:layout_constraintTop_toBottomOf="@+id/dailyApp2" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/dailyAppTime2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/segoeuithibd"
+        android:textAlignment="center"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toTopOf="@id/dailyApp3"
+        app:layout_constraintEnd_toEndOf="@+id/daily"
+        app:layout_constraintStart_toStartOf="@+id/daily"
+        app:layout_constraintTop_toBottomOf="@+id/dailyAppName2" />
+
+    <ImageView
+        android:id="@+id/dailyApp3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/dailyAppName3"
+        app:layout_constraintEnd_toEndOf="@+id/daily"
+        app:layout_constraintStart_toStartOf="@+id/daily"
+        app:layout_constraintTop_toBottomOf="@id/dailyAppTime2" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/dailyAppName3"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:textAlignment="center"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/dailyAppTime3"
+        app:layout_constraintEnd_toEndOf="@+id/daily"
+        app:layout_constraintStart_toStartOf="@+id/daily"
+        app:layout_constraintTop_toBottomOf="@+id/dailyApp3" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/dailyAppTime3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/segoeuithibd"
+        android:textAlignment="center"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="@id/daily"
+        app:layout_constraintEnd_toEndOf="@+id/daily"
+        app:layout_constraintStart_toStartOf="@+id/daily"
+        app:layout_constraintTop_toBottomOf="@+id/dailyAppName3" />
+
+    <View
+        android:id="@+id/weekly"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/rounded_corner"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/monthly"
+        app:layout_constraintHeight_percent="0.4"
+        app:layout_constraintStart_toEndOf="@+id/daily"
+        app:layout_constraintTop_toTopOf="@id/weekly_text"
+        app:layout_constraintWidth_percent="0.3"
+        app:layout_constraintVertical_bias="0.8" />
+
+    <ImageView
+        android:id="@+id/weeklyApp1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/weeklyAppName1"
+        app:layout_constraintEnd_toEndOf="@+id/weekly"
+        app:layout_constraintStart_toStartOf="@+id/weekly"
+        app:layout_constraintTop_toTopOf="@id/weekly" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/weeklyAppName1"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:textAlignment="center"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/weeklyAppTime1"
+        app:layout_constraintEnd_toEndOf="@+id/weekly"
+        app:layout_constraintStart_toStartOf="@+id/weekly"
+        app:layout_constraintTop_toBottomOf="@+id/weeklyApp1" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/weeklyAppTime1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textAlignment="center"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/weeklyApp2"
+        app:layout_constraintEnd_toEndOf="@+id/weekly"
+        app:layout_constraintStart_toStartOf="@+id/weekly"
+        app:layout_constraintTop_toBottomOf="@+id/weeklyAppName1" />
+
+    <ImageView
+        android:id="@+id/weeklyApp2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/weeklyAppName2"
+        app:layout_constraintEnd_toEndOf="@+id/weekly"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/weekly"
+        app:layout_constraintTop_toBottomOf="@id/weeklyAppTime1" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/weeklyAppName2"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:textAlignment="center"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/weeklyAppTime2"
+        app:layout_constraintEnd_toEndOf="@+id/weekly"
+        app:layout_constraintStart_toStartOf="@+id/weekly"
+        app:layout_constraintTop_toBottomOf="@+id/weeklyApp2" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/weeklyAppTime2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/segoeuithibd"
+        android:textAlignment="center"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toTopOf="@id/weeklyApp3"
+        app:layout_constraintEnd_toEndOf="@+id/weekly"
+        app:layout_constraintStart_toStartOf="@+id/weekly"
+        app:layout_constraintTop_toBottomOf="@+id/weeklyAppName2" />
+
+    <ImageView
+        android:id="@+id/weeklyApp3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/weeklyAppName3"
+        app:layout_constraintEnd_toEndOf="@+id/weekly"
+        app:layout_constraintStart_toStartOf="@+id/weekly"
+        app:layout_constraintTop_toBottomOf="@id/weeklyAppTime2" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/weeklyAppName3"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:textAlignment="center"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/weeklyAppTime3"
+        app:layout_constraintEnd_toEndOf="@+id/weekly"
+        app:layout_constraintStart_toStartOf="@+id/weekly"
+        app:layout_constraintTop_toBottomOf="@+id/weeklyApp3" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/weeklyAppTime3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/segoeuithibd"
+        android:textAlignment="center"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="@id/weekly"
+        app:layout_constraintEnd_toEndOf="@+id/weekly"
+        app:layout_constraintStart_toStartOf="@+id/weekly"
+        app:layout_constraintTop_toBottomOf="@+id/weeklyAppName3" />
+
+    <View
+        android:id="@+id/monthly"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/rounded_corner"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.4"
+        app:layout_constraintStart_toEndOf="@+id/weekly"
+        app:layout_constraintTop_toTopOf="@id/monthly_text"
+        app:layout_constraintWidth_percent="0.3"
+        app:layout_constraintVertical_bias="0.8" />
+
+    <ImageView
+        android:id="@+id/monthlyApp1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/monthlyAppName1"
+        app:layout_constraintEnd_toEndOf="@+id/monthly"
+        app:layout_constraintStart_toStartOf="@+id/monthly"
+        app:layout_constraintTop_toTopOf="@id/monthly" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/monthlyAppName1"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:textAlignment="center"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/monthlyAppTime1"
+        app:layout_constraintEnd_toEndOf="@+id/monthly"
+        app:layout_constraintStart_toStartOf="@+id/monthly"
+        app:layout_constraintTop_toBottomOf="@+id/monthlyApp1" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/monthlyAppTime1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textAlignment="center"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/monthlyApp2"
+        app:layout_constraintEnd_toEndOf="@+id/monthly"
+        app:layout_constraintStart_toStartOf="@+id/monthly"
+        app:layout_constraintTop_toBottomOf="@+id/monthlyAppName1" />
+
+    <ImageView
+        android:id="@+id/monthlyApp2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/monthlyAppName2"
+        app:layout_constraintEnd_toEndOf="@+id/monthly"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/monthly"
+        app:layout_constraintTop_toBottomOf="@id/monthlyAppTime1" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/monthlyAppName2"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:textAlignment="center"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/monthlyAppTime2"
+        app:layout_constraintEnd_toEndOf="@+id/monthly"
+        app:layout_constraintStart_toStartOf="@+id/monthly"
+        app:layout_constraintTop_toBottomOf="@+id/monthlyApp2" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/monthlyAppTime2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/segoeuithibd"
+        android:textAlignment="center"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toTopOf="@id/monthlyApp3"
+        app:layout_constraintEnd_toEndOf="@+id/monthly"
+        app:layout_constraintStart_toStartOf="@+id/monthly"
+        app:layout_constraintTop_toBottomOf="@+id/monthlyAppName2" />
+
+    <ImageView
+        android:id="@+id/monthlyApp3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/monthlyAppName3"
+        app:layout_constraintEnd_toEndOf="@+id/monthly"
+        app:layout_constraintStart_toStartOf="@+id/monthly"
+        app:layout_constraintTop_toBottomOf="@id/monthlyAppTime2" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/monthlyAppName3"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:textAlignment="center"
+        android:fontFamily="@font/segoeuithibd"
+        app:layout_constraintBottom_toTopOf="@id/monthlyAppTime3"
+        app:layout_constraintEnd_toEndOf="@+id/monthly"
+        app:layout_constraintStart_toStartOf="@+id/monthly"
+        app:layout_constraintTop_toBottomOf="@+id/monthlyApp3" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/monthlyAppTime3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/segoeuithibd"
+        android:textAlignment="center"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="@id/monthly"
+        app:layout_constraintEnd_toEndOf="@+id/monthly"
+        app:layout_constraintStart_toStartOf="@+id/monthly"
+        app:layout_constraintTop_toBottomOf="@+id/monthlyAppName3" />
+
+    <Button
+        android:id="@+id/reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset Stats"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias=".3" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/daily_no_data"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="NO DATA AVAILABLE"
+        android:fontFamily="@font/segoeuithibd"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/daily"
+        app:layout_constraintEnd_toEndOf="@+id/daily"
+        app:layout_constraintStart_toStartOf="@+id/daily"
+        app:layout_constraintTop_toTopOf="@+id/daily" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/weekly_no_data"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="NO DATA AVAILABLE"
+        android:fontFamily="@font/segoeuithibd"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/weekly"
+        app:layout_constraintEnd_toEndOf="@+id/weekly"
+        app:layout_constraintStart_toStartOf="@+id/weekly"
+        app:layout_constraintTop_toTopOf="@+id/weekly" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/monthly_no_data"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="NO DATA AVAILABLE"
+        android:fontFamily="@font/segoeuithibd"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/monthly"
+        app:layout_constraintEnd_toEndOf="@+id/monthly"
+        app:layout_constraintStart_toStartOf="@+id/monthly"
+        app:layout_constraintTop_toTopOf="@+id/monthly" />
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Main content of the screen -->
+        <FrameLayout
+            android:id="@+id/content_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <!-- Navigation drawer menu -->
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navigation_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:fitsSystemWindows="true"
+            app:menu="@menu/drawer_menu" />
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

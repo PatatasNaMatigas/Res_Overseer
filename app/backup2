@@ -1,0 +1,21 @@
+String currentApp = getAppName(event.getPackageName().toString(), UNFILTERED);
+
+                LocalDateTime localDateTime = LocalDateTime.now();
+
+                if (!app.containsKey(currentApp)) {
+                    app.put(currentApp, new int[] {
+                            localDateTime.getHour(),
+                            localDateTime.getMinute(),
+                            localDateTime.getSecond()
+                    });
+                } else {
+                    int[] newTime = Time.getTimeCombination(
+                            app.get(currentApp),
+                            new int[]{
+                                    localDateTime.getHour(),
+                                    localDateTime.getMinute(),
+                                    localDateTime.getSecond()
+                            }
+                    );
+                    app.replace(currentApp, newTime);
+                }

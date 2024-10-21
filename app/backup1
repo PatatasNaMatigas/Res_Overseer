@@ -1,0 +1,52 @@
+if (!Objects.equals(currentUnfApp, newAppName)) {
+    LocalDateTime dateTime = LocalDateTime.now();
+
+    if (startTime != null) {
+        endTime = new int[] {
+                dateTime.getHour(),
+                dateTime.getMinute(),
+                dateTime.getSecond()
+        };
+        int currentAppIndex = appUnf.get(currentUnfApp);
+        int[] totalTime = Time.getTimeCombination(
+                Time.getTimeDifference(endTime, startTime),
+                oldTimeId.get(currentAppIndex)
+        );
+
+        timeId.put(currentAppIndex, totalTime);
+        appTime.set(currentAppIndex, totalTime);
+        oldTimeId.replace(currentAppIndex, totalTime);
+
+        String[][] top3Apps = Time.getTop3ByTime(appUnfId, appId, timeId);
+        Drawable[] appIcon = new Drawable[] {
+                getAppIcon(getAppName(top3Apps[0][2], UNFILTERED)),
+                getAppIcon(getAppName(top3Apps[1][2], UNFILTERED)),
+                getAppIcon(getAppName(top3Apps[2][2], UNFILTERED)),
+        };
+        Menu.setAppName(top3Apps);
+        Menu.setAppTime(top3Apps);
+        Menu.setAppIcon(appIcon);
+
+        startTime = null;
+        endTime = null;
+    }
+
+    currentUnfApp = newAppName;
+
+    if (!appUnf.containsKey(currentUnfApp)) {
+        int appSize = appUnf.size();
+        appUnf.put(currentUnfApp, appSize);
+        appId.put(appSize, getAppName(event.getPackageName().toString(), FILTERED));
+        appUnfId.put(appSize, getAppName(event.getPackageName().toString(), UNFILTERED));
+        timeId.put(appSize, new int[] {0, 0, 0});
+        oldTimeId.put(appSize, new int[] {0, 0, 0});
+        appTime.add(new int[] {0, 0, 0});
+    }
+
+    LocalDateTime newDateTime = LocalDateTime.now();
+    startTime = new int[] {
+            newDateTime.getHour(),
+            newDateTime.getMinute(),
+            newDateTime.getSecond()
+    };
+}
