@@ -79,7 +79,10 @@ public class Data {
             for (Map.Entry<String, List<int[]>> entry : appData.entrySet()) {
                 String appName = entry.getKey();
                 List<int[]> timeArray = entry.getValue();
+                int[] blank = new int[] {0, 0, 0};
                 for (int[] time : timeArray) {
+                    if (Arrays.equals(time, blank))
+                        continue;
                     String timeFormatted = formatTime(time);
                     writer.write(appName + ": " + timeFormatted + "\n");
                 }

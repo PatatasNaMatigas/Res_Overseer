@@ -41,7 +41,7 @@ public class AppUsage extends AccessibilityService {
     private static String[][][] top3Apps = new String[3][3][];
     private static String[][] top3AppName = new String[3][];
     private static Drawable[][] appIcon = new Drawable[3][];
-    private static File[] files = new File[3];
+    public static File[] files = new File[3];
 
     private BroadcastReceiver screenStateReceiver = new BroadcastReceiver() {
         @Override

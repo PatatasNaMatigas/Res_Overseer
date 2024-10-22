@@ -11,7 +11,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.g5.overseer.R;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -23,6 +25,7 @@ public class Login extends AppCompatActivity {
     private EditText passwordField;
     private Button submit;
     private static File fileDirectory;
+    private static String[] accountInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,11 +64,20 @@ public class Login extends AppCompatActivity {
                     fileWriter.write("\n");
                     fileWriter.write("[pw]:" + passwordField.getText().toString());
                     fileWriter.write("\n");
+
+                    accountInfo = new String[] {
+                            usernameField.getText().toString(),
+                            passwordField.getText().toString()
+                    };
                 } catch (IOException e) {}
                 startActivity(new Intent(Login.this, Menu.class));
             } else {
                 findViewById(R.id.missingFieldText).setVisibility(View.VISIBLE);
             }
         });
+    }
+
+    public static String[] getAccount() {
+        return accountInfo;
     }
 }

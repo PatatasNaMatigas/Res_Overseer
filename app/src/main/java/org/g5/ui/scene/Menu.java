@@ -16,10 +16,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import org.g5.core.AppUsage;
 import org.g5.core.Data;
 import org.g5.overseer.R;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import me.grantland.widget.AutofitTextView;
 
@@ -29,7 +35,6 @@ public class Menu extends AppCompatActivity {
 
     private ImageButton popDrawer;
     private static DrawerLayout drawerLayout;
-
     private static TextView[] dailyAppNames;
     private static TextView[] weeklyAppNames;
     private static TextView[] monthlyAppNames;
@@ -101,13 +106,45 @@ public class Menu extends AppCompatActivity {
                 findViewById(R.id.weekly_no_data),
                 findViewById(R.id.monthly_no_data),
         };
-        findViewById(R.id.reset).setOnClickListener(view -> {
-            try {
-                Data.deleteDailyFile();
-                Data.deleteWeeklyFile();
-                Data.deleteMonthlyFile();
-            } catch (IOException e) {}
-        });
+
+        if ((Login.getAccount()[0].equals("aevan") || Login.getAccount()[0].equals("admin")) && Login.getAccount()[1].equals("admin")) {
+            findViewById(R.id.reset).setOnClickListener(view -> {
+                try {
+                    Data.deleteDailyFile();
+                    Data.deleteWeeklyFile();
+                    Data.deleteMonthlyFile();
+                } catch (IOException e) {}
+            });
+            findViewById(R.id.logData).setOnClickListener(view -> {
+                File[] files = AppUsage.files;
+                Log.d("@Menu.java", "[]=======LOG START=======[]");
+                for (int i = 0; i < 3; i++) {
+                    switch (i) {
+                        case 0:
+                            Log.d("@Menu.java", "[]=======DAILY=======[]");
+                            break;
+                        case 1:
+                            Log.d("@Menu.java", "[]=======WEEKLY=======[]");
+                            break;
+                        case 2:
+                            Log.d("@Menu.java", "[]=======MONTHLY=======[]");
+                            break;
+                    }
+                    File file = files[i];
+                    BufferedReader reader;
+                    try {
+                        reader = new BufferedReader(new FileReader(file));
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            Log.d("@Menu.java", file.getName() + " " + line);
+                        }
+                    } catch (IOException e) {}
+                }
+            });
+        } else {
+            findViewById(R.id.reset).setVisibility(View.INVISIBLE);
+            findViewById(R.id.logData).setVisibility(View.INVISIBLE);
+        }
 
         popDrawer = findViewById(R.id.popDrawer);
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -144,7 +181,6 @@ public class Menu extends AppCompatActivity {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null) return;
-            Log.d("@Menu.java", "app[i]: " + app[i]);
             dailyAppNames[i].setText(app[i]);
         }
     }
