@@ -1,45 +1,48 @@
 package org.g5.core;
 
+import android.content.Context;
+import android.util.Log;
+
 import org.g5.overseer.Index;
+import org.g5.util.Family;
+import org.g5.util.Pair;
 import org.g5.util.Time;
+import org.g5.util.TriMap;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Data {
 
-    //create a daily file
-    public static File createDailyFile() throws IOException {
+    public static File createDailyFile(Context context) throws IOException {
         String date = new SimpleDateFormat("dd_MM_yy").format(new Date());
-        File file = new File(Index.getFilesDirectory(), date + ".txt");
-        if (!file.exists()) {
+        File file = new File(context.getFilesDir(), date + ".txt");
+        if (!file.createNewFile()) {
             file.createNewFile();
         }
         return file;
     }
 
     //create a weekly file
-    public static File createWeeklyFile() throws IOException {
+    public static File createWeeklyFile(Context context) throws IOException {
         Calendar cal = Calendar.getInstance();
         int weekOfMonth = cal.get(Calendar.WEEK_OF_MONTH);
         String date = new SimpleDateFormat("MM").format(new Date()) + "week" + weekOfMonth + "" + new SimpleDateFormat("yy").format(new Date());
-        File file = new File(Index.getFilesDirectory(), date + ".txt");
-        if (!file.exists()) {
+        File file = new File(context.getFilesDir(), date + ".txt");
+        if (!file.createNewFile()) {
             file.createNewFile();
         }
         return file;
     }
 
     //create a monthly file
-    public static File createMonthlyFile() throws IOException {
+    public static File createMonthlyFile(Context context) throws IOException {
         String date = new SimpleDateFormat("MMyy").format(new Date());
-        File file = new File(Index.getFilesDirectory(), date + ".txt");
-        if (!file.exists()) {
+        File file = new File(context.getFilesDir(), date + ".txt");
+        if (!file.createNewFile()) {
             file.createNewFile();
         }
         return file;
@@ -74,70 +77,136 @@ public class Data {
         }
     }
 
-    public static void updateFileWithTime(File file, HashMap<String, List<int[]>> appData) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) { // Overwrite the file
-            for (Map.Entry<String, List<int[]>> entry : appData.entrySet()) {
-                String appName = entry.getKey();
-                List<int[]> timeArray = entry.getValue();
-                int[] blank = new int[] {0, 0, 0};
-                for (int[] time : timeArray) {
-                    if (Arrays.equals(time, blank))
-                        continue;
-                    String timeFormatted = formatTime(time);
-                    writer.write(appName + ": " + timeFormatted + "\n");
-                }
-            }
-        }
-    }
-
-    // format time from int[] {hours, minutes, seconds}
-    private static String formatTime(int[] timeArray) {
-        int hours = timeArray[0];
-        int minutes = timeArray[1];
-        int seconds = timeArray[2];
-        return hours + "h" + minutes + "m" + seconds + "s";
-    }
-
-    //retrieve data from the file into HashMap<String, int[]>
-    public static HashMap<String, int[]> retrieveDataFromFile(File file) throws IOException {
-        HashMap<String, List<int[]>> appData = new HashMap<>();
-        HashMap<String, int[]> finalAppData = new HashMap<>();
-        BufferedReader reader = new BufferedReader(new FileReader(file));
+    public static TriMap<String, int[], int[]> getDataFromFile(File file) {
+        TriMap<String, int[], int[]> data = new TriMap<>();
         String line;
 
-        while ((line = reader.readLine()) != null) {
-            String[] parts = line.split(": ");
-            String appName = parts[0];
-            String[] timeParts = parts[1].split("[hms]");
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] parts = null;
+                String appName;
+                String[] timeParts;
+                String[] timeRecordParts;
+                try {
+                    parts = line.split(": ");
+                    appName = parts[0];
+                    timeParts = parts[1].split("\\s*[hms]\\s*");
+                    timeRecordParts = parts[2].split("\\s*[hms]\\s*");
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    continue;
+                }
 
-            int[] timeArray = {
-                    Integer.parseInt(timeParts[0]),  // hours
-                    Integer.parseInt(timeParts[1]),  // minutes
-                    Integer.parseInt(timeParts[2])   // seconds
-            };
-            appData.computeIfAbsent(appName, k -> new ArrayList<>()).add(timeArray);
+                int[] timeArray = {
+                        Integer.parseInt(timeParts[0]),  // hours
+                        Integer.parseInt(timeParts[1]),  // minutes
+                        Integer.parseInt(timeParts[2])   // seconds
+                };
+
+                int[] timeRecordedArray = {
+                        Integer.parseInt(timeRecordParts[0]),  // hours
+                        Integer.parseInt(timeRecordParts[1]),  // minutes
+                        Integer.parseInt(timeRecordParts[2])   // seconds
+                };
+
+                data.newEntry(appName, timeArray, timeRecordedArray);
+            }
+        } catch (IOException e) {
+            try {
+                deleteDailyFile();
+                deleteWeeklyFile();
+                deleteMonthlyFile();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
         }
 
-        // Combine times for each app
-        for (Map.Entry<String, List<int[]>> entry : appData.entrySet()) {
-            String appName = entry.getKey();
-            List<int[]> timeArray = entry.getValue();
+        return data;
+    }
 
-            // Initialize oldTime to zeroes or null if not present
-            int[] oldTime = finalAppData.get(appName);
-            if (oldTime == null) {
-                oldTime = new int[]{0, 0, 0};  // Start with zero if no previous data exists
+    public static void updateData(File file, TriMap<String, int[], int[]> map) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
+            List<String> keys = map.getKeys();
+
+            // app entry
+            for (String key : keys) {
+                Family<String, Pair<int[], int[]>> childParent = map.getEntry(key);
+                ArrayList<Pair<int[], int[]>> children = childParent.getChildren();
+                String app = childParent.getParent();
+
+                // app data
+                for (Pair<int[], int[]> child : children) {
+                    String time = Time.formatTime(child.getValue1());
+                    String timeRecorded = Time.formatTime(child.getValue2());
+
+                    int hashOfTimeRecorded = TriMap.hash(key, child.getValue1(), child.getValue2());
+                    writer.write(app + ": " + time + ": " + timeRecorded + " [Hash: " + hashOfTimeRecorded + "]\n");
+                }
             }
 
-            // Combine the oldTime with each new time entry
-            for (int[] time : timeArray) {
-                oldTime = Time.getTimeCombination(oldTime, time);
-            }
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-            finalAppData.put(appName, oldTime);  // Update finalAppData with the new total time
+    public static int[] computeData(TriMap<String, int[], int[]> data, String key) {
+        int[] time = null;
+        Family<String, Pair<int[], int[]>> childParent = data.getEntry(key);
+        if (childParent != null) {
+            ArrayList<Pair<int[], int[]>> children = childParent.getChildren();
+            int timeSpent = 0;
+            for (int j = 0; j < children.size(); j++)
+                timeSpent += Time.convertToSeconds(children.get(j).getValue1());
+            time = Time.convertSecondsToArray(timeSpent);
+        }
+        return time;
+    }
+
+    public static HashMap<String, int[]> extractData(TriMap<String, int[], int[]> map) {
+        HashMap<String, int[]> data = new HashMap<>();
+        List<String> keys = map.getKeys();
+
+        for (int i = 0; i < map.size(); i++) {
+            String appName = map.getEntry(keys.get(i)).getParent();
+            data.put(appName, computeData(map, appName));
         }
 
-        reader.close();
-        return finalAppData;
+        return data;
+    }
+
+    public static Pair<String, int[]> getHighestScreenTime(File file) {
+        Pair<String, int[]> highestApp = new Pair<>();
+        TriMap<String, int[], int[]> map = getDataFromFile(file);
+        List<String> keys = map.getKeys();
+        int highest = 0;
+
+        for (int i = 0; i < map.size(); i++) {
+            String key = keys.get(i);
+            if (Time.convertToSeconds(computeData(map, key)) > highest)
+                highestApp.setPair(key, computeData(map, key));
+        }
+
+        return highestApp;
+    }
+
+    public static ArrayList<int[]> getFilteredScreenTime(File file) {
+        ArrayList<int[]> screenTime = new ArrayList<>();
+        HashMap<String, int[]> appUsage = extractData(getDataFromFile(file));
+
+        for (Map.Entry<String, int[]> entry : appUsage.entrySet())
+            screenTime.add(entry.getValue());
+        return screenTime;
+    }
+
+    public static int[] getScreenTime(File file) {
+        int[] screenTime = new int[] {0, 0, 0};
+        HashMap<String, int[]> appUsage = extractData(getDataFromFile(file));
+
+        for (Map.Entry<String, int[]> entry : appUsage.entrySet())
+            screenTime = Time.getTimeCombination(screenTime, entry.getValue());
+        return screenTime;
     }
 }
+

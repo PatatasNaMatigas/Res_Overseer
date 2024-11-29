@@ -1,14 +1,17 @@
 package org.g5.util;
 
+import android.annotation.SuppressLint;
+
+import org.g5.core.Data;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Time {
+    public static int[] BLANK_TIME = new int[]{0, 0, 0};
+
     private int h, m, s;
 
     public Time(int h, int m, int s) {
@@ -60,38 +63,51 @@ public class Time {
         return new int[] {hours, minutes, seconds};
     }
 
+    public static int[] convertSecondsToArray(int seconds) {
+        int hours = seconds / 3600;
+        int minutes = (seconds % 3600) / 60;
+        int s = seconds % 60;
+
+        return new int[] {hours, minutes, s};
+    }
+
     public static int convertToSeconds(int[] time) {
         return time[0] * 3600 + time[1] * 60 + time[2];
     }
 
-    public static String[][] getTop3ByTime(Map<String, int[]> app) {
+    public static String[][] getTop3ByTime(TriMap<String, int[], int[]> map) {
+        ArrayList<Pair<String, Integer>> app = new ArrayList<>();
+        List<String> keys = map.getKeys();
+
+        for (String key : keys) {
+            int timeInSeconds = Time.convertToSeconds(Data.computeData(map, key));
+            app.add(new Pair<>(key, timeInSeconds));
+        }
+
+        app.sort((a, b) -> b.getValue2() - a.getValue2());
+
         int min = Math.min(app.size(), 3);
-        String[][] entries = new String[][] {
-                new String[] {"", ""},
-                new String[] {"", ""},
-                new String[] {"", ""}
-        };
-
-        List<Map.Entry<String, int[]>> entryList = new ArrayList<>(app.entrySet());
-
-        entryList.sort((e1, e2) -> {
-            int seconds1 = convertToSeconds(e1.getValue());
-            int seconds2 = convertToSeconds(e2.getValue());
-            return Integer.compare(seconds2, seconds1);
-        });
-
-        List<String> sortedEntry = new ArrayList<>();
-        for (Map.Entry<String, int[]> entry : entryList)
-            sortedEntry.add(entry.getKey());
-
-        for (int i = 0; i < min; i++) {
-            entries[i] = new String[] {
-                    sortedEntry.get(i),
-                    timeArrayToString(app.get(sortedEntry.get(i)))
-            };
+        String[][] entries = new String[3][2];
+        for (int i = 0; i < 3; i++) {
+            if (i < min) {
+                entries[i][0] = app.get(i).getValue1();
+                entries[i][1] = Time.formatTime(Time.convertSecondsToArray((app.get(i).getValue2())));
+            } else {
+                entries[i][0] = "";
+                entries[i][1] = "";
+            }
         }
 
         return entries;
+    }
+
+    @SuppressLint("NewApi")
+    public static int[] ldtToArray(LocalDateTime localDateTime) {
+        return new int[]{
+                localDateTime.getHour(),
+                localDateTime.getMinute(),
+                localDateTime.getSecond(),
+        };
     }
 
     public static int hourToSecond(int hour) {
@@ -102,8 +118,16 @@ public class Time {
         return hour * 60;
     }
 
+    public static int hourToMills(int hour) {
+        return hour * 60 * 1000;
+    }
+
     public static int minToSecond(int minute) {
         return minute * 60;
+    }
+
+    public static int minToMills(int minute) {
+        return minute * 60 * 1000;
     }
 
     public static float minToHour(int minute) {
@@ -118,7 +142,11 @@ public class Time {
         return second / 3600f;
     }
 
-    private static String timeArrayToString(int[] time) {
+    public static float secondToMills(int second) {
+        return second * 1000;
+    }
+
+    public static String formatTime(int[] time) {
         return time[0] + "h " + time[1] + "m " + time[2] + "s";
     }
 }

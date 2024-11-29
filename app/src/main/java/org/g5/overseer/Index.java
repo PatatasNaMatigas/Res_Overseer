@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.g5.core.AppUsage;
+import org.g5.core.Data;
 import org.g5.ui.scene.Login;
 import org.g5.ui.scene.Menu;
 import org.g5.util.AccessibilityUtils;
@@ -39,7 +40,14 @@ public class Index extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        fileDirectory = new File(getFilesDir().toString());
+        try {
+            Data.deleteDailyFile();
+            Data.deleteWeeklyFile();
+            Data.deleteMonthlyFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        fileDirectory = getFilesDirectory();
 
         if (!AccessibilityUtils.isAccessibilityServiceEnabled(this, AppUsage.class)) {
             Toast.makeText(this, "Please enable accessibility in this app", Toast.LENGTH_LONG).show();

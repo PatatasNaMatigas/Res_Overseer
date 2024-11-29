@@ -9,11 +9,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import org.g5.core.AppUsage;
@@ -22,10 +22,8 @@ import org.g5.overseer.R;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import me.grantland.widget.AutofitTextView;
 
@@ -107,27 +105,76 @@ public class Menu extends AppCompatActivity {
                 findViewById(R.id.monthly_no_data),
         };
 
-        if ((Login.getAccount()[0].equals("aevan") || Login.getAccount()[0].equals("admin")) && Login.getAccount()[1].equals("admin")) {
+        if ((Login.getAccount()[0].equals("aevan") || Login.getAccount()[0].equals("a")) && Login.getAccount()[1].equals("a")) {
             findViewById(R.id.reset).setOnClickListener(view -> {
                 try {
                     Data.deleteDailyFile();
                     Data.deleteWeeklyFile();
                     Data.deleteMonthlyFile();
+
+                    StringBuilder logData = new StringBuilder();
+                    File[] files = AppUsage.getFiles();
+
+                    logData.append("[]=======LOG START=======[]\n\n");
+                    Log.d("Menu.java!", "[]=======LOG START=======[]");
+
+                    for (int i = 0; i < 3; i++) {
+                        switch (i) {
+                            case 0:
+                                logData.append("[]=======DAILY=======[]\n");
+                                Log.d("Menu.java!", "[]=======DAILY=======[]");
+                                break;
+                            case 1:
+                                logData.append("[]=======WEEKLY=======[]\n");
+                                Log.d("Menu.java!", "[]=======DAILY=======[]");
+                                break;
+                            case 2:
+                                logData.append("[]=======MONTHLY=======[]\n");
+                                Log.d("Menu.java!", "[]=======DAILY=======[]");
+                                break;
+                        }
+                        File file = files[i];
+                        BufferedReader reader;
+                        try {
+                            reader = new BufferedReader(new FileReader(file));
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                logData.append(file.getName()).append(" ").append(line).append("\n");
+                                Log.d("Menu.java!", file.getName() + " " + line);
+                            }
+                            reader.close();
+                        } catch (IOException e) {
+                            logData.append("Error reading file: ").append(file.getName()).append("\n");
+                        }
+                    }
+
+                    // Set the generated log data to the TextView
+                    findViewById(R.id.scrollViewDebug).setVisibility(View.INVISIBLE);
+                    TextView logTextView = findViewById(R.id.logs);
+                    logTextView.setText(logData.toString());
+                    AppUsage.clearData();
                 } catch (IOException e) {}
             });
             findViewById(R.id.logData).setOnClickListener(view -> {
-                File[] files = AppUsage.files;
-                Log.d("@Menu.java", "[]=======LOG START=======[]");
+                StringBuilder logData = new StringBuilder();
+                File[] files = AppUsage.getFiles();
+
+                logData.append("[]=======LOG START=======[]\n\n");
+                Log.d("Menu.java!", "[]=======LOG START=======[]");
+
                 for (int i = 0; i < 3; i++) {
                     switch (i) {
                         case 0:
-                            Log.d("@Menu.java", "[]=======DAILY=======[]");
+                            logData.append("[]=======DAILY=======[]\n");
+                            Log.d("Menu.java!", "[]=======DAILY=======[]");
                             break;
                         case 1:
-                            Log.d("@Menu.java", "[]=======WEEKLY=======[]");
+                            logData.append("[]=======WEEKLY=======[]\n");
+                            Log.d("Menu.java!", "[]=======DAILY=======[]");
                             break;
                         case 2:
-                            Log.d("@Menu.java", "[]=======MONTHLY=======[]");
+                            logData.append("[]=======MONTHLY=======[]\n");
+                            Log.d("Menu.java!", "[]=======DAILY=======[]");
                             break;
                     }
                     File file = files[i];
@@ -136,43 +183,55 @@ public class Menu extends AppCompatActivity {
                         reader = new BufferedReader(new FileReader(file));
                         String line;
                         while ((line = reader.readLine()) != null) {
-                            Log.d("@Menu.java", file.getName() + " " + line);
+                            logData.append(file.getName()).append(" ").append(line).append("\n");
+                            Log.d("Menu.java!", file.getName() + " " + line);
                         }
-                    } catch (IOException e) {}
+                        reader.close();
+                    } catch (IOException e) {
+                        logData.append("Error reading file: ").append(file.getName()).append("\n");
+                    }
                 }
+
+                // Set the generated log data to the TextView
+                findViewById(R.id.scrollViewDebug).setVisibility(
+                        (findViewById(R.id.scrollViewDebug).getVisibility() == View.INVISIBLE ? View.VISIBLE : View.INVISIBLE)
+                );
+                TextView logTextView = findViewById(R.id.logs);
+                logTextView.setText(logData.toString());
             });
+
         } else {
             findViewById(R.id.reset).setVisibility(View.INVISIBLE);
             findViewById(R.id.logData).setVisibility(View.INVISIBLE);
         }
 
         popDrawer = findViewById(R.id.popDrawer);
-        drawerLayout = findViewById(R.id.drawer_layout);
-        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {}
-
-            @Override
-            public void onDrawerOpened(View drawerView) {}
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                drawerLayout.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onDrawerStateChanged(int newState) {}
-        });
-        drawerLayout.setVisibility(View.INVISIBLE);
-
-        popDrawer.setOnClickListener(view -> {
-            Log.d("@Menu.java!", "clicked drawer");
-            drawerLayout.openDrawer(GravityCompat.START);
-            drawerLayout.setVisibility(View.VISIBLE);
-        });
+//        drawerLayout = findViewById(R.id.drawer_layout);
+//        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+//            @Override
+//            public void onDrawerSlide(View drawerView, float slideOffset) {}
+//
+//            @Override
+//            public void onDrawerOpened(View drawerView) {}
+//
+//            @Override
+//            public void onDrawerClosed(View drawerView) {
+//                drawerLayout.setVisibility(View.INVISIBLE);
+//            }
+//
+//            @Override
+//            public void onDrawerStateChanged(int newState) {}
+//        });
+//        drawerLayout.setVisibility(View.INVISIBLE);
+//
+//        popDrawer.setOnClickListener(view -> {
+//            Log.d("@Menu.java!", "clicked drawer");
+//            drawerLayout.openDrawer(GravityCompat.START);
+//            drawerLayout.setVisibility(View.VISIBLE);
+//        });
 
         // Set input filter for pet name EditText
-        ((EditText) findViewById(R.id.pet_name)).setFilters(new InputFilter[]{
+        ((EditText) findViewById(R.id.petName)).setFilters(new InputFilter[]{
                 new InputFilter.AllCaps()
         });
     }
@@ -181,23 +240,33 @@ public class Menu extends AppCompatActivity {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null) return;
-            dailyAppNames[i].setText(app[i]);
+            try {
+                dailyAppNames[i].setText(app[i]);
+            } catch (NullPointerException e) {
+                return;
+            }
         }
     }
 
     public static void setAppNameWeekly(String[] app) {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
-            if (app[i] == null) return;
-            weeklyAppNames[i].setText(app[i]);
+            try {
+                weeklyAppNames[i].setText(app[i]);
+            } catch (NullPointerException e) {
+                return;
+            }
         }
     }
 
     public static void setAppNameMonthly(String[] app) {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
-            if (app[i] == null) return;
-            monthlyAppNames[i].setText(app[i]);
+            try {
+                monthlyAppNames[i].setText(app[i]);
+            } catch (NullPointerException e) {
+                return;
+            }
         }
     }
 
@@ -205,7 +274,11 @@ public class Menu extends AppCompatActivity {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null || app[i][1] == null) return; // Check if app[i][1] is not null
-            dailyAppTimes[i].setText(app[i][1]);
+            try {
+                dailyAppTimes[i].setText(app[i][1]);
+            } catch (NullPointerException e) {
+                return;
+            }
         }
     }
 
@@ -213,7 +286,11 @@ public class Menu extends AppCompatActivity {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null || app[i][1] == null) return; // Check if app[i][1] is not null
-            weeklyAppTimes[i].setText(app[i][1]);
+            try {
+                weeklyAppTimes[i].setText(app[i][1]);
+            } catch (NullPointerException e) {
+                return;
+            }
         }
     }
 
@@ -221,7 +298,11 @@ public class Menu extends AppCompatActivity {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null || app[i][1] == null) return; // Check if app[i][1] is not null
-            monthlyAppTimes[i].setText(app[i][1]);
+            try {
+                monthlyAppTimes[i].setText(app[i][1]);
+            } catch (NullPointerException e) {
+                return;
+            }
         }
     }
 
@@ -229,7 +310,11 @@ public class Menu extends AppCompatActivity {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null) return;
-            dailyAppIcons[i].setImageDrawable(app[i]);
+            try {
+                dailyAppIcons[i].setImageDrawable(app[i]);
+            } catch (NullPointerException e) {
+                return;
+            }
         }
     }
 
@@ -237,7 +322,11 @@ public class Menu extends AppCompatActivity {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null) return;
-            weeklyAppIcons[i].setImageDrawable(app[i]);
+            try {
+                weeklyAppIcons[i].setImageDrawable(app[i]);
+            } catch (NullPointerException e) {
+                return;
+            }
         }
     }
 
@@ -245,26 +334,27 @@ public class Menu extends AppCompatActivity {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null) return;
-            monthlyAppIcons[i].setImageDrawable(app[i]);
+            try {
+                monthlyAppIcons[i].setImageDrawable(app[i]);
+            } catch (NullPointerException e) {
+                return;
+            }
         }
     }
 
 
     public static void noDataDaily(boolean noData) {
-        for (AutofitTextView textView : dataAvailabilityText) {
-            textView.setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
-        }
+        if (dataAvailabilityText != null)
+            dataAvailabilityText[0].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
     }
 
     public static void noDataWeekly(boolean noData) {
-        for (AutofitTextView textView : dataAvailabilityText) {
-            textView.setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
-        }
+        if (dataAvailabilityText != null)
+            dataAvailabilityText[1].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
     }
 
     public static void noDataMonthly(boolean noData) {
-        for (AutofitTextView textView : dataAvailabilityText) {
-            textView.setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
-        }
+        if (dataAvailabilityText != null)
+            dataAvailabilityText[2].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
     }
 }
