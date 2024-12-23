@@ -23,7 +23,7 @@ public class FloatingWindow {
     private String message;
     private int reaction;
     private static WindowManager windowManager;
-    protected View floatingView;
+    protected static View floatingView;
     private WindowManager.LayoutParams params;
     private GestureDetector gestureDetector;
 
@@ -87,7 +87,7 @@ public class FloatingWindow {
                 .setListener(null);
     }
 
-    private void fadeOut(View view, Runnable onEnd) {
+    private static void fadeOut(View view, Runnable onEnd) {
         view.animate()
                 .alpha(0f)
                 .setDuration(500)
@@ -105,6 +105,17 @@ public class FloatingWindow {
 
 
     private void onSwipeUp() {
+        if (floatingView != null) {
+            fadeOut(floatingView, () -> {
+                if (windowManager != null) {
+                    windowManager.removeView(floatingView);
+                    floatingView = null;
+                }
+            });
+        }
+    }
+
+    public static void removeFloatingWindow() {
         if (floatingView != null) {
             fadeOut(floatingView, () -> {
                 if (windowManager != null) {

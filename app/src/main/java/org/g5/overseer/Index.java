@@ -58,6 +58,10 @@ public class Index extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fileDirectory = getFilesDirectory();
+        setContentView(R.layout.floating_window);
+        findViewById(R.id.holder).setOnClickListener(e -> {
+            FloatingWindow.removeFloatingWindow();
+        });
         try {
             if (!AccessibilityUtils.isAccessibilityServiceEnabled(this, AppUsage.class)) {
                 Toast.makeText(this, "Please enable accessibility in this app", Toast.LENGTH_LONG).show();

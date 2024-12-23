@@ -178,6 +178,11 @@ public class AppUsage extends AccessibilityService {
         onOffFilter.addAction(Intent.ACTION_SCREEN_ON);
         onOffFilter.addAction(Intent.ACTION_USER_PRESENT);
         registerReceiver(screenStateReceiver, onOffFilter);
+
+//        new FloatingWindow()
+//                .message("App Usage")
+//                .react(Reaction.DIZZY)
+//                .start(this);
     }
 
     @Override
