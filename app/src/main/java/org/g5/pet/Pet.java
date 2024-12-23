@@ -5,11 +5,11 @@ import android.annotation.SuppressLint;
 import org.g5.core.AppUsage;
 import org.g5.core.Data;
 import org.g5.ui.scene.Menu;
+import org.g5.util.Pair;
 import org.g5.util.Time;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -32,7 +32,7 @@ public class Pet {
     private static Timer decayTimer;
 
     // Dying message
-    private static String hulingTestamento = "You've been using your phone for at least 8 hours. I'm starting to lose health T_T";
+    private static String hulingTestamento = "You've been using your phone for a total of at least 8 hours... I'm starting to lose health T_T";
 
     public Pet(Menu menu) {
         this.menu = menu;
@@ -40,28 +40,27 @@ public class Pet {
     }
 
     public void start() throws IOException {
-        File daily = Data.createDailyFile(menu);
+        File daily = AppUsage.files[0];
+        Pair<String, int[]> topApp = Data.getHighestScreenTime(daily);
         int screenTime = Time.convertToSeconds(Data.getScreenTime(daily));
-        String highestAppName = Data.getHighestScreenTime(daily).getValue1();
-        int[] highestScreenTime = Data.getHighestScreenTime(daily).getValue2();
-        ArrayList<int[]> screenTimeRecord = Data.getFilteredScreenTime(daily);
-        ArrayList<int[]> breakTime = AppUsage.getBreakTime();
+        String highestAppName = topApp.getValue1();
+        int[] highestScreenTime = topApp.getValue2();
 
         // pet is dying womp womp
         if (screenTime > lastDecayTime) {
             floatingWindow
-                    .pop(hulingTestamento)
+                    .message(hulingTestamento)
                     .react(Reaction.DYING)
-                    .start();
+                    .start(menu);
             startHealthDecay(screenTime);
         }
 
         String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + screenTime + " on " + highestAppName + ". Maybe take a break??";
         if (Time.convertToSeconds(highestScreenTime) > Time.hourToSecond(1)) {
             floatingWindow
-                    .pop(nahilo)
+                    .message(nahilo)
                     .react(Reaction.DIZZY)
-                    .start();
+                    .start(menu);
         }
     }
 

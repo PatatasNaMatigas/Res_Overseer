@@ -1,7 +1,9 @@
 package org.g5.core;
 
-
 import android.accessibilityservice.AccessibilityService;
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +18,8 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
+import org.g5.pet.FloatingWindow;
+import org.g5.pet.Reaction;
 import org.g5.ui.scene.Menu;
 import org.g5.util.Pair;
 import org.g5.util.Time;
@@ -26,35 +30,46 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class AppUsage extends AccessibilityService {
 
-    private static int[] breakTimeArray = new int[] {0, 0, 0};
-    private static final TriMap<String, int[], int[]> finalApp = new TriMap<>();
+    private static int[] date;
+    private static final int[] breakTimeArray = new int[] {0, 0, 0};
     private static final TriMap<String, int[], int[]>[] data = new TriMap[3];
     private static final Pair<String, int[]> lastApp = new Pair<>();
-    private static File[] files = new File[3];
+    public static File[] files = new File[3];
     private static final String[][][] top3Apps = new String[3][3][];
     private static final String[][] top3AppName = new String[3][];
-    private static final String[][] top3AppTime = new String[3][];
-    private static Drawable[][] appIcon = new Drawable[3][];
-    private static ArrayList<int[]> breakTime = new ArrayList<>();
+    private static final Drawable[][] appIcon = new Drawable[3][];
+    private static final ArrayList<int[]> breakTime = new ArrayList<>();
+    private static boolean patayAngCP = false;
 
-    private BroadcastReceiver screenStateReceiver = new BroadcastReceiver() {
+    // d nmn nagana to e waaaaaaaaaaaahhhhhhhhhhh 😭
+    private final BroadcastReceiver screenStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             int[] currentTime = Time.ldtToArray(LocalDateTime.now());
 
             if (Intent.ACTION_SCREEN_OFF.equals(action)) {
-                for (int i = 0; i < data.length; i++) {
-                    int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
-                    data[i].newEntry(lastApp.getValue1(), totalTime, currentTime);
-                    lastApp.setPair(lastApp.getValue1(), currentTime);
+                // Handle screen-off event
+                if (!lastApp.bothEmpty()) {
+                    for (int i = 0; i < data.length; i++) {
+                        Log.d("AppUsage.class", "Screen turned off");
+                        int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
+                        data[i].newEntry(lastApp.getValue1(), totalTime, currentTime);
+                    }
+                    lastApp.setPair(lastApp.getValue1(), currentTime); // Update last app time
+                    patayAngCP = true;
                 }
             } else if (Intent.ACTION_SCREEN_ON.equals(action)) {
-                lastApp.setPair(lastApp.getValue1(), currentTime);
+                // Handle screen-on event
+                if (!lastApp.bothEmpty()) {
+                    lastApp.setPair(lastApp.getValue1(), currentTime); // Refresh last app timestamp
+                    patayAngCP = false;
+                }
             }
         }
     };
@@ -62,7 +77,7 @@ public class AppUsage extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            initData();
+            initData(false, this);
 
             PackageManager packageManager = getPackageManager();
             ApplicationInfo appInfo;
@@ -73,15 +88,66 @@ public class AppUsage extends AccessibilityService {
             }
             boolean isAnApp = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0 && (appInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 0;
 
+            // finalize app time
             if (isAnApp) {
+                LocalDateTime ldt = LocalDateTime.now();
+
+                // if date is null initialize value
+                if (date == null) {
+                    date = new int[] {
+                            ldt.getMonthValue(),
+                            ldt.getDayOfMonth(),
+                            ldt.getYear()
+                    };
+                }
                 String app = event.getPackageName().toString();
-                int[] currentTime = Time.ldtToArray(LocalDateTime.now());
+                int[] currentTime = Time.ldtToArray(ldt);
 
                 if (!lastApp.bothEmpty()) {
-                    int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
 
-                    for (int i = 0; i < data.length; i++)
-                        data[i].newEntry(lastApp.getValue1(), totalTime, currentTime);
+                    int[] dateNow = new int[] {
+                            ldt.getMonthValue(),
+                            ldt.getDayOfMonth(),
+                            ldt.getYear()
+                    };
+
+                    if (!Arrays.equals(date, dateNow)) {
+                        // pag kinabukasan na (adik mag phone)
+
+                        // hatiin yung time ng before and after 00:00:00
+                        int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
+                        /*
+                            example
+                            totalTime = 00:41:20
+                            currentTime = 00:20:19
+
+                            before = 24:00:00 - lastApp.getValue2();
+                            after = totalTime - before;
+                         */
+                        int[] before = Time.getTimeCombination(totalTime, lastApp.getValue2());
+                        int[] after = Time.getTimeDifference(Time.MIDNIGHT, before);
+
+                        for (int i = 0; i < data.length; i++)
+                            data[i].newEntry(lastApp.getValue1(), before, currentTime);
+
+                        // new day, new data (walang kwentang comment)
+                        initData(false, this);
+
+                        data[0] = Data.getDataFromFile(files[0]);
+                        data[1] = Data.getDataFromFile(files[1]);
+                        data[2] = Data.getDataFromFile(files[2]);
+
+                        for (int i = 0; i < data.length; i++)
+                            data[i].newEntry(lastApp.getValue1(), after, currentTime);
+
+                        date = dateNow;
+                    } else {
+                        // pag ndi kinabukasan (duhh)
+                        int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
+
+                        for (int i = 0; i < data.length; i++)
+                            data[i].newEntry(lastApp.getValue1(), totalTime, currentTime);
+                    }
                 }
 
                 for (int i = 0; i < data.length; i++)
@@ -103,14 +169,15 @@ public class AppUsage extends AccessibilityService {
         Toast.makeText(this, "Error Occured", Toast.LENGTH_LONG).show();
     }
 
+    @SuppressLint("InlinedApi")
     @Override
     public void onCreate() {
         super.onCreate();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        filter.addAction(Intent.ACTION_SCREEN_ON);
-        filter.addAction(Intent.ACTION_USER_PRESENT);
-        registerReceiver(screenStateReceiver, filter);
+        IntentFilter onOffFilter = new IntentFilter();
+        onOffFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        onOffFilter.addAction(Intent.ACTION_SCREEN_ON);
+        onOffFilter.addAction(Intent.ACTION_USER_PRESENT);
+        registerReceiver(screenStateReceiver, onOffFilter);
     }
 
     @Override
@@ -119,16 +186,22 @@ public class AppUsage extends AccessibilityService {
         unregisterReceiver(screenStateReceiver);
     }
 
-    public void initData() {
+    public static void initData(boolean overwrite, Context context) {
         try {
-            files[0] = Data.createDailyFile(this);
-            files[1] = Data.createWeeklyFile(this);
-            files[2] = Data.createMonthlyFile(this);
+            files[0] = Data.createDailyFile(context);
+            files[1] = Data.createWeeklyFile(context);
+            files[2] = Data.createMonthlyFile(context);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        for (int i = 0; i < 3; i++) {
-            if (data[i] == null || data[i].isEmpty()) {
+        if (!overwrite) {
+            for (int i = 0; i < 3; i++) {
+                if (data[i] == null || data[i].isEmpty()) {
+                    data[i] = Data.getDataFromFile(files[i]);
+                }
+            }
+        } else {
+            for (int i = 0; i < 3; i++) {
                 data[i] = Data.getDataFromFile(files[i]);
             }
         }
@@ -146,11 +219,6 @@ public class AppUsage extends AccessibilityService {
                     getAppName(top3Apps[i][1][0]),
                     getAppName(top3Apps[i][2][0])
             };
-            top3AppTime[i] = new String[]{
-                    top3Apps[i][0][1],
-                    top3Apps[i][1][1],
-                    top3Apps[i][2][1]
-            };
             appIcon[i] = new Drawable[]{
                     getAppIcon(top3Apps[i][0][0]),
                     getAppIcon(top3Apps[i][1][0]),
@@ -159,7 +227,7 @@ public class AppUsage extends AccessibilityService {
         }
     }
 
-    public void refreshContent() {
+    public static void refreshContent() {
         Log.d("AppUsage.class", "test: " + Arrays.toString(top3AppName[0]));
         Menu.setAppNameDaily(top3AppName[0]);
         Menu.setAppTimeDaily(top3Apps[0]);
@@ -218,6 +286,5 @@ public class AppUsage extends AccessibilityService {
     public static void clearData() {
         for (int i = 0; i < data.length; i++)
             data[i].clear();
-        finalApp.clear();
     }
 }

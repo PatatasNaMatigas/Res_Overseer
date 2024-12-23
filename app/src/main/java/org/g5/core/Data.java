@@ -110,17 +110,7 @@ public class Data {
 
                 data.newEntry(appName, timeArray, timeRecordedArray);
             }
-        } catch (IOException e) {
-            try {
-                deleteDailyFile();
-                deleteWeeklyFile();
-                deleteMonthlyFile();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-            throw new RuntimeException(e);
-        }
-
+        } catch (IOException e) {}
         return data;
     }
 

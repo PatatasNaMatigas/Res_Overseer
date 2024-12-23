@@ -21,6 +21,7 @@
         android:id="@+id/petName"
         android:layout_width="0dp"
         android:layout_height="73dp"
+        android:singleLine="true"
         android:backgroundTint="@color/none"
         android:ems="10"
         android:fontFamily="@font/segoeuithibd"

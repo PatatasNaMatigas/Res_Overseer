@@ -57,7 +57,6 @@ public class Login extends AppCompatActivity {
         submit = findViewById(R.id.signUp);
 
         submit.setOnClickListener(view -> {
-            Log.d("CODE DEBUG", "Submit button clicked");
             if (!usernameField.getText().toString().isEmpty() && !passwordField.getText().toString().isEmpty()) {
                 try (FileWriter fileWriter = new FileWriter(accountFile)) {
                     fileWriter.write("[un]:" + usernameField.getText().toString());
@@ -79,5 +78,11 @@ public class Login extends AppCompatActivity {
 
     public static String[] getAccount() {
         return accountInfo;
+    }
+
+    public static void setAccount(String name, String password) {
+        accountInfo = new String[] {
+                name, password
+        };
     }
 }

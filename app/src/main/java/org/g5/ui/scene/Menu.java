@@ -3,13 +3,15 @@ package org.g5.ui.scene;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
@@ -104,6 +106,12 @@ public class Menu extends AppCompatActivity {
                 findViewById(R.id.weekly_no_data),
                 findViewById(R.id.monthly_no_data),
         };
+
+        EditText petName = findViewById(R.id.petName);
+        limitEditTextToWidth(petName);
+        petName.setOnFocusChangeListener((v, hasFocus) -> {
+            petName.setCursorVisible(hasFocus);
+        });
 
         if ((Login.getAccount()[0].equals("aevan") || Login.getAccount()[0].equals("a")) && Login.getAccount()[1].equals("a")) {
             findViewById(R.id.reset).setOnClickListener(view -> {
@@ -356,5 +364,36 @@ public class Menu extends AppCompatActivity {
     public static void noDataMonthly(boolean noData) {
         if (dataAvailabilityText != null)
             dataAvailabilityText[2].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    private void limitEditTextToWidth(EditText editText) {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                int editTextWidth = editText.getWidth();
+                float currentTextWidth = editText.getPaint().measureText(s.toString());
+
+                if (currentTextWidth >= editTextWidth) {
+                    editText.removeTextChangedListener(this);
+                    String trimmedText = s.toString();
+                    while (editText.getPaint().measureText(trimmedText) > editTextWidth && trimmedText.length() > 0) {
+                        trimmedText = trimmedText.substring(0, trimmedText.length() - 1);
+                    }
+                    editText.setText(trimmedText);
+                    editText.setSelection(trimmedText.length());
+                    editText.addTextChangedListener(this);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 }

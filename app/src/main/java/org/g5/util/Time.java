@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class Time {
     public static int[] BLANK_TIME = new int[]{0, 0, 0};
+    public static int[] MIDNIGHT = new int[]{24, 0, 0};
 
     private int h, m, s;
 

@@ -3,6 +3,7 @@ package org.g5.util;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.Context;
 import android.accessibilityservice.AccessibilityService;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.accessibility.AccessibilityManager;
 import java.util.List;
@@ -23,6 +24,16 @@ public class AccessibilityUtils {
                     return true;
                 }
             }
+        } catch (Exception e) {
+            Log.d("CODE DEBUG", e.getLocalizedMessage());
+        }
+        return false;
+    }
+
+    public static boolean isOverlayPermissionEnabled(Context context) {
+        try {
+            // Use the Settings.canDrawOverlays method to check if the overlay permission is granted
+            return Settings.canDrawOverlays(context);
         } catch (Exception e) {
             Log.d("CODE DEBUG", e.getLocalizedMessage());
         }
