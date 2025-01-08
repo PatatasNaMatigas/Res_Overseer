@@ -662,28 +662,28 @@
             app:layout_constraintTop_toTopOf="parent"/>
     </ScrollView>
 
-    <!--    <androidx.drawerlayout.widget.DrawerLayout-->
-<!--        android:id="@+id/drawer_layout"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent">-->
+        <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-<!--        &lt;!&ndash; Main content of the screen &ndash;&gt;-->
-<!--        <FrameLayout-->
-<!--            android:id="@+id/content_frame"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent">-->
-<!--        </FrameLayout>-->
+        <!-- Main content of the screen -->
+        <FrameLayout
+            android:id="@+id/content_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </FrameLayout>
 
-<!--        &lt;!&ndash; Navigation drawer menu &ndash;&gt;-->
-<!--        <com.google.android.material.navigation.NavigationView-->
-<!--            android:id="@+id/navigation_view"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:layout_gravity="start"-->
-<!--            android:fitsSystemWindows="true"-->
-<!--            app:menu="@menu/drawer_menu" />-->
+        <!-- Navigation drawer menu -->
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navigation_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:fitsSystemWindows="true"
+            app:menu="@menu/drawer_menu" />
 
-<!--    </androidx.drawerlayout.widget.DrawerLayout>-->
+    </androidx.drawerlayout.widget.DrawerLayout>
 
 
 

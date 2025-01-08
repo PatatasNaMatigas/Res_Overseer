@@ -2,8 +2,6 @@ package org.g5.core;
 
 import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,9 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-import org.g5.pet.FloatingWindow;
-import org.g5.pet.Reaction;
-import org.g5.ui.scene.Menu;
+import org.g5.ui.Menu;
 import org.g5.util.Pair;
 import org.g5.util.Time;
 import org.g5.util.TriMap;
@@ -30,7 +26,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class AppUsage extends AccessibilityService {
@@ -178,11 +173,6 @@ public class AppUsage extends AccessibilityService {
         onOffFilter.addAction(Intent.ACTION_SCREEN_ON);
         onOffFilter.addAction(Intent.ACTION_USER_PRESENT);
         registerReceiver(screenStateReceiver, onOffFilter);
-
-//        new FloatingWindow()
-//                .message("App Usage")
-//                .react(Reaction.DIZZY)
-//                .start(this);
     }
 
     @Override

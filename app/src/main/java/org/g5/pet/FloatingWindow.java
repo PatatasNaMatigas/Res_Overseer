@@ -1,31 +1,51 @@
 package org.g5.pet;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.util.Log;
-import android.view.GestureDetector;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import org.g5.overseer.R;
+import org.g5.util.AccessibilityUtils;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class FloatingWindow {
 
+    public static final int NORMAL = 0;
+    public static final int DIZZY = 1;
+    public static final int TIRED = 2;
+    public static final int DYING = 3;
+
+    private Drawable normal;
+    private Drawable dizzy;
+    private Drawable tired;
+    private Drawable dying;
+    private Drawable reaction;
+
     private String message;
-    private int reaction;
+    private String name;
+    private int mode;
     private static WindowManager windowManager;
     protected static View floatingView;
     private WindowManager.LayoutParams params;
-    private GestureDetector gestureDetector;
+
+    public FloatingWindow name(String name) {
+        this.name = name;
+        return this;
+    }
 
     public FloatingWindow message(String message) {
         this.message = message;
@@ -33,96 +53,99 @@ public class FloatingWindow {
     }
 
     public FloatingWindow react(int mode) {
-        this.reaction = mode;
+        this.mode = mode;
         return this;
     }
 
-    public void start(Context context) {
-        windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    @SuppressLint("ClickableViewAccessibility")
+    public void start(AppCompatActivity appCompatActivity) {
 
-        floatingView = LayoutInflater.from(context).inflate(R.layout.floating_window, null, false);
+        normal = ContextCompat.getDrawable(appCompatActivity, R.drawable.normal);
+        dizzy = ContextCompat.getDrawable(appCompatActivity, R.drawable.dizzy);
+        tired = ContextCompat.getDrawable(appCompatActivity, R.drawable.normal);
+        dying = ContextCompat.getDrawable(appCompatActivity, R.drawable.dead);
+
+        switch (mode) {
+            case NORMAL:
+                reaction = normal;
+                break;
+            case DIZZY:
+                reaction = dizzy;
+                break;
+            case TIRED:
+                reaction = tired;
+                break;
+            case DYING:
+                reaction = dying;
+                break;
+        }
+
+        windowManager = (WindowManager) appCompatActivity.getSystemService(Context.WINDOW_SERVICE);
+
+        floatingView = LayoutInflater.from(appCompatActivity).inflate(R.layout.floating_window, null, false);
+
+        DisplayMetrics displayMetrics = appCompatActivity.getResources().getDisplayMetrics();
 
         params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
+                (int) (displayMetrics.widthPixels * 0.9),
+                (int) (displayMetrics.heightPixels * 0.3),
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                         ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
                         : WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT
         );
 
-        params.gravity = Gravity.TOP | Gravity.END;
+        params.gravity = Gravity.END;
         params.x = 0;
         params.y = 100;
 
-        gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                float SWIPE_THRESHOLD = 100;
-                float SWIPE_VELOCITY_THRESHOLD = 100;
-
-                float distanceY = e2.getY() - e1.getY();
-                if (distanceY < -SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
-                    onSwipeUp();
-                    return true;
-                }
-                return false;
+        // Set an OnTouchListener to detect clicks
+        floatingView.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                onFloatingWindowClicked();
+                return true;
             }
+            return false;
         });
 
-        floatingView.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
+        try {
+            windowManager.addView(floatingView, params);
+        } catch (Exception e) {
+            AccessibilityUtils.launchDisplayOverOtherAppsPermission(appCompatActivity);
+            windowManager.addView(floatingView, params);
+        }
 
-        windowManager.addView(floatingView, params);
-
-        fadeIn(floatingView);
+        updateReaction();
+        updateName();
     }
 
-    private void fadeIn(View view) {
-        view.setAlpha(0f);
-        view.setVisibility(View.VISIBLE);
-        view.animate()
-                .alpha(1f)
-                .setDuration(500)
-                .setListener(null);
+    private void onFloatingWindowClicked() {
+        removeFloatingWindow();
     }
 
-    private static void fadeOut(View view, Runnable onEnd) {
-        view.animate()
-                .alpha(0f)
-                .setDuration(500)
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        view.setVisibility(View.GONE);
-                        if (onEnd != null) {
-                            onEnd.run();
-                        }
-                    }
-                });
+    private void updateReaction() {
+        ImageView icon = floatingView.findViewById(R.id.type);
+
+        if (reaction != null && icon != null) {
+            icon.setImageDrawable(reaction);
+        }
     }
 
+    private void updateName() {
+        TextView textView = floatingView.findViewById(R.id.name);
 
-    private void onSwipeUp() {
-        if (floatingView != null) {
-            fadeOut(floatingView, () -> {
-                if (windowManager != null) {
-                    windowManager.removeView(floatingView);
-                    floatingView = null;
-                }
-            });
+        if (textView != null) {
+            textView.setText(name);
         }
     }
 
     public static void removeFloatingWindow() {
         if (floatingView != null) {
-            fadeOut(floatingView, () -> {
-                if (windowManager != null) {
-                    windowManager.removeView(floatingView);
-                    floatingView = null;
-                }
-            });
+            if (windowManager != null) {
+                windowManager.removeView(floatingView);
+                floatingView = null;
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-package org.g5.ui.scene;
+package org.g5.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,9 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.g5.overseer.R;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 

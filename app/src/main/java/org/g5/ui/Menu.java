@@ -1,4 +1,4 @@
-package org.g5.ui.scene;
+package org.g5.ui;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -8,7 +8,6 @@ import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -16,15 +15,21 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import org.g5.core.AppUsage;
 import org.g5.core.Data;
 import org.g5.overseer.R;
+import org.g5.pet.Pet;
+import org.g5.util.LineWriter;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import me.grantland.widget.AutofitTextView;
@@ -107,19 +112,104 @@ public class Menu extends AppCompatActivity {
                 findViewById(R.id.monthly_no_data),
         };
 
+        File petData = new File(getFilesDir(), "petData.txt");
+        try {
+            if (!petData.createNewFile()) {
+                petData.createNewFile();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        LineWriter lineWriter = new LineWriter(petData);
+
         EditText petName = findViewById(R.id.petName);
-        limitEditTextToWidth(petName);
+        petName.setText(lineWriter.getLine(0));
         petName.setOnFocusChangeListener((v, hasFocus) -> {
             petName.setCursorVisible(hasFocus);
         });
+        petName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Called before the text is changed
 
-        if ((Login.getAccount()[0].equals("aevan") || Login.getAccount()[0].equals("a")) && Login.getAccount()[1].equals("a")) {
-            findViewById(R.id.reset).setOnClickListener(view -> {
-                try {
-                    Data.deleteDailyFile();
-                    Data.deleteWeeklyFile();
-                    Data.deleteMonthlyFile();
+            }
 
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                int editTextWidth = petName.getWidth();
+                float currentTextWidth = petName.getPaint().measureText(s.toString());
+
+                if (currentTextWidth >= editTextWidth) {
+                    petName.removeTextChangedListener(this);
+                    String trimmedText = s.toString();
+                    while (petName.getPaint().measureText(trimmedText) > editTextWidth && trimmedText.length() > 0) {
+                        trimmedText = trimmedText.substring(0, trimmedText.length() - 1);
+                    }
+                    petName.setText(trimmedText);
+                    petName.setSelection(trimmedText.length());
+                    petName.addTextChangedListener(this);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Called after the text is changed
+                lineWriter.writeLine(s.toString(), 0);
+            }
+        });
+
+        {
+            if ((Login.getAccount()[0].equals("DebugVersion") || Login.getAccount()[0].equals("Developer")) && Login.getAccount()[1].equals("psvm")) {
+                findViewById(R.id.reset).setOnClickListener(view -> {
+                    try {
+                        Data.deleteDailyFile();
+                        Data.deleteWeeklyFile();
+                        Data.deleteMonthlyFile();
+
+                        StringBuilder logData = new StringBuilder();
+                        File[] files = AppUsage.getFiles();
+
+                        logData.append("[]=======LOG START=======[]\n\n");
+                        Log.d("Menu.java!", "[]=======LOG START=======[]");
+
+                        for (int i = 0; i < 3; i++) {
+                            switch (i) {
+                                case 0:
+                                    logData.append("[]=======DAILY=======[]\n");
+                                    Log.d("Menu.java!", "[]=======DAILY=======[]");
+                                    break;
+                                case 1:
+                                    logData.append("[]=======WEEKLY=======[]\n");
+                                    Log.d("Menu.java!", "[]=======DAILY=======[]");
+                                    break;
+                                case 2:
+                                    logData.append("[]=======MONTHLY=======[]\n");
+                                    Log.d("Menu.java!", "[]=======DAILY=======[]");
+                                    break;
+                            }
+                            File file = files[i];
+                            BufferedReader reader;
+                            try {
+                                reader = new BufferedReader(new FileReader(file));
+                                String line;
+                                while ((line = reader.readLine()) != null) {
+                                    logData.append(file.getName()).append(" ").append(line).append("\n");
+                                    Log.d("Menu.java!", file.getName() + " " + line);
+                                }
+                                reader.close();
+                            } catch (IOException e) {
+                                logData.append("Error reading file: ").append(file.getName()).append("\n");
+                            }
+                        }
+
+                        // Set the generated log data to the TextView
+                        findViewById(R.id.scrollViewDebug).setVisibility(View.INVISIBLE);
+                        TextView logTextView = findViewById(R.id.logs);
+                        logTextView.setText(logData.toString());
+                        AppUsage.clearData();
+                    } catch (IOException e) {}
+                });
+                findViewById(R.id.logData).setOnClickListener(view -> {
                     StringBuilder logData = new StringBuilder();
                     File[] files = AppUsage.getFiles();
 
@@ -157,86 +247,44 @@ public class Menu extends AppCompatActivity {
                     }
 
                     // Set the generated log data to the TextView
-                    findViewById(R.id.scrollViewDebug).setVisibility(View.INVISIBLE);
+                    findViewById(R.id.scrollViewDebug).setVisibility(
+                            (findViewById(R.id.scrollViewDebug).getVisibility() == View.INVISIBLE ? View.VISIBLE : View.INVISIBLE)
+                    );
                     TextView logTextView = findViewById(R.id.logs);
                     logTextView.setText(logData.toString());
-                    AppUsage.clearData();
-                } catch (IOException e) {}
-            });
-            findViewById(R.id.logData).setOnClickListener(view -> {
-                StringBuilder logData = new StringBuilder();
-                File[] files = AppUsage.getFiles();
+                });
 
-                logData.append("[]=======LOG START=======[]\n\n");
-                Log.d("Menu.java!", "[]=======LOG START=======[]");
-
-                for (int i = 0; i < 3; i++) {
-                    switch (i) {
-                        case 0:
-                            logData.append("[]=======DAILY=======[]\n");
-                            Log.d("Menu.java!", "[]=======DAILY=======[]");
-                            break;
-                        case 1:
-                            logData.append("[]=======WEEKLY=======[]\n");
-                            Log.d("Menu.java!", "[]=======DAILY=======[]");
-                            break;
-                        case 2:
-                            logData.append("[]=======MONTHLY=======[]\n");
-                            Log.d("Menu.java!", "[]=======DAILY=======[]");
-                            break;
-                    }
-                    File file = files[i];
-                    BufferedReader reader;
-                    try {
-                        reader = new BufferedReader(new FileReader(file));
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            logData.append(file.getName()).append(" ").append(line).append("\n");
-                            Log.d("Menu.java!", file.getName() + " " + line);
-                        }
-                        reader.close();
-                    } catch (IOException e) {
-                        logData.append("Error reading file: ").append(file.getName()).append("\n");
-                    }
-                }
-
-                // Set the generated log data to the TextView
-                findViewById(R.id.scrollViewDebug).setVisibility(
-                        (findViewById(R.id.scrollViewDebug).getVisibility() == View.INVISIBLE ? View.VISIBLE : View.INVISIBLE)
-                );
-                TextView logTextView = findViewById(R.id.logs);
-                logTextView.setText(logData.toString());
-            });
-
-        } else {
-            findViewById(R.id.reset).setVisibility(View.INVISIBLE);
-            findViewById(R.id.logData).setVisibility(View.INVISIBLE);
+            } else {
+                findViewById(R.id.reset).setVisibility(View.INVISIBLE);
+                findViewById(R.id.logData).setVisibility(View.INVISIBLE);
+            }
         }
 
+        new Pet(this);
         popDrawer = findViewById(R.id.popDrawer);
-//        drawerLayout = findViewById(R.id.drawer_layout);
-//        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
-//            @Override
-//            public void onDrawerSlide(View drawerView, float slideOffset) {}
-//
-//            @Override
-//            public void onDrawerOpened(View drawerView) {}
-//
-//            @Override
-//            public void onDrawerClosed(View drawerView) {
-//                drawerLayout.setVisibility(View.INVISIBLE);
-//            }
-//
-//            @Override
-//            public void onDrawerStateChanged(int newState) {}
-//        });
-//        drawerLayout.setVisibility(View.INVISIBLE);
-//
-//        popDrawer.setOnClickListener(view -> {
-//            Log.d("@Menu.java!", "clicked drawer");
-//            drawerLayout.openDrawer(GravityCompat.START);
-//            drawerLayout.setVisibility(View.VISIBLE);
-//        });
+        drawerLayout = findViewById(R.id.drawer_layout);
+        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {}
+
+            @Override
+            public void onDrawerOpened(View drawerView) {}
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                drawerLayout.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {}
+        });
+        drawerLayout.setVisibility(View.INVISIBLE);
+
+        popDrawer.setOnClickListener(view -> {
+            Log.d("@Menu.java!", "clicked drawer");
+            drawerLayout.openDrawer(GravityCompat.START);
+            drawerLayout.setVisibility(View.VISIBLE);
+        });
 
         // Set input filter for pet name EditText
         ((EditText) findViewById(R.id.petName)).setFilters(new InputFilter[]{
@@ -364,36 +412,5 @@ public class Menu extends AppCompatActivity {
     public static void noDataMonthly(boolean noData) {
         if (dataAvailabilityText != null)
             dataAvailabilityText[2].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
-    }
-
-    private void limitEditTextToWidth(EditText editText) {
-        editText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                int editTextWidth = editText.getWidth();
-                float currentTextWidth = editText.getPaint().measureText(s.toString());
-
-                if (currentTextWidth >= editTextWidth) {
-                    editText.removeTextChangedListener(this);
-                    String trimmedText = s.toString();
-                    while (editText.getPaint().measureText(trimmedText) > editTextWidth && trimmedText.length() > 0) {
-                        trimmedText = trimmedText.substring(0, trimmedText.length() - 1);
-                    }
-                    editText.setText(trimmedText);
-                    editText.setSelection(trimmedText.length());
-                    editText.addTextChangedListener(this);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
     }
 }

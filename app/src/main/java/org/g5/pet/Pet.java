@@ -4,7 +4,8 @@ import android.annotation.SuppressLint;
 
 import org.g5.core.AppUsage;
 import org.g5.core.Data;
-import org.g5.ui.scene.Menu;
+import org.g5.ui.Menu;
+import org.g5.util.LineWriter;
 import org.g5.util.Pair;
 import org.g5.util.Time;
 
@@ -37,6 +38,11 @@ public class Pet {
     public Pet(Menu menu) {
         this.menu = menu;
         floatingWindow = new FloatingWindow();
+        new FloatingWindow()
+                .name(new LineWriter(new File(menu.getFilesDir(), "petData.txt")).getLine(0))
+                .message("App Usage")
+                .react(FloatingWindow.DIZZY)
+                .start(menu);
     }
 
     public void start() throws IOException {
@@ -50,7 +56,7 @@ public class Pet {
         if (screenTime > lastDecayTime) {
             floatingWindow
                     .message(hulingTestamento)
-                    .react(Reaction.DYING)
+                    .react(FloatingWindow.DYING)
                     .start(menu);
             startHealthDecay(screenTime);
         }
@@ -59,7 +65,7 @@ public class Pet {
         if (Time.convertToSeconds(highestScreenTime) > Time.hourToSecond(1)) {
             floatingWindow
                     .message(nahilo)
-                    .react(Reaction.DIZZY)
+                    .react(FloatingWindow.DIZZY)
                     .start(menu);
         }
     }

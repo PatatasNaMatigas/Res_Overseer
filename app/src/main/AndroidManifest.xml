@@ -28,7 +28,7 @@
         </activity>
 
         <activity android:name="org.g5.ui.scene.Login" />
-        <activity android:name="org.g5.ui.scene.Menu" />
+        <activity android:name="org.g5.ui.Menu" />
 
         <service
             android:name="org.g5.core.AppUsage"
