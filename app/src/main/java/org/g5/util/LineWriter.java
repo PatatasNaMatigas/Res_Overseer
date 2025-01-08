@@ -1,7 +1,5 @@
 package org.g5.util;
 
-import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -63,9 +61,8 @@ public class LineWriter {
     }
 
     public String getLine(int lineIndex) {
-        Log.d("LineWriter", lines.get(lineIndex));
         if (lineIndex < 0 || lineIndex >= lines.size())
-            return null;
+            return "";
 
         return lines.get(lineIndex);
     }
