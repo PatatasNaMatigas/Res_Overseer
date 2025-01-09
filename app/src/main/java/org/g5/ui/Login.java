@@ -75,7 +75,7 @@ public class Login extends AppCompatActivity {
     }
 
     public static String[] getAccount() {
-        return accountInfo;
+        return (accountInfo != null) ? accountInfo : new String[] {"", ""};
     }
 
     public static void setAccount(String name, String password) {
