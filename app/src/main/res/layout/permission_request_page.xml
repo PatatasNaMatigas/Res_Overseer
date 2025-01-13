@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/permission_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -139,4 +140,132 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <View
+        android:id="@+id/filter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:elevation="2dp"
+        android:background="@color/darken_filter" />
+
+    <View
+        android:id="@+id/permission_view"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:elevation="2dp"
+        android:background="@drawable/rounded_top"
+        app:layout_constraintTop_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/accessibility_permission_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ACCESSIBILITY PERMISSION"
+        android:textAlignment="center"
+        android:fontFamily="@font/citrus"
+        android:textSize="25sp"
+        android:elevation="2dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toTopOf="@id/accessibility_permission_desc"
+        app:layout_constraintTop_toTopOf="@+id/permission_view"
+        app:layout_constraintStart_toStartOf="@+id/permission_view"
+        app:layout_constraintEnd_toEndOf="@+id/permission_view" />
+
+    <TextView
+        android:id="@+id/accessibility_permission_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/why_open_accessibility"
+        android:textAlignment="center"
+        android:fontFamily="@font/itc_avante_gothic"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
+        android:elevation="2dp"
+        android:layout_marginHorizontal="15dp"
+        android:justificationMode="inter_word"
+        app:layout_constraintBottom_toTopOf="@+id/exit_accessibility_perms"
+        app:layout_constraintTop_toBottomOf="@+id/accessibility_permission_title"
+        app:layout_constraintStart_toStartOf="@+id/permission_view"
+        app:layout_constraintEnd_toEndOf="@+id/permission_view" />
+
+    <Button
+        android:id="@+id/exit_accessibility_perms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/unactivated_button_2"
+        android:textColor="@color/opposite"
+        android:text="OK"
+        android:fontFamily="@font/citrus"
+        android:textSize="20sp"
+        android:elevation="2dp"
+        android:paddingHorizontal="27dp"
+        android:paddingVertical="13dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/permission_view"
+        app:layout_constraintTop_toBottomOf="@+id/accessibility_permission_desc"
+        app:layout_constraintStart_toStartOf="@+id/permission_view"
+        app:layout_constraintEnd_toEndOf="@+id/permission_view" />
+
+    <View
+        android:id="@+id/display_over_other_apps_view"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:elevation="2dp"
+        android:background="@drawable/rounded_top"
+        app:layout_constraintTop_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/display_over_other_apps_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="DISPLAY OVER OTHER APPS PERMISSION"
+        android:textAlignment="center"
+        android:fontFamily="@font/citrus"
+        android:elevation="2dp"
+        android:textSize="25sp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/display_over_other_apps_desc"
+        app:layout_constraintTop_toTopOf="@+id/display_over_other_apps_view"
+        app:layout_constraintStart_toStartOf="@+id/display_over_other_apps_view"
+        app:layout_constraintEnd_toEndOf="@+id/display_over_other_apps_view" />
+
+    <TextView
+        android:id="@+id/display_over_other_apps_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/why_open_dooa"
+        android:textAlignment="center"
+        android:elevation="2dp"
+        android:fontFamily="@font/itc_avante_gothic"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="15dp"
+        android:justificationMode="inter_word"
+        app:layout_constraintBottom_toTopOf="@+id/exit_display_over_other_apps_perms"
+        app:layout_constraintTop_toBottomOf="@+id/display_over_other_apps_title"
+        app:layout_constraintStart_toStartOf="@+id/display_over_other_apps_view"
+        app:layout_constraintEnd_toEndOf="@+id/display_over_other_apps_view" />
+
+    <Button
+        android:id="@+id/exit_display_over_other_apps_perms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/unactivated_button_2"
+        android:textColor="@color/opposite"
+        android:text="OK"
+        android:elevation="2dp"
+        android:fontFamily="@font/citrus"
+        android:textSize="20sp"
+        android:paddingHorizontal="27dp"
+        android:paddingVertical="13dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/display_over_other_apps_view"
+        app:layout_constraintTop_toBottomOf="@+id/display_over_other_apps_desc"
+        app:layout_constraintStart_toStartOf="@+id/display_over_other_apps_view"
+        app:layout_constraintEnd_toEndOf="@+id/display_over_other_apps_view" />
 </androidx.constraintlayout.widget.ConstraintLayout>

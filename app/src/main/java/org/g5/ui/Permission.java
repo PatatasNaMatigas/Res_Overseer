@@ -6,7 +6,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.transition.TransitionManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -16,6 +18,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 
 import org.g5.core.AppUsage;
 import org.g5.overseer.Index;
@@ -33,14 +37,16 @@ public class Permission extends AppCompatActivity {
 
     private boolean accessibilityPermission;
     private boolean displayOverOtherAppsPermission;
+    private Button proceed;
+
     private ActivityResultLauncher<Intent> accessibilityPermissionLauncher = registerForActivityResult
             (new ActivityResultContracts.StartActivityForResult(), result -> {
                     if (AccessibilityUtils.isAccessibilityServiceEnabled(this, AppUsage.class)) {
                         accessibilityPermission = checkAccessibilityPermission();
                         if (accessibilityPermission && displayOverOtherAppsPermission) {
-                            findViewById(R.id.proceed).setBackgroundResource(R.drawable.activated_button);
+                            proceed.setBackgroundResource(R.drawable.activated_button);
                         } else {
-                            findViewById(R.id.proceed).setBackgroundResource(R.drawable.unactivated_button);
+                            proceed.setBackgroundResource(R.drawable.unactivated_button);
                         }
                     }
             }
@@ -50,6 +56,8 @@ public class Permission extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.permission_request_page);
+
+        proceed = findViewById(R.id.proceed);
 
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
@@ -64,7 +72,7 @@ public class Permission extends AppCompatActivity {
         accessibilityPermission = checkAccessibilityPermission();
         displayOverOtherAppsPermission = checkDisplayOverOtherAppsPermission();
 
-        findViewById(R.id.proceed).setOnClickListener(view -> {
+        proceed.setOnClickListener(view -> {
             if (checkAccessibilityPermission() && checkDisplayOverOtherAppsPermission()) {
                 resume();
             }
@@ -87,19 +95,108 @@ public class Permission extends AppCompatActivity {
            } else {
                displayOverOtherAppsPermission = checkDisplayOverOtherAppsPermission();
                if (accessibilityPermission && displayOverOtherAppsPermission) {
-                   findViewById(R.id.proceed).setBackgroundResource(R.drawable.activated_button);
+                   proceed.setBackgroundResource(R.drawable.activated_button);
                } else {
-                   findViewById(R.id.proceed).setBackgroundResource(R.drawable.unactivated_button);
+                   proceed.setBackgroundResource(R.drawable.unactivated_button);
                }
            }
         });
 
+        View filter = findViewById(R.id.filter);
 
         if (accessibilityPermission && displayOverOtherAppsPermission) {
-            findViewById(R.id.proceed).setBackgroundResource(R.drawable.activated_button);
+            proceed.setBackgroundResource(R.drawable.activated_button);
         } else {
-            findViewById(R.id.proceed).setBackgroundResource(R.drawable.unactivated_button);
+            proceed.setBackgroundResource(R.drawable.unactivated_button);
         }
+
+        ConstraintLayout constraintLayout = findViewById(R.id.permission_layout);
+
+        final boolean[] on = {false, false};
+
+        findViewById(R.id.permission_help).setOnClickListener(v -> {
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            if (!on[0] && !on[1]) {
+                constraintSet.clear(R.id.permission_view, ConstraintSet.TOP); // Clear top constraint
+                constraintSet.connect(R.id.permission_view, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+                proceed.animate()
+                        .alpha(0f)
+                        .setDuration(300)
+                        .start();
+                proceed.setClickable(false);
+                filter.animate()
+                        .alpha(1f)
+                        .setDuration(300)
+                        .start();
+                on[0] = !on[0];
+            }
+            TransitionManager.beginDelayedTransition(constraintLayout);
+            constraintSet.applyTo(constraintLayout);
+        });
+
+        findViewById(R.id.exit_accessibility_perms).setOnClickListener(v -> {
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            if (on[0]) {
+                constraintSet.clear(R.id.permission_view, ConstraintSet.BOTTOM); // Clear top constraint
+                constraintSet.connect(R.id.permission_view, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+                proceed.animate()
+                        .alpha(1f)
+                        .setDuration(300)
+                        .start();
+                proceed.setClickable(true);
+                filter.animate()
+                        .alpha(0f)
+                        .setDuration(300)
+                        .start();
+                on[0] = !on[0];
+            }
+            TransitionManager.beginDelayedTransition(constraintLayout);
+            constraintSet.applyTo(constraintLayout);
+        });
+
+        findViewById(R.id.display_over_other_apps_help).setOnClickListener(v -> {
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            if (!on[1] && !on[0]) {
+                constraintSet.clear(R.id.display_over_other_apps_view, ConstraintSet.TOP); // Clear top constraint
+                constraintSet.connect(R.id.display_over_other_apps_view, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+                proceed.animate()
+                        .alpha(0f)
+                        .setDuration(300)
+                        .start();
+                proceed.setClickable(false);
+                filter.animate()
+                        .alpha(1f)
+                        .setDuration(300)
+                        .start();
+                on[1] = !on[1];
+            }
+            TransitionManager.beginDelayedTransition(constraintLayout);
+            constraintSet.applyTo(constraintLayout);
+        });
+
+        findViewById(R.id.exit_display_over_other_apps_perms).setOnClickListener(v -> {
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            if (on[1]) {
+                constraintSet.clear(R.id.display_over_other_apps_view, ConstraintSet.BOTTOM); // Clear top constraint
+                constraintSet.connect(R.id.display_over_other_apps_view, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+                proceed.animate()
+                        .alpha(1f)
+                        .setDuration(300)
+                        .start();
+                proceed.setClickable(true);
+                filter.animate()
+                        .alpha(0f)
+                        .setDuration(300)
+                        .start();
+                on[1] = !on[1];
+            }
+            TransitionManager.beginDelayedTransition(constraintLayout);
+            constraintSet.applyTo(constraintLayout);
+        });
     }
 
     private void launchAccessibilitySettings(Intent intent) {

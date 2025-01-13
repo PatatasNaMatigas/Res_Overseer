@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Overseer</string>
     <string name="permission_description">SOME PERMISSIONS ARE REQUIRED TO BE ALLOWED FOR THE APP TO BE FUNCTIONAL, PLEASE ENABLE THE PERMISSIONS BY CLICKING THE BUTTON BELOW.</string>
+    <string name="why_open_accessibility">THE ACCESSIBILITY SETTINGS ALLOWS THE APP TO TRACK TIME SPENT ON AN APP BY RECORDING THE TIME ON WHEN THE USER SWITCHES OR CLOSES AN APP.</string>
+    <string name="why_open_dooa">THE DISPLAY OVER OTHER APPS PERMISSION ALLOWS FOR FLOATING WINDOWS/INTERFACES.</string>
     <string name="tac">Certainly! Below is a sample Terms and Conditions for your app, which is focused on tracking screen time but does not monitor specific app activities. Please ensure that the terms are reviewed by a legal professional to ensure compliance with relevant laws.
 
 Terms and Conditions
