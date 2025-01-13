@@ -1,6 +1,7 @@
 package org.g5.pet;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import org.g5.core.AppUsage;
 import org.g5.core.Data;
@@ -27,47 +28,54 @@ public class Pet {
     private static int regenRatePerMin = 5;
     private static float regenRate = (float) maxHealth / Time.hourToMin(6);
     private static boolean dead = false;
+
+    private static String lastAppToken = "";
+
     private Menu menu;
     private static FloatingWindow floatingWindow;
 
     private static Timer decayTimer;
 
     // Dying message
+    private static String name;
     private static String hulingTestamento = "You've been using your phone for a total of at least 8 hours... I'm starting to lose health T_T";
 
     public Pet(Menu menu) {
         this.menu = menu;
+        name = new LineWriter(new File(menu.getFilesDir(), "petData.txt")).getLine(0);
         floatingWindow = new FloatingWindow();
-        new FloatingWindow()
-                .name(new LineWriter(new File(menu.getFilesDir(), "petData.txt")).getLine(0))
-                .message("App Usage")
-                .react(FloatingWindow.DIZZY)
-                .start(menu);
     }
 
-    public void start() throws IOException {
-        File daily = AppUsage.files[0];
-        Pair<String, int[]> topApp = Data.getHighestScreenTime(daily);
-        int screenTime = Time.convertToSeconds(Data.getScreenTime(daily));
-        String highestAppName = topApp.getValue1();
-        int[] highestScreenTime = topApp.getValue2();
+    // Checks every after app switch
+    public void start() {
+        Pair<String, int[]> lastApp = AppUsage.lastApp;
+        String appName = lastApp.getValue1();
+        int appTime = Time.convertToSeconds(lastApp.getValue2());
+        int screenTime = Time.convertToSeconds(Data.getScreenTime(AppUsage.files[0]));
+        int minimumTime = 10;
 
-        // pet is dying womp womp
-        if (screenTime > lastDecayTime) {
-            floatingWindow
-                    .message(hulingTestamento)
-                    .react(FloatingWindow.DYING)
-                    .start(menu);
-            startHealthDecay(screenTime);
-        }
+        String currentAppToken = appName + appTime;
 
-        String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + screenTime + " on " + highestAppName + ". Maybe take a break??";
-        if (Time.convertToSeconds(highestScreenTime) > Time.hourToSecond(1)) {
-            floatingWindow
-                    .message(nahilo)
-                    .react(FloatingWindow.DIZZY)
-                    .start(menu);
-        }
+//        String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + appTime + " on " + appName + ". Maybe take a break??";
+//        if (appTime >= minimumTime && !currentAppToken.equals(lastAppToken)) {
+//            floatingWindow
+//                    .name(name)
+//                    .message(nahilo)
+//                    .react(FloatingWindow.DIZZY)
+//                    .start(menu);
+//            Log.d("Last app token: ", lastAppToken);
+//            lastAppToken = currentAppToken;
+//            Log.d("Current app token: ", currentAppToken);
+//        }
+//
+//        if (screenTime > lastDecayTime) {
+//            floatingWindow
+//                    .name(name)
+//                    .message(hulingTestamento)
+//                    .react(FloatingWindow.DYING)
+//                    .start(menu);
+//            startHealthDecay(screenTime);
+//        }
     }
 
     public static void updateHealth(int screenTime) {

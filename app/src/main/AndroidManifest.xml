@@ -29,6 +29,7 @@
 
         <activity android:name="org.g5.ui.Login" />
         <activity android:name="org.g5.ui.Menu" />
+        <activity android:name="org.g5.ui.Permission" />
 
         <service
             android:name="org.g5.core.AppUsage"
@@ -43,6 +44,7 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
+
     </application>
 
 </manifest>

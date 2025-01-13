@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
+        android:text="APP PERMISSIONS"
+        android:fontFamily="@font/citrus"
+        android:textSize="35sp"
+        android:textColor="@color/opposite" />
+
+    <TextView
+        android:id="@+id/desc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="15dp"
+        android:fontFamily="@font/itc_avante_gothic"
+        android:justificationMode="inter_word"
+        android:text="@string/permission_description"
+        android:textColor="@color/opposite"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header" />
+
+    <ImageButton
+        android:id="@+id/permission_help"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:background="@color/none"
+        android:layout_marginTop="70dp"
+        android:layout_marginStart="15dp"
+        android:scaleType="centerInside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/desc"
+        app:srcCompat="@drawable/help_dark" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/accessibility_permission"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="23sp"
+        android:text="ACCESSIBILITY PERMISSION"
+        android:textAlignment="viewStart"
+        android:fontFamily="@font/citrus"
+        android:textColor="@color/opposite"
+        android:layout_marginTop="68dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintEnd_toStartOf="@id/grant_accessibility"
+        app:layout_constraintStart_toEndOf="@+id/permission_help"
+        app:layout_constraintTop_toBottomOf="@+id/desc" />
+
+    <Button
+        android:id="@+id/grant_accessibility"
+        android:background="@drawable/unactivated_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GRANT"
+        android:fontFamily="@font/citrus"
+        android:textSize="20sp"
+        android:layout_marginTop="57dp"
+        android:layout_marginEnd="15dp"
+        android:textColor="@color/opposite"
+        android:paddingHorizontal="27dp"
+        android:paddingVertical="13dp"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintTop_toBottomOf="@id/desc"
+        app:layout_constraintStart_toEndOf="@id/accessibility_permission"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageButton
+        android:id="@+id/display_over_other_apps_help"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:background="@color/none"
+        android:layout_marginTop="82dp"
+        android:layout_marginStart="15dp"
+        android:scaleType="centerInside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/permission_help"
+        app:srcCompat="@drawable/help_dark" />
+
+    <me.grantland.widget.AutofitTextView
+        android:id="@+id/display_over_other_apps_permission"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="23sp"
+        android:text="DISPLAY OVER OTHER APPS PERMISSION"
+        android:textAlignment="viewStart"
+        android:fontFamily="@font/citrus"
+        android:textColor="@color/opposite"
+        android:layout_marginTop="80dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintEnd_toStartOf="@id/grant_display_over_other_apps"
+        app:layout_constraintStart_toEndOf="@+id/display_over_other_apps_help"
+        app:layout_constraintTop_toBottomOf="@+id/permission_help" />
+
+    <Button
+        android:id="@+id/grant_display_over_other_apps"
+        android:background="@drawable/unactivated_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GRANT"
+        android:fontFamily="@font/citrus"
+        android:textSize="20sp"
+        android:layout_marginTop="69dp"
+        android:layout_marginEnd="15dp"
+        android:textColor="@color/opposite"
+        android:paddingHorizontal="27dp"
+        android:paddingVertical="13dp"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintTop_toBottomOf="@id/permission_help"
+        app:layout_constraintStart_toEndOf="@id/accessibility_permission"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/proceed"
+        android:background="@drawable/unactivated_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CONTINUE"
+        android:fontFamily="@font/citrus"
+        android:textSize="25sp"
+        android:textColor="@color/opposite"
+        android:paddingHorizontal="40dp"
+        android:paddingVertical="15dp"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,4 +8,9 @@
         <item name="colorPrimaryDark">@color/medj_black</item>
         <item name="colorAccent">@color/medj_black2</item>
     </style>
+
+    <color name="buttonColor">#07EADA</color>
+    <color name="buttonBorderColor">#FFFFFF</color>
+    <color name="opposite">#FFFFFF</color>
+    <color name="unactivatedColor">@color/medj_black</color>
 </resources>

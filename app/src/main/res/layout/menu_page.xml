@@ -11,7 +11,7 @@
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:background="#00000000"
+        android:background="@color/none"
         android:scaleType="centerInside"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -29,95 +29,41 @@
         android:maxLength="7"
         android:textAlignment="center"
         android:textSize="40sp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="76dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toEndOf="@id/popDrawer"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.009" />
+        app:layout_constraintVertical_bias="0.1" />
 
     <ImageView
         android:id="@+id/pet"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/div"
+        android:scaleType="centerInside"
+        app:layout_constraintBottom_toTopOf="@id/petHealth"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/petName"
         app:layout_constraintVertical_bias="0.3"
-        app:srcCompat="@drawable/pet_png" />
-
-    <ImageView
-        android:id="@+id/coinImage"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:scaleType="centerInside"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.95"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.086"
-        app:srcCompat="@drawable/coins" />
+        app:srcCompat="@drawable/pet1" />
 
     <TextView
-        android:id="@+id/coinAmount"
-        android:layout_width="60dp"
-        android:layout_height="15dp"
-        android:fontFamily="@font/segoeuithibd"
-        android:text="100"
-        android:textAlignment="center"
-        android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="@+id/coinImage"
-        app:layout_constraintEnd_toEndOf="@+id/coinImage"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/coinImage"
-        app:layout_constraintTop_toTopOf="@+id/coinImage"
-        app:layout_constraintVertical_bias="0.68" />
-
-    <TextView
-        android:layout_width="60dp"
-        android:layout_height="15dp"
-        android:fontFamily="@font/segoeuithibd"
-        android:text="COINS"
-        android:textAlignment="center"
-        android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="@+id/coinImage"
-        app:layout_constraintEnd_toEndOf="@+id/coinImage"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/coinImage"
-        app:layout_constraintTop_toTopOf="@+id/coinImage"
-        app:layout_constraintVertical_bias="0.9" />
-
-    <ImageView
-        android:id="@+id/healthBar"
-        android:layout_width="60dp"
+        android:id="@+id/petHealth"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:scaleType="fitXY"
-        android:paddingTop="10dp"
-        app:layout_constraintBottom_toTopOf="@id/healthText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.95"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/coinImage"
-        app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/health" />
-
-    <TextView
-        android:id="@+id/healthText"
-        android:layout_width="60dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
         android:fontFamily="@font/segoeuithibd"
-        android:text="HEALTH"
-        android:textAlignment="center"
         android:textColor="@color/health_color"
-        app:layout_constraintBottom_toTopOf="@+id/div"
+        android:textSize="17sp"
+        android:text="HEALTH: 100/100"
+        android:textAlignment="center"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@id/div"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.95"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pet"
+        app:layout_constraintHeight_percent="0.05"/>
 
     <LinearLayout
         android:id="@+id/div"
@@ -662,26 +608,26 @@
             app:layout_constraintTop_toTopOf="parent"/>
     </ScrollView>
 
-        <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/drawer_layout"
+    <androidx.drawerlayout.widget.DrawerLayout
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Main content of the screen -->
+    <FrameLayout
+        android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+    </FrameLayout>
 
-        <!-- Main content of the screen -->
-        <FrameLayout
-            android:id="@+id/content_frame"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </FrameLayout>
-
-        <!-- Navigation drawer menu -->
-        <com.google.android.material.navigation.NavigationView
-            android:id="@+id/navigation_view"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:fitsSystemWindows="true"
-            app:menu="@menu/drawer_menu" />
+    <!-- Navigation drawer menu -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigation_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:menu="@menu/drawer_menu" />
 
     </androidx.drawerlayout.widget.DrawerLayout>
 

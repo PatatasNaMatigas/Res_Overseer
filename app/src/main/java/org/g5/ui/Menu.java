@@ -1,5 +1,6 @@
 package org.g5.ui;
 
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,6 +51,8 @@ public class Menu extends AppCompatActivity {
     private static ImageView[] dailyAppIcons;
     private static ImageView[] weeklyAppIcons;
     private static ImageView[] monthlyAppIcons;
+
+    private static Pet pet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,19 +146,20 @@ public class Menu extends AppCompatActivity {
                 if (currentTextWidth >= editTextWidth) {
                     petName.removeTextChangedListener(this);
                     String trimmedText = s.toString();
-                    while (petName.getPaint().measureText(trimmedText) > editTextWidth && trimmedText.length() > 0) {
+                    while (petName.getPaint().measureText(trimmedText) > editTextWidth && !trimmedText.isEmpty()) {
                         trimmedText = trimmedText.substring(0, trimmedText.length() - 1);
                     }
                     petName.setText(trimmedText);
                     petName.setSelection(trimmedText.length());
                     petName.addTextChangedListener(this);
+
+                    lineWriter.writeLine(trimmedText, 0);
                 }
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 // Called after the text is changed
-                lineWriter.writeLine(s.toString(), 0);
             }
         });
 
@@ -246,7 +251,6 @@ public class Menu extends AppCompatActivity {
                         }
                     }
 
-                    // Set the generated log data to the TextView
                     findViewById(R.id.scrollViewDebug).setVisibility(
                             (findViewById(R.id.scrollViewDebug).getVisibility() == View.INVISIBLE ? View.VISIBLE : View.INVISIBLE)
                     );
@@ -260,7 +264,7 @@ public class Menu extends AppCompatActivity {
             }
         }
 
-        new Pet(this);
+        pet = new Pet(this);
         popDrawer = findViewById(R.id.popDrawer);
         drawerLayout = findViewById(R.id.drawer_layout);
         drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
@@ -290,7 +294,31 @@ public class Menu extends AppCompatActivity {
         ((EditText) findViewById(R.id.petName)).setFilters(new InputFilter[]{
                 new InputFilter.AllCaps()
         });
+
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            // Dark mode
+            ((ImageView) findViewById(R.id.pet)).setImageResource(R.drawable.pet1);
+        } else {
+            // Light mode
+            ((ImageView) findViewById(R.id.pet)).setImageResource(R.drawable.pet2);
+        }
     }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        int nightModeFlags = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            ((ImageView) findViewById(R.id.pet)).setImageResource(R.drawable.pet1);
+        } else if (nightModeFlags == Configuration.UI_MODE_NIGHT_NO) {
+            ((ImageView) findViewById(R.id.pet)).setImageResource(R.drawable.pet2);
+        }
+    }
+
 
     public static void setAppNameDaily(String[] app) {
         if (app == null) return;
@@ -398,7 +426,6 @@ public class Menu extends AppCompatActivity {
         }
     }
 
-
     public static void noDataDaily(boolean noData) {
         if (dataAvailabilityText != null)
             dataAvailabilityText[0].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
@@ -412,5 +439,10 @@ public class Menu extends AppCompatActivity {
     public static void noDataMonthly(boolean noData) {
         if (dataAvailabilityText != null)
             dataAvailabilityText[2].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    public static void checkForNotif() {
+        if (pet != null)
+            pet.start();
     }
 }

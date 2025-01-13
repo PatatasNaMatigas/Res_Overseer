@@ -13,8 +13,10 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.g5.core.AppUsage;
+import org.g5.pet.FloatingWindow;
 import org.g5.ui.Login;
 import org.g5.ui.Menu;
+import org.g5.ui.Permission;
 import org.g5.util.AccessibilityUtils;
 
 import java.io.BufferedReader;
@@ -31,9 +33,7 @@ public class Index extends AppCompatActivity {
                 if (AccessibilityUtils.isAccessibilityServiceEnabled(Index.this, AppUsage.class)) {
                     resume();
                 } else {
-                    Toast.makeText(this, "Accessibility service still not enabled", Toast.LENGTH_LONG).show();
-                    Intent settingsIntent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                    launchAccessibilitySettings(settingsIntent);
+
                 }
             }
     );
@@ -45,10 +45,8 @@ public class Index extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         fileDirectory = getFilesDirectory();
 
-        if (!AccessibilityUtils.isAccessibilityServiceEnabled(this, AppUsage.class)) {
-            Toast.makeText(this, "Please enable accessibility permission in this app", Toast.LENGTH_LONG).show();
-            Intent settingsIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-            accessibilityPermissionLauncher.launch(settingsIntent);
+        if (!AccessibilityUtils.isAccessibilityServiceEnabled(this, AppUsage.class) || !FloatingWindow.permissionGranted(this)) {
+            startActivity(new Intent(this, Permission.class));
         } else {
             resume();
         }
@@ -70,9 +68,7 @@ public class Index extends AppCompatActivity {
         }
     }
 
-    private void launchAccessibilitySettings(Intent intent) {
-        accessibilityPermissionLauncher.launch(intent);
-    }
+
 
     public static File getFilesDirectory() {
         return fileDirectory;

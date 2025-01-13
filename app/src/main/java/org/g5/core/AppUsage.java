@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 
 import org.g5.ui.Menu;
+import org.g5.ui.Permission;
 import org.g5.util.Pair;
 import org.g5.util.Time;
 import org.g5.util.TriMap;
@@ -33,7 +34,7 @@ public class AppUsage extends AccessibilityService {
     private static int[] date;
     private static final int[] breakTimeArray = new int[] {0, 0, 0};
     private static final TriMap<String, int[], int[]>[] data = new TriMap[3];
-    private static final Pair<String, int[]> lastApp = new Pair<>();
+    public static final Pair<String, int[]> lastApp = new Pair<>();
     public static File[] files = new File[3];
     private static final String[][][] top3Apps = new String[3][3][];
     private static final String[][] top3AppName = new String[3][];
@@ -106,11 +107,11 @@ public class AppUsage extends AccessibilityService {
                             ldt.getYear()
                     };
 
+                    int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
                     if (!Arrays.equals(date, dateNow)) {
                         // pag kinabukasan na (adik mag phone)
 
                         // hatiin yung time ng before and after 00:00:00
-                        int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
                         /*
                             example
                             totalTime = 00:41:20
@@ -138,7 +139,6 @@ public class AppUsage extends AccessibilityService {
                         date = dateNow;
                     } else {
                         // pag ndi kinabukasan (duhh)
-                        int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
 
                         for (int i = 0; i < data.length; i++)
                             data[i].newEntry(lastApp.getValue1(), totalTime, currentTime);
@@ -155,6 +155,8 @@ public class AppUsage extends AccessibilityService {
                     throw new RuntimeException(e);
                 }
                 refreshContent();
+            } else {
+                Menu.checkForNotif();
             }
         }
     }
@@ -179,6 +181,12 @@ public class AppUsage extends AccessibilityService {
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(screenStateReceiver);
+    }
+    
+    @Override
+    public boolean onUnbind(Intent intent) {
+        startActivity(new Intent(this, Permission.class));
+        return super.onUnbind(intent);
     }
 
     public static void initData(boolean overwrite, Context context) {
