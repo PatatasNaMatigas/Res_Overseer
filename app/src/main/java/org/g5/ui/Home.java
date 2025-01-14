@@ -15,14 +15,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 import org.g5.core.AppUsage;
 import org.g5.core.Data;
@@ -31,17 +28,14 @@ import org.g5.pet.Pet;
 import org.g5.util.LineWriter;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import me.grantland.widget.AutofitTextView;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
-public class Menu extends AppCompatActivity {
+public class Home extends AppCompatActivity {
     private static AutofitTextView[] dataAvailabilityText;
 
     private ImageButton popDrawer;
@@ -60,7 +54,7 @@ public class Menu extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.menu_page);
+        setContentView(R.layout.home_page);
 
         // Initialize app name arrays
         dailyAppNames = new TextView[]{

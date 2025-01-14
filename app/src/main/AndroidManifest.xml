@@ -5,7 +5,6 @@
     <!-- for getting the name and icon of detected apps, we need this permission please 🥹🙏 -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
@@ -32,7 +31,7 @@
             android:name="org.g5.ui.Login"
             android:screenOrientation="portrait"/>
         <activity
-            android:name="org.g5.ui.Menu"
+            android:name="org.g5.ui.Home"
             android:screenOrientation="portrait"/>
         <activity
             android:name="org.g5.ui.Permission"

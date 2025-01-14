@@ -1,17 +1,14 @@
 package org.g5.pet;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 
 import org.g5.core.AppUsage;
 import org.g5.core.Data;
-import org.g5.ui.Menu;
+import org.g5.ui.Home;
 import org.g5.util.LineWriter;
-import org.g5.util.Pair;
 import org.g5.util.Time;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -32,7 +29,7 @@ public class Pet {
     private static String lastApp = "";
     private int accumulatedTime = 0;
 
-    private Menu menu;
+    private Home home;
     private static FloatingWindow floatingWindow;
 
     private static Timer decayTimer;
@@ -41,9 +38,9 @@ public class Pet {
     private static String name;
     private static String hulingTestamento = "You've been using your phone for a total of at least 8 hours... I'm starting to lose health T_T";
 
-    public Pet(Menu menu) {
-        this.menu = menu;
-        name = new LineWriter(new File(menu.getFilesDir(), "petData.txt")).getLine(0);
+    public Pet(Home home) {
+        this.home = home;
+        name = new LineWriter(new File(home.getFilesDir(), "petData.txt")).getLine(0);
         floatingWindow = new FloatingWindow();
     }
 
@@ -58,13 +55,13 @@ public class Pet {
             accumulatedTime = appTime;
         }
 
-        String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " on " + AppUsage.getAppName(appName, menu) + ". Maybe take a break??";
+        String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " on " + AppUsage.getAppName(appName, home) + ". Maybe take a break??";
         if (accumulatedTime >= minimumTime) {
             floatingWindow
                     .name(name)
                     .message(nahilo)
                     .react(FloatingWindow.DIZZY)
-                    .start(menu);
+                    .start(home);
             Pet.lastApp = appName;
         }
 //

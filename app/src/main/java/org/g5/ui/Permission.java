@@ -7,11 +7,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -22,7 +20,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
 import org.g5.core.AppUsage;
-import org.g5.overseer.Index;
 import org.g5.overseer.R;
 import org.g5.pet.FloatingWindow;
 import org.g5.util.AccessibilityUtils;
@@ -240,7 +237,7 @@ public class Permission extends AppCompatActivity {
 
             if (username != null && password != null && username.contains("[un]:") && password.contains("[pw]:")) {
                 Login.setAccount(username, password);
-                startActivity(new Intent(Permission.this, Menu.class));
+                startActivity(new Intent(Permission.this, Home.class));
             } else {
                 startActivity(new Intent(Permission.this, Login.class));
             }

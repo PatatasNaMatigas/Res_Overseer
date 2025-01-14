@@ -4,8 +4,6 @@ package org.g5.overseer;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -15,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.g5.core.AppUsage;
 import org.g5.pet.FloatingWindow;
 import org.g5.ui.Login;
-import org.g5.ui.Menu;
+import org.g5.ui.Home;
 import org.g5.ui.Permission;
 import org.g5.util.AccessibilityUtils;
 
@@ -58,7 +56,7 @@ public class Index extends AppCompatActivity {
 
             if (username != null && password != null && username.contains("[un]:") && password.contains("[pw]:")) {
                 Login.setAccount(username, password);
-                startActivity(new Intent(Index.this, Menu.class));
+                startActivity(new Intent(Index.this, Home.class));
             } else {
                 startActivity(new Intent(Index.this, Login.class));
             }

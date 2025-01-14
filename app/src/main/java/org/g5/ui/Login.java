@@ -2,7 +2,6 @@ package org.g5.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -67,7 +66,7 @@ public class Login extends AppCompatActivity {
                             passwordField.getText().toString()
                     };
                 } catch (IOException e) {}
-                startActivity(new Intent(Login.this, Menu.class));
+                startActivity(new Intent(Login.this, Home.class));
             } else {
                 findViewById(R.id.missingFieldText).setVisibility(View.VISIBLE);
             }

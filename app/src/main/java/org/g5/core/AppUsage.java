@@ -17,7 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.g5.ui.Menu;
+import org.g5.ui.Home;
 import org.g5.ui.Permission;
 import org.g5.util.Pair;
 import org.g5.util.Time;
@@ -139,7 +139,7 @@ public class AppUsage extends AccessibilityService {
 
                         date = dateNow;
 
-                        Menu.checkForNotif(lastApp.getValue1(), Time.convertToSeconds(after));
+                        Home.checkForNotif(lastApp.getValue1(), Time.convertToSeconds(after));
                     } else {
                         // pag ndi kinabukasan (duhh)
 
@@ -233,29 +233,29 @@ public class AppUsage extends AccessibilityService {
 
     public static void refreshContent() {
         Log.d("AppUsage.class", "test: " + Arrays.toString(top3AppName[0]));
-        Menu.setAppNameDaily(top3AppName[0]);
-        Menu.setAppTimeDaily(top3Apps[0]);
-        Menu.setAppIconDaily(appIcon[0]);
+        Home.setAppNameDaily(top3AppName[0]);
+        Home.setAppTimeDaily(top3Apps[0]);
+        Home.setAppIconDaily(appIcon[0]);
         try {
-            Menu.noDataDaily(top3Apps[0] == null);
+            Home.noDataDaily(top3Apps[0] == null);
         } catch (Exception e) {
-            Menu.noDataDaily(false);
+            Home.noDataDaily(false);
         }
-        Menu.setAppNameWeekly(top3AppName[1]);
-        Menu.setAppTimeWeekly(top3Apps[1]);
-        Menu.setAppIconWeekly(appIcon[1]);
+        Home.setAppNameWeekly(top3AppName[1]);
+        Home.setAppTimeWeekly(top3Apps[1]);
+        Home.setAppIconWeekly(appIcon[1]);
         try {
-            Menu.noDataWeekly(top3Apps[1] == null);
+            Home.noDataWeekly(top3Apps[1] == null);
         } catch (Exception e) {
-            Menu.noDataWeekly(false);
+            Home.noDataWeekly(false);
         }
-        Menu.setAppNameMonthly(top3AppName[2]);
-        Menu.setAppTimeMonthly(top3Apps[2]);
-        Menu.setAppIconMonthly(appIcon[2]);
+        Home.setAppNameMonthly(top3AppName[2]);
+        Home.setAppTimeMonthly(top3Apps[2]);
+        Home.setAppIconMonthly(appIcon[2]);
         try {
-            Menu.noDataMonthly(top3Apps[2] == null);
+            Home.noDataMonthly(top3Apps[2] == null);
         } catch (Exception e) {
-            Menu.noDataMonthly(false);
+            Home.noDataMonthly(false);
         }
     }
 
