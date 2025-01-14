@@ -29,7 +29,8 @@ public class Pet {
     private static float regenRate = (float) maxHealth / Time.hourToMin(6);
     private static boolean dead = false;
 
-    private static String lastAppToken = "";
+    private static String lastApp = "";
+    private int accumulatedTime = 0;
 
     private Menu menu;
     private static FloatingWindow floatingWindow;
@@ -47,26 +48,25 @@ public class Pet {
     }
 
     // Checks every after app switch
-    public void start() {
-        Pair<String, int[]> lastApp = AppUsage.lastApp;
-        String appName = lastApp.getValue1();
-        int appTime = Time.convertToSeconds(lastApp.getValue2());
+    public void start(String appName, int appTime) {
         int screenTime = Time.convertToSeconds(Data.getScreenTime(AppUsage.files[0]));
         int minimumTime = 10;
 
-        String currentAppToken = appName + appTime;
+        if (Pet.lastApp.equals(appName)) {
+            accumulatedTime += appTime;
+        } else {
+            accumulatedTime = appTime;
+        }
 
-//        String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + appTime + " on " + appName + ". Maybe take a break??";
-//        if (appTime >= minimumTime && !currentAppToken.equals(lastAppToken)) {
-//            floatingWindow
-//                    .name(name)
-//                    .message(nahilo)
-//                    .react(FloatingWindow.DIZZY)
-//                    .start(menu);
-//            Log.d("Last app token: ", lastAppToken);
-//            lastAppToken = currentAppToken;
-//            Log.d("Current app token: ", currentAppToken);
-//        }
+        String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " on " + AppUsage.getAppName(appName, menu) + ". Maybe take a break??";
+        if (accumulatedTime >= minimumTime) {
+            floatingWindow
+                    .name(name)
+                    .message(nahilo)
+                    .react(FloatingWindow.DIZZY)
+                    .start(menu);
+            Pet.lastApp = appName;
+        }
 //
 //        if (screenTime > lastDecayTime) {
 //            floatingWindow

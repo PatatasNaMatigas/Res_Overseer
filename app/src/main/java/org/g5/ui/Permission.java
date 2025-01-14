@@ -125,6 +125,7 @@ public class Permission extends AppCompatActivity {
                         .setDuration(300)
                         .start();
                 proceed.setClickable(false);
+                findViewById(R.id.grant_accessibility).setClickable(false);
                 filter.animate()
                         .alpha(1f)
                         .setDuration(300)
@@ -146,6 +147,7 @@ public class Permission extends AppCompatActivity {
                         .setDuration(300)
                         .start();
                 proceed.setClickable(true);
+                findViewById(R.id.grant_accessibility).setClickable(true);
                 filter.animate()
                         .alpha(0f)
                         .setDuration(300)
@@ -167,6 +169,7 @@ public class Permission extends AppCompatActivity {
                         .setDuration(300)
                         .start();
                 proceed.setClickable(false);
+                findViewById(R.id.grant_accessibility).setClickable(false);
                 filter.animate()
                         .alpha(1f)
                         .setDuration(300)
@@ -188,6 +191,7 @@ public class Permission extends AppCompatActivity {
                         .setDuration(300)
                         .start();
                 proceed.setClickable(true);
+                findViewById(R.id.grant_accessibility).setClickable(true);
                 filter.animate()
                         .alpha(0f)
                         .setDuration(300)
@@ -197,6 +201,10 @@ public class Permission extends AppCompatActivity {
             TransitionManager.beginDelayedTransition(constraintLayout);
             constraintSet.applyTo(constraintLayout);
         });
+
+        if (accessibilityPermission && displayOverOtherAppsPermission) {
+            resume();
+        }
     }
 
     private void launchAccessibilitySettings(Intent intent) {

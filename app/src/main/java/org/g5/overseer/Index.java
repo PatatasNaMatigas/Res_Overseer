@@ -38,7 +38,6 @@ public class Index extends AppCompatActivity {
             }
     );
 
-    // TODO
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +66,6 @@ public class Index extends AppCompatActivity {
             startActivity(new Intent(Index.this, Login.class));
         }
     }
-
-
 
     public static File getFilesDirectory() {
         return fileDirectory;

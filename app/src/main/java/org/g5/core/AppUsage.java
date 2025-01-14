@@ -15,6 +15,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.g5.ui.Menu;
 import org.g5.ui.Permission;
@@ -137,6 +138,8 @@ public class AppUsage extends AccessibilityService {
                             data[i].newEntry(lastApp.getValue1(), after, currentTime);
 
                         date = dateNow;
+
+                        Menu.checkForNotif(lastApp.getValue1(), Time.convertToSeconds(after));
                     } else {
                         // pag ndi kinabukasan (duhh)
 
@@ -155,8 +158,6 @@ public class AppUsage extends AccessibilityService {
                     throw new RuntimeException(e);
                 }
                 refreshContent();
-            } else {
-                Menu.checkForNotif();
             }
         }
     }
@@ -270,6 +271,16 @@ public class AppUsage extends AccessibilityService {
 
     private String getAppName(String packageName) {
         PackageManager packageManager = getPackageManager();
+        try {
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
+            return packageManager.getApplicationLabel(appInfo).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            return packageName;
+        }
+    }
+
+    public static String getAppName(String packageName, AppCompatActivity appCompatActivity) {
+        PackageManager packageManager = appCompatActivity.getPackageManager();
         try {
             ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
             return packageManager.getApplicationLabel(appInfo).toString();

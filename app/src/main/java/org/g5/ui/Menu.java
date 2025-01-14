@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -17,6 +19,8 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -41,7 +45,6 @@ public class Menu extends AppCompatActivity {
     private static AutofitTextView[] dataAvailabilityText;
 
     private ImageButton popDrawer;
-    private static DrawerLayout drawerLayout;
     private static TextView[] dailyAppNames;
     private static TextView[] weeklyAppNames;
     private static TextView[] monthlyAppNames;
@@ -265,29 +268,57 @@ public class Menu extends AppCompatActivity {
         }
 
         pet = new Pet(this);
+
+        boolean[] on = {false};
+        ConstraintLayout constraintLayout = findViewById(R.id.menu_layout);
+
+        Button exitDrawer = findViewById(R.id.exit_drawer);
+
         popDrawer = findViewById(R.id.popDrawer);
-        drawerLayout = findViewById(R.id.drawer_layout);
-        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {}
-
-            @Override
-            public void onDrawerOpened(View drawerView) {}
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                drawerLayout.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onDrawerStateChanged(int newState) {}
-        });
-        drawerLayout.setVisibility(View.INVISIBLE);
-
         popDrawer.setOnClickListener(view -> {
-            Log.d("@Menu.java!", "clicked drawer");
-            drawerLayout.openDrawer(GravityCompat.START);
-            drawerLayout.setVisibility(View.VISIBLE);
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            constraintSet.clear(R.id.drawer, ConstraintSet.END); // Clear top constraint
+            constraintSet.connect(R.id.drawer, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+            popDrawer.animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .start();
+            popDrawer.setClickable(false);
+            findViewById(R.id.filter).animate()
+                    .alpha(1f)
+                    .setDuration(300)
+                    .start();
+
+            constraintSet.clear(R.id.exit_drawer, ConstraintSet.START);
+            constraintSet.connect(R.id.exit_drawer, ConstraintSet.START, R.id.drawer, ConstraintSet.END);
+            constraintSet.connect(R.id.exit_drawer, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+            TransitionManager.beginDelayedTransition(constraintLayout);
+            constraintSet.applyTo(constraintLayout);
+        });
+
+        exitDrawer.setOnClickListener(view -> {
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            constraintSet.clear(R.id.drawer, ConstraintSet.START);
+            constraintSet.connect(R.id.drawer, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.START);
+            popDrawer.animate()
+                    .alpha(1f)
+                    .setStartDelay(300)
+                    .setDuration(300)
+                    .start();
+            popDrawer.setClickable(true);
+            findViewById(R.id.filter).animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .start();
+
+            constraintSet.clear(R.id.exit_drawer, ConstraintSet.START);
+            constraintSet.clear(R.id.exit_drawer, ConstraintSet.END);
+            constraintSet.connect(R.id.exit_drawer, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.END);
+            TransitionManager.beginDelayedTransition(constraintLayout);
+            constraintSet.applyTo(constraintLayout);
         });
 
         // Set input filter for pet name EditText
@@ -441,8 +472,8 @@ public class Menu extends AppCompatActivity {
             dataAvailabilityText[2].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
     }
 
-    public static void checkForNotif() {
+    public static void checkForNotif(String appName, int appTime) {
         if (pet != null)
-            pet.start();
+            pet.start(appName, appTime);
     }
 }
