@@ -61,13 +61,6 @@ public class Summary extends AppCompatActivity {
             i++;
         } while (i < apps.getKeys().size());
 
-        new AppEntry(this)
-                .setName("Long ass name niganiganiganiganiganiganiga")
-                .setTimeSpent("10h 20m 19s")
-                .setTimeRecordedRange("1:00pm - 2:00pm")
-                .setIcon(AppCompatResources.getDrawable(this, R.drawable.sample))
-                .build(lastView);
-
         ((ImageView) findViewById(R.id.app_icon)).setImageDrawable(topAppIcon);
         ((TextView) findViewById(R.id.app_name)).setText(AppUsage.getAppName(this, topApp));
 
