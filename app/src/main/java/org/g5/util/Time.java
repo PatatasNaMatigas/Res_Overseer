@@ -150,4 +150,8 @@ public class Time {
     public static String formatTime(int[] time) {
         return time[0] + "h " + time[1] + "m " + time[2] + "s";
     }
+
+    public static String formatClockTime(int[] time, String period) {
+        return time[0] + ":" + ((time[1] < 10) ? " " + time[1] : time[1]) + period;
+    }
 }

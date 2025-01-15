@@ -198,5 +198,37 @@ public class Data {
             screenTime = Time.getTimeCombination(screenTime, entry.getValue());
         return screenTime;
     }
+
+    public static TriMap<String, Integer, int[]> sortAppsDescending(TriMap<String, int[], int[]> apps) {
+        // Extract keys and initialize a list to hold apps with total times
+        List<String> keys = apps.getKeys();
+        List<Pair<String, Integer>> appTimeList = new ArrayList<>();
+
+        // Compute total time for each app and store it in the list
+        for (String key : keys) {
+            int totalTimeInSeconds = Time.convertToSeconds(computeData(apps, key));
+            appTimeList.add(new Pair<>(key, totalTimeInSeconds));
+        }
+
+        // Sort the list in descending order based on total time
+        appTimeList.sort((a, b) -> Integer.compare(b.getValue2(), a.getValue2()));
+
+        // Create a new TriMap and populate it with sorted apps
+        TriMap<String, Integer, int[]> sortedApps = new TriMap<>();
+        for (Pair<String, Integer> entry : appTimeList) {
+            String appName = entry.getValue1();
+            int totalTime = entry.getValue2();
+
+            // Get the original entry from the unsorted TriMap
+            Family<String, Pair<int[], int[]>> originalEntry = apps.getEntry(appName);
+            for (Pair<int[], int[]> child : originalEntry.getChildren()) {
+                sortedApps.newEntry(appName, totalTime, child.getValue1());
+            }
+        }
+
+        return sortedApps;
+    }
+
+
 }
 

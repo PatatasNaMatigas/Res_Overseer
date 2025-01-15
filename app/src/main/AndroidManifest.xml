@@ -36,6 +36,9 @@
         <activity
             android:name="org.g5.ui.Permission"
             android:screenOrientation="portrait" />
+        <activity
+            android:name="org.g5.ui.Summary"
+            android:screenOrientation="portrait" />
 
         <service
             android:name="org.g5.core.AppUsage"

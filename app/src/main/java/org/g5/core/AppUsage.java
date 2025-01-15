@@ -34,7 +34,7 @@ public class AppUsage extends AccessibilityService {
 
     private static int[] date;
     private static final int[] breakTimeArray = new int[] {0, 0, 0};
-    private static final TriMap<String, int[], int[]>[] data = new TriMap[3];
+    public static final TriMap<String, int[], int[]>[] data = new TriMap[3];
     public static final Pair<String, int[]> lastApp = new Pair<>();
     public static File[] files = new File[3];
     private static final String[][][] top3Apps = new String[3][3][];
@@ -269,6 +269,16 @@ public class AppUsage extends AccessibilityService {
         }
     }
 
+    public static Drawable getAppIcon(AppCompatActivity appCompatActivity, String packageName) {
+        PackageManager packageManager = appCompatActivity.getPackageManager();
+        try {
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
+            return packageManager.getApplicationIcon(appInfo).getCurrent();
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
+    }
+
     private String getAppName(String packageName) {
         PackageManager packageManager = getPackageManager();
         try {
@@ -279,7 +289,7 @@ public class AppUsage extends AccessibilityService {
         }
     }
 
-    public static String getAppName(String packageName, AppCompatActivity appCompatActivity) {
+    public static String getAppName(AppCompatActivity appCompatActivity, String packageName) {
         PackageManager packageManager = appCompatActivity.getPackageManager();
         try {
             ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);

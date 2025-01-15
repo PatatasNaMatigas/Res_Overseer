@@ -80,6 +80,12 @@ public class Permission extends AppCompatActivity {
                Toast.makeText(this, "Please enable accessibility permission in this app", Toast.LENGTH_LONG).show();
                Intent settings = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
                launchAccessibilitySettings(settings);
+           } else {
+               accessibilityPermission = checkAccessibilityPermission();
+               if (accessibilityPermission && displayOverOtherAppsPermission)
+                   proceed.setBackgroundResource(R.drawable.activated_button);
+               else
+                   proceed.setBackgroundResource(R.drawable.unactivated_button);
            }
         });
 

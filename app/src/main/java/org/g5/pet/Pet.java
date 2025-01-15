@@ -55,7 +55,7 @@ public class Pet {
             accumulatedTime = appTime;
         }
 
-        String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " on " + AppUsage.getAppName(appName, home) + ". Maybe take a break??";
+        String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " on " + AppUsage.getAppName(home, appName) + ". Maybe take a break??";
         if (accumulatedTime >= minimumTime) {
             floatingWindow
                     .name(name)

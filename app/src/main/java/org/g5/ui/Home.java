@@ -1,5 +1,6 @@
 package org.g5.ui;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -263,7 +264,6 @@ public class Home extends AppCompatActivity {
 
         pet = new Pet(this);
 
-        boolean[] on = {false};
         ConstraintLayout constraintLayout = findViewById(R.id.menu_layout);
 
         Button exitDrawer = findViewById(R.id.exit_drawer);
@@ -315,6 +315,29 @@ public class Home extends AppCompatActivity {
             constraintSet.applyTo(constraintLayout);
         });
 
+        findViewById(R.id.home).setOnClickListener(view -> {
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            constraintSet.clear(R.id.drawer, ConstraintSet.START);
+            constraintSet.connect(R.id.drawer, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.START);
+            popDrawer.animate()
+                    .alpha(1f)
+                    .setStartDelay(300)
+                    .setDuration(300)
+                    .start();
+            popDrawer.setClickable(true);
+            findViewById(R.id.filter).animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .start();
+
+            constraintSet.clear(R.id.exit_drawer, ConstraintSet.START);
+            constraintSet.clear(R.id.exit_drawer, ConstraintSet.END);
+            constraintSet.connect(R.id.exit_drawer, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.END);
+            TransitionManager.beginDelayedTransition(constraintLayout);
+            constraintSet.applyTo(constraintLayout);
+        });
+
         // Set input filter for pet name EditText
         ((EditText) findViewById(R.id.petName)).setFilters(new InputFilter[]{
                 new InputFilter.AllCaps()
@@ -329,6 +352,10 @@ public class Home extends AppCompatActivity {
             // Light mode
             ((ImageView) findViewById(R.id.pet)).setImageResource(R.drawable.pet2);
         }
+
+        findViewById(R.id.summary).setOnClickListener(view -> {
+            startActivity(new Intent(this, Summary.class));
+        });
     }
 
     @Override
