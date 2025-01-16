@@ -373,7 +373,7 @@
         android:background="@color/buttonBorderColor"
         app:layout_constraintStart_toStartOf="@id/drawer"
         app:layout_constraintEnd_toEndOf="@id/drawer"
-        app:layout_constraintTop_toBottomOf="@id/mental_health_data" />
+        app:layout_constraintTop_toTopOf="@id/account_icon" />
 
     <ImageView
         android:id="@+id/account_icon"
