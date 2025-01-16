@@ -627,7 +627,7 @@
         android:background="?attr/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toStartOf="parent" />
 
 
     <Button
@@ -732,5 +732,50 @@
         app:layout_constraintStart_toEndOf="@id/summary_icon"
         app:layout_constraintEnd_toEndOf="@id/drawer"
         app:layout_constraintTop_toBottomOf="@id/summary" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:background="@color/buttonBorderColor"
+        app:layout_constraintStart_toStartOf="@id/drawer"
+        app:layout_constraintEnd_toEndOf="@id/drawer"
+        app:layout_constraintTop_toBottomOf="@id/mental_health_data" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:background="@color/buttonBorderColor"
+        app:layout_constraintStart_toStartOf="@id/drawer"
+        app:layout_constraintEnd_toEndOf="@id/drawer"
+        app:layout_constraintTop_toBottomOf="@id/mental_health_data" />
+
+    <ImageView
+        android:id="@+id/account_icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/account"
+        android:scaleX="0.6"
+        android:scaleY="0.6"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintTop_toTopOf="@+id/account"
+        app:layout_constraintStart_toStartOf="@+id/drawer"
+        app:layout_constraintBottom_toBottomOf="@id/account" />
+
+    <Button
+        android:id="@+id/account"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/none"
+        android:text="Account"
+        android:fontFamily="@font/citrus"
+        android:paddingTop="4dp"
+        android:paddingStart="20dp"
+        android:textSize="30sp"
+        android:gravity="start|center"
+        app:layout_constraintStart_toEndOf="@id/summary_icon"
+        app:layout_constraintEnd_toEndOf="@id/drawer"
+        app:layout_constraintBottom_toBottomOf="@id/drawer" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
