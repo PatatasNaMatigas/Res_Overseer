@@ -61,8 +61,10 @@ public class Permission extends AppCompatActivity {
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
             // Dark mode
             ((ImageButton) findViewById(R.id.permission_help)).setImageResource(R.drawable.help_dark);
+            ((ImageButton) findViewById(R.id.display_over_other_apps_help)).setImageResource(R.drawable.help_dark);
         } else {
             // Light mode
+            ((ImageButton) findViewById(R.id.permission_help)).setImageResource(R.drawable.help_light);
             ((ImageButton) findViewById(R.id.display_over_other_apps_help)).setImageResource(R.drawable.help_light);
         }
 

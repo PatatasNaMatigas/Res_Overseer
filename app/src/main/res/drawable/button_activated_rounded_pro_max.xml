@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/buttonBorderColor" />
+    <solid android:color="@color/opposite" />
     <size
         android:width="100dp"
         android:height="20dp" />
@@ -12,5 +12,5 @@
 
     <stroke
         android:width="3dp"
-        android:color="?attr/colorPrimary" />
+        android:color="@color/buttonBorderColor" />
 </shape>

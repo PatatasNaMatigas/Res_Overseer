@@ -119,10 +119,18 @@ public class AppUsage extends AccessibilityService {
                             currentTime = 00:20:19
 
                             before = 24:00:00 - lastApp.getValue2();
-                            after = totalTime - before;
+                            after = new int[] {
+                                ldt.getHour(),
+                                ldt.getMinute(),
+                                ldt.getSeconds()
+                            };
                          */
-                        int[] before = Time.getTimeCombination(totalTime, lastApp.getValue2());
-                        int[] after = Time.getTimeDifference(Time.MIDNIGHT, before);
+                        int[] before = Time.getTimeDifference(Time.MIDNIGHT, lastApp.getValue2());
+                        int[] after = new int[] {
+                                ldt.getHour(),
+                                ldt.getMinute(),
+                                ldt.getSecond()
+                        };
 
                         for (int i = 0; i < data.length; i++)
                             data[i].newEntry(lastApp.getValue1(), before, currentTime);
