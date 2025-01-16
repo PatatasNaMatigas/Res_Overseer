@@ -113,9 +113,9 @@ public class Summary extends AppCompatActivity {
         };
 
         Drawable[] appIcon = new Drawable[]{
-                AppUsage.getAppIcon(this, apps.getKeys().get(0)),
-                AppUsage.getAppIcon(this, apps.getKeys().get(1)),
-                AppUsage.getAppIcon(this, apps.getKeys().get(2)),
+                (apps.getKeys().isEmpty()) ? null : AppUsage.getAppIcon(this, apps.getKeys().get(0)),
+                (apps.getKeys().size() > 1) ? AppUsage.getAppIcon(this, apps.getKeys().get(1)) : null,
+                (apps.getKeys().size() > 1) ? AppUsage.getAppIcon(this, apps.getKeys().get(2)) : null,
         };
 
         LocalDate localDate = LocalDate.of(date[2], date[1], date[0]);
