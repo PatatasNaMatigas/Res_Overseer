@@ -734,6 +734,7 @@
         app:layout_constraintTop_toBottomOf="@id/summary" />
 
     <View
+        android:id="@+id/line1"
         android:layout_width="0dp"
         android:layout_height="2dp"
         android:background="@color/buttonBorderColor"
@@ -742,6 +743,7 @@
         app:layout_constraintTop_toBottomOf="@id/mental_health_data" />
 
     <View
+        android:id="@+id/line2"
         android:layout_width="0dp"
         android:layout_height="2dp"
         android:background="@color/buttonBorderColor"
