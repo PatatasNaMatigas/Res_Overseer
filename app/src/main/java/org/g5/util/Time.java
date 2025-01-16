@@ -1,12 +1,22 @@
 package org.g5.util;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import org.g5.core.Data;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class Time {
@@ -103,6 +113,16 @@ public class Time {
     }
 
     @SuppressLint("NewApi")
+    public static int[] ldToDateArray(LocalDate localDateTime) {
+        return new int[]{
+                localDateTime.getDayOfMonth(),
+                localDateTime.getMonthValue(),
+                localDateTime.getYear(),
+        };
+    }
+
+
+    @SuppressLint("NewApi")
     public static int[] ldtToArray(LocalDateTime localDateTime) {
         return new int[]{
                 localDateTime.getHour(),
@@ -154,4 +174,35 @@ public class Time {
     public static String formatClockTime(int[] time, String period) {
         return time[0] + ":" + ((time[1] < 10) ? " " + time[1] : time[1]) + period;
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static List<LocalDate> getCurrentWeekDaysUntilToday() {
+        List<LocalDate> daysOfWeek = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        DayOfWeek firstDayOfWeek = DayOfWeek.MONDAY;
+        LocalDate startOfWeek = today.with(firstDayOfWeek);
+
+        for (LocalDate date = today; !date.isBefore(startOfWeek); date = date.minusDays(1)) {
+            daysOfWeek.add(date);
+        }
+
+        Collections.reverse(daysOfWeek);
+
+        return daysOfWeek;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static String getMonthName(int month) {
+        return Month.of(month).getDisplayName(java.time.format.TextStyle.FULL, Locale.ENGLISH);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static String getDayOfWeek(int year, int month, int dayOfMonth) {
+        // Create a LocalDate object
+        LocalDate date = LocalDate.of(year, month, dayOfMonth);
+
+        // Get the day of the week and return its display name
+        return date.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+    }
+
 }

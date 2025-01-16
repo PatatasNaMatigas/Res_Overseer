@@ -219,7 +219,34 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/apps"/>
+                android:id="@+id/daily_apps"/>
+
+        </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Weekly data layout -->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/weekly_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/weekly"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ScrollView
+            android:id="@+id/weekly_apps_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/weekly_apps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
         </ScrollView>
 
@@ -322,6 +349,7 @@
         android:paddingStart="20dp"
         android:textSize="30sp"
         android:gravity="start|center"
+        android:textColor="@color/buttonColor"
         app:layout_constraintStart_toEndOf="@id/summary_icon"
         app:layout_constraintEnd_toEndOf="@id/drawer"
         app:layout_constraintTop_toBottomOf="@id/home" />
@@ -334,6 +362,7 @@
         android:scaleX="0.6"
         android:elevation="2dp"
         android:scaleY="0.6"
+        android:textColor="@color/unactivatedTextColor"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintTop_toBottomOf="@+id/summary"
         app:layout_constraintStart_toStartOf="@+id/drawer"
@@ -373,7 +402,7 @@
         android:background="@color/buttonBorderColor"
         app:layout_constraintStart_toStartOf="@id/drawer"
         app:layout_constraintEnd_toEndOf="@id/drawer"
-        app:layout_constraintTop_toTopOf="@id/account_icon" />
+        app:layout_constraintBottom_toTopOf="@id/account" />
 
     <ImageView
         android:id="@+id/account_icon"

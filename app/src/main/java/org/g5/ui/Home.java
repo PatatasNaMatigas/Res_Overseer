@@ -50,6 +50,7 @@ public class Home extends AppCompatActivity {
     private static ImageView[] weeklyAppIcons;
     private static ImageView[] monthlyAppIcons;
 
+    private String trimmedText = "";
     private static Pet pet;
 
     @Override
@@ -143,16 +144,18 @@ public class Home extends AppCompatActivity {
 
                 if (currentTextWidth >= editTextWidth) {
                     petName.removeTextChangedListener(this);
-                    String trimmedText = s.toString();
+                    trimmedText = s.toString();
                     while (petName.getPaint().measureText(trimmedText) > editTextWidth && !trimmedText.isEmpty()) {
                         trimmedText = trimmedText.substring(0, trimmedText.length() - 1);
                     }
                     petName.setText(trimmedText);
                     petName.setSelection(trimmedText.length());
                     petName.addTextChangedListener(this);
-
                     lineWriter.writeLine(trimmedText, 0);
+                } else {
+                    lineWriter.writeLine(s.toString(), 0);
                 }
+                Log.d("TestNIganiga", lineWriter.getLine(0));
             }
 
             @Override

@@ -83,7 +83,7 @@ public class Data {
 
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             while ((line = bufferedReader.readLine()) != null) {
-                String[] parts = null;
+                String[] parts;
                 String appName;
                 String[] timeParts;
                 String[] timeRecordParts;
@@ -229,6 +229,9 @@ public class Data {
         return sortedApps;
     }
 
-
+    public static File getFileByDate(Context context, int[] date) {
+        String formattedDate = String.format("%d_%02d_%02d.txt", date[0], date[1], date[2] % 100);
+        return new File(context.getFilesDir(), formattedDate);
+    }
 }
 
