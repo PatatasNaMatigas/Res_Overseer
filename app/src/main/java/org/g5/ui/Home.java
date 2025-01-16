@@ -155,7 +155,6 @@ public class Home extends AppCompatActivity {
                 } else {
                     lineWriter.writeLine(s.toString(), 0);
                 }
-                Log.d("TestNIganiga", lineWriter.getLine(0));
             }
 
             @Override
@@ -176,21 +175,17 @@ public class Home extends AppCompatActivity {
                         File[] files = AppUsage.getFiles();
 
                         logData.append("[]=======LOG START=======[]\n\n");
-                        Log.d("Menu.java!", "[]=======LOG START=======[]");
 
                         for (int i = 0; i < 3; i++) {
                             switch (i) {
                                 case 0:
                                     logData.append("[]=======DAILY=======[]\n");
-                                    Log.d("Menu.java!", "[]=======DAILY=======[]");
                                     break;
                                 case 1:
                                     logData.append("[]=======WEEKLY=======[]\n");
-                                    Log.d("Menu.java!", "[]=======DAILY=======[]");
                                     break;
                                 case 2:
                                     logData.append("[]=======MONTHLY=======[]\n");
-                                    Log.d("Menu.java!", "[]=======DAILY=======[]");
                                     break;
                             }
                             File file = files[i];
@@ -200,7 +195,6 @@ public class Home extends AppCompatActivity {
                                 String line;
                                 while ((line = reader.readLine()) != null) {
                                     logData.append(file.getName()).append(" ").append(line).append("\n");
-                                    Log.d("Menu.java!", file.getName() + " " + line);
                                 }
                                 reader.close();
                             } catch (IOException e) {
@@ -220,21 +214,17 @@ public class Home extends AppCompatActivity {
                     File[] files = AppUsage.getFiles();
 
                     logData.append("[]=======LOG START=======[]\n\n");
-                    Log.d("Menu.java!", "[]=======LOG START=======[]");
 
                     for (int i = 0; i < 3; i++) {
                         switch (i) {
                             case 0:
                                 logData.append("[]=======DAILY=======[]\n");
-                                Log.d("Menu.java!", "[]=======DAILY=======[]");
                                 break;
                             case 1:
                                 logData.append("[]=======WEEKLY=======[]\n");
-                                Log.d("Menu.java!", "[]=======DAILY=======[]");
                                 break;
                             case 2:
                                 logData.append("[]=======MONTHLY=======[]\n");
-                                Log.d("Menu.java!", "[]=======DAILY=======[]");
                                 break;
                         }
                         File file = files[i];
@@ -244,7 +234,6 @@ public class Home extends AppCompatActivity {
                             String line;
                             while ((line = reader.readLine()) != null) {
                                 logData.append(file.getName()).append(" ").append(line).append("\n");
-                                Log.d("Menu.java!", file.getName() + " " + line);
                             }
                             reader.close();
                         } catch (IOException e) {

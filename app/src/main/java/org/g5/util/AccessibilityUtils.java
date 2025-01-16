@@ -36,9 +36,7 @@ public class AccessibilityUtils {
                     return true;
                 }
             }
-        } catch (Exception e) {
-            Log.d("CODE DEBUG", e.getLocalizedMessage());
-        }
+        } catch (Exception e) {}
         return false;
     }
 

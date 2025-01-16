@@ -74,16 +74,13 @@ public class Summary extends AppCompatActivity {
         List<LocalDate> ld = Time.getCurrentWeekDaysUntilToday();
         WeeklyAppEntry weeklyAppEntry = null;
         for (LocalDate date : ld) {
-            Log.d("CheckData", Arrays.toString(Time.ldToDateArray(date)));
             weeklyAppEntry = createWeeklyAppEntry(weeklyAppEntry, Time.ldToDateArray(date));
         }
     }
 
     private WeeklyAppEntry createWeeklyAppEntry(WeeklyAppEntry weeklyAppEntry, int[] date) {
         File fileByDate = Data.getFileByDate(this, date);
-        Log.d("CheckFiles", fileByDate.getName() + " " + AppUsage.files[0].getName());
         if (!fileByDate.exists()) {
-            Log.d("CurrentFile", fileByDate.getName());
             return null;
         }
         TriMap<String, Integer, int[]> apps = Data.sortAppsDescending(Data.getDataFromFile(fileByDate));
@@ -114,7 +111,6 @@ public class Summary extends AppCompatActivity {
                 )
                         : "",
         };
-        Log.d("AppNiga", app[0]);
 
         Drawable[] appIcon = new Drawable[]{
                 AppUsage.getAppIcon(this, apps.getKeys().get(0)),
