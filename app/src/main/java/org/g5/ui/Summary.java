@@ -10,6 +10,7 @@ import android.transition.TransitionManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -115,7 +116,7 @@ public class Summary extends AppCompatActivity {
         Drawable[] appIcon = new Drawable[]{
                 (apps.getKeys().isEmpty()) ? null : AppUsage.getAppIcon(this, apps.getKeys().get(0)),
                 (apps.getKeys().size() > 1) ? AppUsage.getAppIcon(this, apps.getKeys().get(1)) : null,
-                (apps.getKeys().size() > 2) ? AppUsage.getAppIcon(this, apps.getKeys().get(2)) : null,
+                (apps.getKeys().size() > 2)  ? AppUsage.getAppIcon(this, apps.getKeys().get(2)) : null,
         };
 
         LocalDate localDate = LocalDate.of(date[2], date[1], date[0]);
@@ -352,14 +353,18 @@ public class Summary extends AppCompatActivity {
             view.setBackground(AppCompatResources.getDrawable(appCompatActivity, frameId));
             view.setId(viewId);
             ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.MATCH_PARENT, 200
+                    ConstraintLayout.LayoutParams.MATCH_PARENT, 0
             );
             params.topMargin = 30;
             params.leftMargin = 30;
             params.rightMargin = 30;
-            if (lastView != null) params.topToBottom = lastView.getView().getId();
+            if (lastView != null)
+                params.topToBottom = lastView.getView().getId();
+            else
+                params.topToTop = ConstraintSet.PARENT_ID;
             params.startToStart = ConstraintSet.PARENT_ID;
             params.endToEnd = ConstraintSet.PARENT_ID;
+            params.bottomToBottom = rangeId;
             cLayout.addView(view, params);
 
             ImageView icon = new ImageView(appCompatActivity);
@@ -369,10 +374,10 @@ public class Summary extends AppCompatActivity {
                     140, 0
             );
             iconParams.topMargin = 20;
-            iconParams.bottomMargin = 80;
+            iconParams.bottomMargin = 40;
             iconParams.startToStart = viewId;
-            iconParams.topToTop = viewId;
-            iconParams.bottomToBottom = viewId;
+            iconParams.topToTop = nameId;
+            iconParams.bottomToBottom = rangeId;
             cLayout.addView(icon, iconParams);
 
             TextView name = new TextView(appCompatActivity);
@@ -391,7 +396,7 @@ public class Summary extends AppCompatActivity {
             nameParams.topMargin = 5;
             nameParams.bottomToTop = timeId;
             nameParams.startToEnd = iconId;
-            nameParams.topToTop = iconId;
+            nameParams.topToTop = viewId;
             nameParams.endToEnd = viewId;
             cLayout.addView(name, nameParams);
 
@@ -504,15 +509,20 @@ public class Summary extends AppCompatActivity {
             view = new View(appCompatActivity);
             view.setBackground(AppCompatResources.getDrawable(appCompatActivity, frameId));
             view.setId(viewId);
+            view.setPadding(0, 0, 0, 30);
             ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.MATCH_PARENT, 200
+                    ConstraintLayout.LayoutParams.MATCH_PARENT, 0
             );
             params.topMargin = 30;
             params.leftMargin = 30;
             params.rightMargin = 30;
-            if (lastView != null) params.topToBottom = lastView.getView().getId();
+            if (lastView != null)
+                params.topToBottom = lastView.getView().getId();
+            else
+                params.topToTop = ConstraintSet.PARENT_ID;
             params.startToStart = ConstraintSet.PARENT_ID;
             params.endToEnd = ConstraintSet.PARENT_ID;
+            params.bottomToBottom = dayId;
             cLayout.addView(view, params);
 
             TextView dateTextView = new TextView(appCompatActivity);
