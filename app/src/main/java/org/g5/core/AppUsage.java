@@ -34,7 +34,7 @@ public class AppUsage extends AccessibilityService {
 
     private static int[] date;
     private static final int[] breakTimeArray = new int[] {0, 0, 0};
-    public static final TriMap<String, int[], int[]>[] data = new TriMap[3];
+    private static final TriMap<String, int[], int[]>[] data = new TriMap[3];
     public static final Pair<String, int[]> lastApp = new Pair<>();
     public static File[] files = new File[3];
     private static final String[][][] top3Apps = new String[3][3][];
@@ -84,6 +84,7 @@ public class AppUsage extends AccessibilityService {
                 throw new RuntimeException(e);
             }
             boolean isAnApp = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0 && (appInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 0;
+            isAnApp = true;
 
             // finalize app time
             if (isAnApp) {

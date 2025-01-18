@@ -23,10 +23,13 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -36,12 +39,13 @@ import java.util.concurrent.TimeUnit;
 import org.g5.core.AppUsage;
 import org.g5.core.Data;
 import org.g5.overseer.R;
+import org.g5.ui.adapters.DailyAppAdapter;
+import org.g5.ui.model.DailyAppModel;
 import org.g5.util.Time;
 import org.g5.util.TriMap;
 
 import java.time.LocalDateTime;
 
-@RequiresApi(api = Build.VERSION_CODES.O)
 public class Summary extends AppCompatActivity {
 
     @Override
@@ -49,26 +53,33 @@ public class Summary extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.summary_page);
 
-        TriMap<String, Integer, int[]> apps = Data.sortAppsDescending(AppUsage.data[0]);
+        TriMap<String, Integer, int[]> apps = Data.sortAppsDescending(Data.getDataFromFile(AppUsage.getFiles()[0]));
 
-        DailyAppEntry lastView = null;
-        int i = 0;
-        String topApp = apps.getKeys().get(i);
+        String topApp = apps.getKeys().get(0);
         Drawable topAppIcon = AppUsage.getAppIcon(this, topApp);
         ((ImageView) findViewById(R.id.app_icon)).setImageDrawable(topAppIcon);
         ((TextView) findViewById(R.id.app_name)).setText(AppUsage.getAppName(this, topApp));
-        do {
-            String app = apps.getKeys().get(i);
-            int[] time = Time.convertSecondsToArray(apps.getEntry(app).getChildren().get(0).getValue1());
-            String appTime = Time.formatTime(time);
-            lastView = new DailyAppEntry(this)
-                    .setName(AppUsage.getAppName(this, app))
-                    .setTimeSpent(appTime)
-                    .setTimeRecordedRange("1:00pm - 2:00pm")
-                    .setIcon(AppUsage.getAppIcon(this, app))
-                    .build(lastView);
-            i++;
-        } while (i < apps.getKeys().size());
+
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+
+        DailyAppModel lastView = null;
+        List<DailyAppModel> appEntries = new ArrayList<>();
+        for (String appName : apps.getKeys()) {
+            Drawable icon = AppUsage.getAppIcon(this, appName);
+            int[] time = Time.convertSecondsToArray(apps.getEntry(appName).getChildren().get(0).getValue1());
+            String timeSpent = Time.formatTime(time);
+            appEntries.add(lastView = new DailyAppModel(
+                    lastView,
+                    AppUsage.getAppName(this, appName),
+                    timeSpent,
+                    "1:00pm - 2:00pm",
+                    icon)
+            );
+        }
+
+        DailyAppAdapter adapter = new DailyAppAdapter(appEntries);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
 
         initUi();
 
@@ -133,14 +144,13 @@ public class Summary extends AppCompatActivity {
 
     private void initUi() {
         LocalDateTime localDateTime = LocalDateTime.now();
-        boolean am = (localDateTime.getHour() >= 12);
-        int[] time = new int[] {
-                am ? localDateTime.getHour() - 12 : localDateTime.getHour(),
-                localDateTime.getMinute()
-        };
-        ((TextView) findViewById(R.id.time)).setText(Time.formatClockTime(time, am ? "am" : "pm"));
-        String day = localDateTime.getDayOfMonth() + "";
-        ((TextView) findViewById(R.id.day)).setText(day);
+        boolean am = (localDateTime.getHour() < 12);
+        String h = (!am ? localDateTime.getHour() - 12 : localDateTime.getHour()) + "";
+        String m = (localDateTime.getMinute() > 9) ? localDateTime.getMinute() + "" : ("0" + localDateTime.getMinute());
+        String time = h + ":" + m + (am ? "am" : "pm");
+
+        ((TextView) findViewById(R.id.time)).setText(time);
+        ((TextView) findViewById(R.id.day)).setText(String.valueOf(localDateTime.getDayOfMonth()));
         ((TextView) findViewById(R.id.month)).setText(localDateTime.getMonth().toString());
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -152,7 +162,7 @@ public class Summary extends AppCompatActivity {
             scheduler.scheduleAtFixedRate (() -> {
                 LocalDateTime currentTime = LocalDateTime.now();
 
-                boolean morning = (currentTime.getHour() >= 12);
+                boolean morning = (currentTime.getHour() > 12);
                 String hour = (morning ? currentTime.getHour() - 12 : currentTime.getHour()) + "";
                 String minute = (currentTime.getMinute() > 9) ? currentTime.getMinute() + "" : ("0" + currentTime.getMinute());
                 String timeString = hour + ":" + minute + (morning ? "am" : "pm");
@@ -253,6 +263,7 @@ public class Summary extends AppCompatActivity {
 
         findViewById(R.id.home).setOnClickListener(view -> {
             startActivity(new Intent(this, Home.class));
+            finish();
         });
 
         Button dailyId = findViewById(R.id.daily);
@@ -282,160 +293,6 @@ public class Summary extends AppCompatActivity {
         });
     }
 
-    private class DailyAppEntry {
-
-        private View view;
-        private String name = "";
-        private String timeSpent = "";
-        private String timeRecordedRange = "";
-        private final AppCompatActivity appCompatActivity;
-        private Drawable icon;
-        private int code = 0;
-
-        public DailyAppEntry(AppCompatActivity appCompatActivity) {
-            this.appCompatActivity = appCompatActivity;
-        }
-
-        public DailyAppEntry setName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public DailyAppEntry setIcon(Drawable icon) {
-            this.icon = icon;
-            return this;
-        }
-
-        public DailyAppEntry setTimeSpent(String timeSpent) {
-            this.timeSpent = timeSpent;
-            return this;
-        }
-
-        public DailyAppEntry setTimeRecordedRange(String timeRecordedRange) {
-            this.timeRecordedRange = timeRecordedRange;
-            return this;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public View getView() {
-            return view;
-        }
-
-        public DailyAppEntry build(DailyAppEntry lastView) {
-            Typeface citrus = ResourcesCompat.getFont(appCompatActivity, R.font.citrus);
-            ConstraintLayout cLayout = appCompatActivity.findViewById(R.id.daily_apps);
-
-            int viewId = View.generateViewId();
-            int iconId = View.generateViewId();
-            int nameId = View.generateViewId();
-            int timeId = View.generateViewId();
-            int rangeId = View.generateViewId();
-
-            code = (lastView != null)
-                    ? (lastView.getCode() < 2)
-                    ? lastView.getCode() + 1
-                    : 0
-                    : 0;
-
-            int frameId;
-
-            if (code == 0)
-                frameId = R.drawable.rounded_corner_variant_2;
-            else if (code == 1)
-                frameId = R.drawable.rounded_corner_variant_3;
-            else
-                frameId = R.drawable.rounded_corner_variant_4;
-
-            view = new View(appCompatActivity);
-            view.setBackground(AppCompatResources.getDrawable(appCompatActivity, frameId));
-            view.setId(viewId);
-            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.MATCH_PARENT, 0
-            );
-            params.topMargin = 30;
-            params.leftMargin = 30;
-            params.rightMargin = 30;
-            if (lastView != null)
-                params.topToBottom = lastView.getView().getId();
-            else
-                params.topToTop = ConstraintSet.PARENT_ID;
-            params.startToStart = ConstraintSet.PARENT_ID;
-            params.endToEnd = ConstraintSet.PARENT_ID;
-            params.bottomToBottom = rangeId;
-            cLayout.addView(view, params);
-
-            ImageView icon = new ImageView(appCompatActivity);
-            icon.setId(iconId);
-            icon.setImageDrawable(this.icon);
-            ConstraintLayout.LayoutParams iconParams = new ConstraintLayout.LayoutParams(
-                    140, 0
-            );
-            iconParams.topMargin = 20;
-            iconParams.bottomMargin = 40;
-            iconParams.startToStart = viewId;
-            iconParams.topToTop = nameId;
-            iconParams.bottomToBottom = rangeId;
-            cLayout.addView(icon, iconParams);
-
-            TextView name = new TextView(appCompatActivity);
-            name.setId(nameId);
-            name.setText(this.name);
-            name.setTypeface(citrus);
-            name.setTextSize(20);
-            name.setEllipsize(TextUtils.TruncateAt.END);
-            name.setSingleLine(true);
-            name.setMaxLines(1);
-            name.setTextColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams nameParams = new ConstraintLayout.LayoutParams(
-                    0, ConstraintLayout.LayoutParams.WRAP_CONTENT
-            );
-            nameParams.rightMargin = 20;
-            nameParams.topMargin = 5;
-            nameParams.bottomToTop = timeId;
-            nameParams.startToEnd = iconId;
-            nameParams.topToTop = viewId;
-            nameParams.endToEnd = viewId;
-            cLayout.addView(name, nameParams);
-
-            TextView time = new TextView(appCompatActivity);
-            time.setId(timeId);
-            time.setText(this.timeSpent);
-            time.setTypeface(citrus);
-            time.setTextSize(10);
-            time.setTextColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams timeParams = new ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT
-            );
-            timeParams.rightMargin = 20;
-            timeParams.bottomToTop = rangeId;
-            timeParams.startToEnd = iconId;
-            timeParams.topToBottom = nameId;
-            cLayout.addView(time, timeParams);
-
-            TextView range = new TextView(appCompatActivity);
-            range.setId(rangeId);
-            range.setText(this.timeRecordedRange);
-            range.setTypeface(citrus);
-            range.setTextSize(25);
-            range.setTextColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams rangeParams = new ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT
-            );
-            rangeParams.topMargin = 10;
-            rangeParams.rightMargin = 20;
-            rangeParams.bottomMargin = 20;
-            rangeParams.startToEnd = iconId;
-            rangeParams.topToBottom = timeId;
-            rangeParams.bottomToBottom = viewId;
-            cLayout.addView(range, rangeParams);
-
-            return this;
-        }
-    }
-
     private class WeeklyAppEntry {
 
         private final AppCompatActivity appCompatActivity;
@@ -444,9 +301,11 @@ public class Summary extends AppCompatActivity {
         private String[] date;
         private Drawable[] icon;
         private int code = 0;
+        private final Typeface citrus;
 
         private WeeklyAppEntry(AppCompatActivity appCompatActivity) {
             this.appCompatActivity = appCompatActivity;
+            citrus = ResourcesCompat.getFont(appCompatActivity, R.font.citrus);
         }
 
         public WeeklyAppEntry setTimeSpent(String[] timeSpent) {
@@ -474,7 +333,6 @@ public class Summary extends AppCompatActivity {
         }
 
         public WeeklyAppEntry build(WeeklyAppEntry lastView) {
-            Typeface citrus = ResourcesCompat.getFont(appCompatActivity, R.font.citrus);
             ConstraintLayout cLayout = appCompatActivity.findViewById(R.id.weekly_apps);
 
             int viewId = View.generateViewId();

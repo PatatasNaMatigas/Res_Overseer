@@ -73,7 +73,9 @@ public class Permission extends AppCompatActivity {
 
         proceed.setOnClickListener(view -> {
             if (checkAccessibilityPermission() && checkDisplayOverOtherAppsPermission()) {
+                proceed.setBackgroundResource(R.drawable.activated_button);
                 resume();
+                finish();
             }
         });
 

@@ -347,6 +347,7 @@ public class Home extends AppCompatActivity {
 
         findViewById(R.id.summary).setOnClickListener(view -> {
             startActivity(new Intent(this, Summary.class));
+            finish();
         });
     }
 

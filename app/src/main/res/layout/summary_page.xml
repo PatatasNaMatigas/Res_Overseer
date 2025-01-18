@@ -206,22 +206,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/div_vertical" />
 
-        <ScrollView
-            android:id="@+id/daily_apps_container"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/div_horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/daily_apps"/>
-
-        </ScrollView>
+            app:layout_constraintEnd_toEndOf="parent"
+            android:scrollbars="vertical" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -432,5 +426,6 @@
         app:layout_constraintStart_toEndOf="@id/summary_icon"
         app:layout_constraintEnd_toEndOf="@id/drawer"
         app:layout_constraintBottom_toBottomOf="@id/drawer" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
