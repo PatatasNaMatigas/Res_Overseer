@@ -7,10 +7,12 @@ import androidx.annotation.RequiresApi;
 
 import org.g5.core.Data;
 
+import java.io.File;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -175,7 +177,6 @@ public class Time {
         return time[0] + ":" + ((time[1] < 10) ? " " + time[1] : time[1]) + period;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public static List<LocalDate> getCurrentWeekDaysUntilToday() {
         List<LocalDate> daysOfWeek = new ArrayList<>();
         LocalDate today = LocalDate.now();
@@ -191,18 +192,27 @@ public class Time {
         return daysOfWeek;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public static String getMonthName(int month) {
-        return Month.of(month).getDisplayName(java.time.format.TextStyle.FULL, Locale.ENGLISH);
+    public static List<LocalDate> getMonths(File directory) {
+        List<LocalDate> dates = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyy");
+
+        LocalDate currentDate = LocalDate.now();
+
+        while (true) {
+            // Format the current date as MMyy
+            String formattedDate = currentDate.format(formatter);
+            File file = new File(directory, formattedDate + ".txt");
+
+            if (file.exists()) {
+                dates.add(currentDate);
+                currentDate = currentDate.plusMonths(1);
+            } else {
+                break;
+            }
+        }
+
+        Collections.reverse(dates);
+
+        return dates;
     }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public static String getDayOfWeek(int year, int month, int dayOfMonth) {
-        // Create a LocalDate object
-        LocalDate date = LocalDate.of(year, month, dayOfMonth);
-
-        // Get the day of the week and return its display name
-        return date.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-    }
-
 }

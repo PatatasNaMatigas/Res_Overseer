@@ -1,6 +1,7 @@
 package org.g5.pet;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import org.g5.core.AppUsage;
 import org.g5.core.Data;
@@ -49,20 +50,20 @@ public class Pet {
         int screenTime = Time.convertToSeconds(Data.getScreenTime(AppUsage.files[0]));
         int minimumTime = 10;
 
+        String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " on " + AppUsage.getAppName(home, appName) + ". Maybe take a break??";
         if (Pet.lastApp.equals(appName)) {
             accumulatedTime += appTime;
+            Log.d("Accumulated time", Time.formatTime(Time.convertSecondsToArray(accumulatedTime)));
+            if (accumulatedTime >= minimumTime) {
+                floatingWindow
+                        .name(name)
+                        .message(nahilo)
+                        .react(FloatingWindow.DIZZY)
+                        .start(home);
+                Pet.lastApp = appName;
+            }
         } else {
             accumulatedTime = appTime;
-        }
-
-        String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " on " + AppUsage.getAppName(home, appName) + ". Maybe take a break??";
-        if (accumulatedTime >= minimumTime) {
-            floatingWindow
-                    .name(name)
-                    .message(nahilo)
-                    .react(FloatingWindow.DIZZY)
-                    .start(home);
-            Pet.lastApp = appName;
         }
 //
 //        if (screenTime > lastDecayTime) {

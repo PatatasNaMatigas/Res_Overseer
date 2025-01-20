@@ -1,28 +1,21 @@
 package org.g5.ui;
 
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.transition.TransitionManager;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,17 +23,22 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.g5.core.AppUsage;
 import org.g5.core.Data;
+import org.g5.overseer.Index;
 import org.g5.overseer.R;
 import org.g5.ui.adapters.DailyAppAdapter;
+import org.g5.ui.adapters.MonthlyAppAdapter;
+import org.g5.ui.adapters.WeeklyAppAdapter;
 import org.g5.ui.model.DailyAppModel;
+import org.g5.ui.model.MonthlyAppModel;
+import org.g5.ui.model.WeeklyAppModel;
 import org.g5.util.Time;
 import org.g5.util.TriMap;
 
@@ -53,44 +51,82 @@ public class Summary extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.summary_page);
 
-        TriMap<String, Integer, int[]> apps = Data.sortAppsDescending(Data.getDataFromFile(AppUsage.getFiles()[0]));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            TriMap<String, Integer, int[]> apps = Data.sortAppsDescending(Data.getDataFromFile(AppUsage.getFiles()[0]));
+            String topApp = (!apps.getKeys().isEmpty()) ? apps.getKeys().get(0) : "";
+            Drawable topAppIcon = AppUsage.getAppIcon(this, topApp);
 
-        String topApp = apps.getKeys().get(0);
-        Drawable topAppIcon = AppUsage.getAppIcon(this, topApp);
-        ((ImageView) findViewById(R.id.app_icon)).setImageDrawable(topAppIcon);
-        ((TextView) findViewById(R.id.app_name)).setText(AppUsage.getAppName(this, topApp));
+            RecyclerView dailyRecyclerView = findViewById(R.id.daily_recycler_view);
 
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+            DailyAppModel lastView = null;
+            List<DailyAppModel> dailyAppModels = new ArrayList<>();
+            for (String appName : apps.getKeys()) {
+                Drawable icon = AppUsage.getAppIcon(this, appName);
+                int[] time = Time.convertSecondsToArray(apps.getEntry(appName).getChildren().get(0).getValue1());
+                String timeSpent = Time.formatTime(time);
+                dailyAppModels.add(lastView = new DailyAppModel(
+                        lastView,
+                        AppUsage.getAppName(this, appName),
+                        timeSpent,
+                        icon)
+                );
+            }
 
-        DailyAppModel lastView = null;
-        List<DailyAppModel> appEntries = new ArrayList<>();
-        for (String appName : apps.getKeys()) {
-            Drawable icon = AppUsage.getAppIcon(this, appName);
-            int[] time = Time.convertSecondsToArray(apps.getEntry(appName).getChildren().get(0).getValue1());
-            String timeSpent = Time.formatTime(time);
-            appEntries.add(lastView = new DailyAppModel(
-                    lastView,
-                    AppUsage.getAppName(this, appName),
-                    timeSpent,
-                    "1:00pm - 2:00pm",
-                    icon)
-            );
+            List<LocalDate> ld = Time.getCurrentWeekDaysUntilToday();
+            WeeklyAppModel weeklyAppEntry = null;
+            List<WeeklyAppModel> weeklyAppModels = new ArrayList<>();
+            for (LocalDate date : ld) {
+                weeklyAppEntry = createWeeklyAppEntry(weeklyAppEntry, Time.ldToDateArray(date));
+                if (weeklyAppEntry == null)
+                    continue;
+                weeklyAppModels.add(weeklyAppEntry);
+            }
+
+            RecyclerView weeklyRecyclerView = findViewById(R.id.weekly_recycler_view);
+
+            runOnUiThread(() -> {
+                initUi();
+                ((ImageView) findViewById(R.id.app_icon)).setImageDrawable(topAppIcon);
+                ((TextView) findViewById(R.id.app_name)).setText(AppUsage.getAppName(this, topApp));
+
+                DailyAppAdapter adapter = new DailyAppAdapter(dailyAppModels);
+                dailyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                dailyRecyclerView.setAdapter(adapter);
+
+                WeeklyAppAdapter weeklyAppAdapter = new WeeklyAppAdapter(weeklyAppModels);
+                weeklyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                weeklyRecyclerView.setAdapter(weeklyAppAdapter);
+            });
+        });
+        executor.shutdown();
+
+        RecyclerView recyclerView = findViewById(R.id.monthly_recycler_view);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+        recyclerView.setLayoutManager(gridLayoutManager);
+
+        List<MonthlyAppModel> monthlyAppModels = new ArrayList<>();
+
+        List<LocalDate> localDate = Time.getMonths(getFilesDir());
+        for (LocalDate date : localDate) {
+            if (date.getMonthValue() > 12)
+                break;
+            TriMap<String, int[], int[]> dataFromFile = Data.getDataFromFile(Data.getMonthlyFile(this, date.getMonthValue(), date.getYear()));
+            try {
+                monthlyAppModels.add(new MonthlyAppModel(date.getMonth().toString(), new Drawable[] {
+                        (!dataFromFile.getKeys().isEmpty()) ? AppUsage.getAppIcon(this, dataFromFile.getKeys().get(0)) : null,
+                        (dataFromFile.getKeys().size() > 1) ? AppUsage.getAppIcon(this, dataFromFile.getKeys().get(1)) : null,
+                        (dataFromFile.getKeys().size() > 2) ? AppUsage.getAppIcon(this, dataFromFile.getKeys().get(2)) : null,
+                        (dataFromFile.getKeys().size() > 3) ? AppUsage.getAppIcon(this, dataFromFile.getKeys().get(3)) : null,
+                }));
+            } catch (IndexOutOfBoundsException e) {}
         }
 
-        DailyAppAdapter adapter = new DailyAppAdapter(appEntries);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        MonthlyAppAdapter adapter = new MonthlyAppAdapter(monthlyAppModels);
         recyclerView.setAdapter(adapter);
-
-        initUi();
-
-        List<LocalDate> ld = Time.getCurrentWeekDaysUntilToday();
-        WeeklyAppEntry weeklyAppEntry = null;
-        for (LocalDate date : ld) {
-            weeklyAppEntry = createWeeklyAppEntry(weeklyAppEntry, Time.ldToDateArray(date));
-        }
     }
 
-    private WeeklyAppEntry createWeeklyAppEntry(WeeklyAppEntry weeklyAppEntry, int[] date) {
+    private WeeklyAppModel createWeeklyAppEntry(WeeklyAppModel weeklyAppModel, int[] date) {
         File fileByDate = Data.getFileByDate(this, date);
         if (!fileByDate.exists()) {
             return null;
@@ -132,14 +168,14 @@ public class Summary extends AppCompatActivity {
 
         LocalDate localDate = LocalDate.of(date[2], date[1], date[0]);
 
-        return new WeeklyAppEntry(this)
-                .setDate(new String[]{
-                        localDate.format(DateTimeFormatter.ofPattern("dd")),
-                        localDate.format(DateTimeFormatter.ofPattern("MMM")),
-                        localDate.format(DateTimeFormatter.ofPattern("E"))})
-                .setTimeSpent(app)
-                .setIcon(appIcon)
-                .build(weeklyAppEntry);
+        return new WeeklyAppModel(
+                localDate.format(DateTimeFormatter.ofPattern("E")),
+                localDate.format(DateTimeFormatter.ofPattern("dd")),
+                localDate.format(DateTimeFormatter.ofPattern("MMM")),
+                weeklyAppModel,
+                app,
+                appIcon
+        );
     }
 
     private void initUi() {
@@ -273,6 +309,7 @@ public class Summary extends AppCompatActivity {
         dailyId.setOnClickListener(view -> {
             findViewById(R.id.daily_layout).setVisibility(View.VISIBLE);
             findViewById(R.id.weekly_layout).setVisibility(View.GONE);
+            findViewById(R.id.monthly_layout).setVisibility(View.GONE);
             dailyId.setBackgroundResource(R.drawable.button_activated_rounded_pro_max);
             dailyId.setTextColor(ContextCompat.getColor(this, R.color.activatedTextColor));
             weeklyId.setBackgroundResource(R.drawable.button_unactivated_rounded_pro_max);
@@ -284,6 +321,7 @@ public class Summary extends AppCompatActivity {
         weeklyId.setOnClickListener(view -> {
             findViewById(R.id.daily_layout).setVisibility(View.GONE);
             findViewById(R.id.weekly_layout).setVisibility(View.VISIBLE);
+            findViewById(R.id.monthly_layout).setVisibility(View.GONE);
             dailyId.setBackgroundResource(R.drawable.button_unactivated_rounded_pro_max);
             dailyId.setTextColor(ContextCompat.getColor(this, R.color.unactivatedTextColor));
             weeklyId.setBackgroundResource(R.drawable.button_activated_rounded_pro_max);
@@ -291,291 +329,17 @@ public class Summary extends AppCompatActivity {
             monthlyId.setBackgroundResource(R.drawable.button_unactivated_rounded_pro_max);
             monthlyId.setTextColor(ContextCompat.getColor(this, R.color.unactivatedTextColor));
         });
-    }
 
-    private class WeeklyAppEntry {
-
-        private final AppCompatActivity appCompatActivity;
-        private View view;
-        private String[] timeSpent;
-        private String[] date;
-        private Drawable[] icon;
-        private int code = 0;
-        private final Typeface citrus;
-
-        private WeeklyAppEntry(AppCompatActivity appCompatActivity) {
-            this.appCompatActivity = appCompatActivity;
-            citrus = ResourcesCompat.getFont(appCompatActivity, R.font.citrus);
-        }
-
-        public WeeklyAppEntry setTimeSpent(String[] timeSpent) {
-            this.timeSpent = timeSpent;
-            return this;
-        }
-
-
-        public WeeklyAppEntry setDate(String[] date) {
-            this.date = date;
-            return this;
-        }
-
-        public WeeklyAppEntry setIcon(Drawable[] icon) {
-            this.icon = icon;
-            return this;
-        }
-
-        public View getView() {
-            return view;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public WeeklyAppEntry build(WeeklyAppEntry lastView) {
-            ConstraintLayout cLayout = appCompatActivity.findViewById(R.id.weekly_apps);
-
-            int viewId = View.generateViewId();
-            int dateId = View.generateViewId();
-            int monthId = View.generateViewId();
-            int dayId = View.generateViewId();
-            int div1Id = View.generateViewId();
-            int div2Id = View.generateViewId();
-            int div3Id = View.generateViewId();
-            int appTime1 = View.generateViewId();
-            int appTime2 = View.generateViewId();
-            int appTime3 = View.generateViewId();
-            int appIcon1 = View.generateViewId();
-            int appIcon2 = View.generateViewId();
-            int appIcon3 = View.generateViewId();
-
-            code = (lastView != null)
-                    ? (lastView.getCode() < 2)
-                    ? lastView.getCode() + 1
-                    : 0
-                    : 0;
-
-            int frameId;
-
-            if (code == 0)
-                frameId = R.drawable.rounded_corner_variant_2;
-            else if (code == 1)
-                frameId = R.drawable.rounded_corner_variant_3;
-            else
-                frameId = R.drawable.rounded_corner_variant_4;
-
-            view = new View(appCompatActivity);
-            view.setBackground(AppCompatResources.getDrawable(appCompatActivity, frameId));
-            view.setId(viewId);
-            view.setPadding(0, 0, 0, 30);
-            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.MATCH_PARENT, 0
-            );
-            params.topMargin = 30;
-            params.leftMargin = 30;
-            params.rightMargin = 30;
-            if (lastView != null)
-                params.topToBottom = lastView.getView().getId();
-            else
-                params.topToTop = ConstraintSet.PARENT_ID;
-            params.startToStart = ConstraintSet.PARENT_ID;
-            params.endToEnd = ConstraintSet.PARENT_ID;
-            params.bottomToBottom = dayId;
-            cLayout.addView(view, params);
-
-            TextView dateTextView = new TextView(appCompatActivity);
-            dateTextView.setId(dateId);
-            dateTextView.setText(this.date[0]);
-            dateTextView.setTypeface(citrus);
-            dateTextView.setTextSize(20);
-            dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 2, TypedValue.COMPLEX_UNIT_SP);
-            dateTextView.setPadding(20, 10, 0, 0);
-            dateTextView.setTextAlignment(TextView.TEXT_ALIGNMENT_VIEW_START);
-            dateTextView.setTextColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams dateTextViewParams = new ConstraintLayout.LayoutParams(
-                    0, ConstraintLayout.LayoutParams.WRAP_CONTENT
-            );
-            dateTextViewParams.startToStart = viewId;
-            dateTextViewParams.endToEnd = viewId;
-            dateTextViewParams.topToTop = viewId;
-            dateTextViewParams.bottomToTop = monthId;
-            dateTextViewParams.topMargin = 10;
-            cLayout.addView(dateTextView, dateTextViewParams);
-
-            TextView monthTextView = new TextView(appCompatActivity);
-            monthTextView.setId(monthId);
-            monthTextView.setText(this.date[1]);
-            monthTextView.setTypeface(citrus);
-            monthTextView.setTextSize(20);
-            monthTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 2, TypedValue.COMPLEX_UNIT_SP);
-            monthTextView.setPadding(20, 0, 0, 0);
-            monthTextView.setTextAlignment(TextView.TEXT_ALIGNMENT_VIEW_START);
-            monthTextView.setTextColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams monthlyTextViewParams = new ConstraintLayout.LayoutParams(
-                    0, ConstraintLayout.LayoutParams.WRAP_CONTENT
-            );
-            monthlyTextViewParams.startToStart = viewId;
-            monthlyTextViewParams.topToBottom = dateId;
-            monthlyTextViewParams.bottomToTop = dayId;
-            cLayout.addView(monthTextView, monthlyTextViewParams);
-
-            TextView dayTextView = new TextView(appCompatActivity);
-            dayTextView.setId(dayId);
-            dayTextView.setText(this.date[2]);
-            dayTextView.setTypeface(citrus);
-            dayTextView.setTextSize(20);
-            dayTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 2, TypedValue.COMPLEX_UNIT_SP);
-            dayTextView.setPadding(20, 0, 0, 0);
-            dayTextView.setTextAlignment(TextView.TEXT_ALIGNMENT_VIEW_START);
-            dayTextView.setTextColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams dayTextViewParams = new ConstraintLayout.LayoutParams(
-                    0, ConstraintLayout.LayoutParams.WRAP_CONTENT
-            );
-            dayTextViewParams.bottomMargin = 40;
-            dayTextViewParams.startToStart = viewId;
-            dayTextViewParams.topToBottom = monthId;
-            dayTextViewParams.bottomToBottom = viewId;
-            cLayout.addView(dayTextView, dayTextViewParams);
-
-            View div1 = new View(appCompatActivity);
-            div1.setId(div1Id);
-            div1.setBackgroundColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams div1Params = new ConstraintLayout.LayoutParams(
-                    3, 0
-            );
-            div1Params.leftMargin = 180;
-            div1Params.startToStart = viewId;
-            div1Params.topToTop = viewId;
-            div1Params.bottomToBottom = viewId;
-            cLayout.addView(div1, div1Params);
-
-            TextView appTime1TextView = new TextView(appCompatActivity);
-            appTime1TextView.setId(appTime1);
-            appTime1TextView.setText(this.timeSpent[0]);
-            appTime1TextView.setTypeface(citrus);
-            appTime1TextView.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-            dayTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 20, 2, TypedValue.COMPLEX_UNIT_SP);
-            appTime1TextView.setTextColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams appTime1Params = new ConstraintLayout.LayoutParams(
-                    0, ConstraintLayout.LayoutParams.WRAP_CONTENT
-            );
-            appTime1Params.topMargin = 5;
-            appTime1Params.rightMargin = 5;
-            appTime1Params.leftMargin = 5;
-            appTime1Params.startToEnd = div1Id;
-            appTime1Params.topToTop = viewId;
-            appTime1Params.endToStart = div2Id;
-            cLayout.addView(appTime1TextView, appTime1Params);
-
-            ImageView appIcon1ImageView = new ImageView(appCompatActivity);
-            appIcon1ImageView.setId(appIcon1);
-            appIcon1ImageView.setImageDrawable(this.icon[0]);
-            ConstraintLayout.LayoutParams appIcon1Params = new ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.WRAP_CONTENT, 0
-            );
-            appIcon1Params.rightMargin = 20;
-            appIcon1Params.leftMargin = 20;
-            appIcon1Params.topMargin = 20;
-            appIcon1Params.bottomMargin = 20;
-            appIcon1Params.startToEnd = div1Id;
-            appIcon1Params.endToStart = div2Id;
-            appIcon1Params.topToBottom = appTime1;
-            appIcon1Params.bottomToBottom = viewId;
-            cLayout.addView(appIcon1ImageView, appIcon1Params);
-
-            View div2 = new View(appCompatActivity);
-            div2.setId(div2Id);
-            div2.setBackgroundColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams div2Params = new ConstraintLayout.LayoutParams(
-                    3, 0
-            );
-            div2Params.startToEnd = div1Id;
-            div2Params.topToTop = viewId;
-            div2Params.bottomToBottom = viewId;
-            div2Params.endToStart = div3Id;
-            cLayout.addView(div2, div2Params);
-
-            TextView appTime2TextView = new TextView(appCompatActivity);
-            appTime2TextView.setId(appTime2);
-            appTime2TextView.setText(this.timeSpent[1]);
-            appTime2TextView.setTypeface(citrus);
-            appTime2TextView.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-            dayTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 20, 2, TypedValue.COMPLEX_UNIT_SP);
-            appTime2TextView.setTextColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams appTime2Params = new ConstraintLayout.LayoutParams(
-                    0, ConstraintLayout.LayoutParams.WRAP_CONTENT
-            );
-            appTime2Params.topMargin = 5;
-            appTime2Params.rightMargin = 5;
-            appTime2Params.leftMargin = 5;
-            appTime2Params.startToEnd = div2Id;
-            appTime2Params.endToStart = div3Id;
-            appTime2Params.topToTop = viewId;
-            cLayout.addView(appTime2TextView, appTime2Params);
-
-            ImageView appIcon2ImageView = new ImageView(appCompatActivity);
-            appIcon2ImageView.setId(appIcon2);
-            appIcon2ImageView.setImageDrawable(this.icon[1]);
-            ConstraintLayout.LayoutParams appIcon2Params = new ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.WRAP_CONTENT, 0
-            );
-            appIcon2Params.rightMargin = 20;
-            appIcon2Params.leftMargin = 20;
-            appIcon2Params.topMargin = 20;
-            appIcon2Params.bottomMargin = 20;
-            appIcon2Params.startToEnd = div2Id;
-            appIcon2Params.endToStart = div3Id;
-            appIcon2Params.topToBottom = appTime2;
-            appIcon2Params.bottomToBottom = viewId;
-            cLayout.addView(appIcon2ImageView, appIcon2Params);
-
-            View div3 = new View(appCompatActivity);
-            div3.setId(div3Id);
-            div3.setBackgroundColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams div3Params = new ConstraintLayout.LayoutParams(
-                    3, 0
-            );
-            div3Params.startToEnd = div2Id;
-            div3Params.endToEnd = viewId;
-            div3Params.topToTop = viewId;
-            div3Params.bottomToBottom = viewId;
-            cLayout.addView(div3, div3Params);
-
-            TextView appTime3TextView = new TextView(appCompatActivity);
-            appTime3TextView.setId(appTime3);
-            appTime3TextView.setText(this.timeSpent[2]);
-            appTime3TextView.setTypeface(citrus);
-            appTime3TextView.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-            dayTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 20, 2, TypedValue.COMPLEX_UNIT_SP);
-            appTime3TextView.setTextColor(ContextCompat.getColor(appCompatActivity, R.color.opposite));
-            ConstraintLayout.LayoutParams appTime3Params = new ConstraintLayout.LayoutParams(
-                    0, ConstraintLayout.LayoutParams.WRAP_CONTENT
-            );
-            appTime3Params.topMargin = 5;
-            appTime3Params.rightMargin = 5;
-            appTime3Params.leftMargin = 5;
-            appTime3Params.startToEnd = div3Id;
-            appTime3Params.topToTop = viewId;
-            appTime3Params.endToEnd = viewId;
-            cLayout.addView(appTime3TextView, appTime3Params);
-
-            ImageView appIcon3ImageView = new ImageView(appCompatActivity);
-            appIcon3ImageView.setId(appIcon3);
-            appIcon3ImageView.setImageDrawable(this.icon[2]);
-            ConstraintLayout.LayoutParams appIcon3Params = new ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.WRAP_CONTENT, 0
-            );
-            appIcon3Params.rightMargin = 20;
-            appIcon3Params.leftMargin = 20;
-            appIcon3Params.topMargin = 20;
-            appIcon3Params.bottomMargin = 20;
-            appIcon3Params.startToEnd = div3Id;
-            appIcon3Params.endToEnd = viewId;
-            appIcon3Params.topToBottom = appTime3;
-            appIcon3Params.bottomToBottom = viewId;
-            cLayout.addView(appIcon3ImageView, appIcon3Params);
-
-            return this;
-        }
+        monthlyId.setOnClickListener(view -> {
+            findViewById(R.id.daily_layout).setVisibility(View.GONE);
+            findViewById(R.id.weekly_layout).setVisibility(View.GONE);
+            findViewById(R.id.monthly_layout).setVisibility(View.VISIBLE);
+            dailyId.setBackgroundResource(R.drawable.button_unactivated_rounded_pro_max);
+            dailyId.setTextColor(ContextCompat.getColor(this, R.color.unactivatedTextColor));
+            weeklyId.setBackgroundResource(R.drawable.button_unactivated_rounded_pro_max);
+            weeklyId.setTextColor(ContextCompat.getColor(this, R.color.unactivatedTextColor));
+            monthlyId.setBackgroundResource(R.drawable.button_activated_rounded_pro_max);
+            monthlyId.setTextColor(ContextCompat.getColor(this, R.color.activatedTextColor));
+        });
     }
 }

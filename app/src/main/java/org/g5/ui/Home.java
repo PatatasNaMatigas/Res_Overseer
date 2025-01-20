@@ -1,5 +1,8 @@
 package org.g5.ui;
 
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -9,7 +12,6 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,10 +34,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import me.grantland.widget.AutofitTextView;
 
-@RequiresApi(api = Build.VERSION_CODES.O)
 public class Home extends AppCompatActivity {
     private static AutofitTextView[] dataAvailabilityText;
 
@@ -363,7 +369,6 @@ public class Home extends AppCompatActivity {
             ((ImageView) findViewById(R.id.pet)).setImageResource(R.drawable.pet2);
         }
     }
-
 
     public static void setAppNameDaily(String[] app) {
         if (app == null) return;

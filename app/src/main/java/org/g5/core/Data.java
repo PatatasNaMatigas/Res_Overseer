@@ -96,19 +96,21 @@ public class Data {
                     continue;
                 }
 
-                int[] timeArray = {
-                        Integer.parseInt(timeParts[0]),  // hours
-                        Integer.parseInt(timeParts[1]),  // minutes
-                        Integer.parseInt(timeParts[2])   // seconds
-                };
+                try {
+                    int[] timeArray = {
+                            Integer.parseInt(timeParts[0]),  // hours
+                            Integer.parseInt(timeParts[1]),  // minutes
+                            Integer.parseInt(timeParts[2])   // seconds
+                    };
 
-                int[] timeRecordedArray = {
-                        Integer.parseInt(timeRecordParts[0]),  // hours
-                        Integer.parseInt(timeRecordParts[1]),  // minutes
-                        Integer.parseInt(timeRecordParts[2])   // seconds
-                };
+                    int[] timeRecordedArray = {
+                            Integer.parseInt(timeRecordParts[0]),  // hours
+                            Integer.parseInt(timeRecordParts[1]),  // minutes
+                            Integer.parseInt(timeRecordParts[2])   // seconds
+                    };
 
-                data.newEntry(appName, timeArray, timeRecordedArray);
+                    data.newEntry(appName, timeArray, timeRecordedArray);
+                } catch (NumberFormatException e) {}
             }
         } catch (IOException e) {}
         return data;
@@ -231,6 +233,11 @@ public class Data {
 
     public static File getFileByDate(Context context, int[] date) {
         String formattedDate = String.format("%d_%02d_%02d.txt", date[0], date[1], date[2] % 100);
+        return new File(context.getFilesDir(), formattedDate);
+    }
+
+    public static File getMonthlyFile(Context context, int month, int year) {
+        String formattedDate = String.format("%02d%02d.txt", month, year % 100);
         return new File(context.getFilesDir(), formattedDate);
     }
 }

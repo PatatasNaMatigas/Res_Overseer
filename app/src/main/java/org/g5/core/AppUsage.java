@@ -2,6 +2,8 @@ package org.g5.core;
 
 import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +30,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class AppUsage extends AccessibilityService {
@@ -41,7 +44,6 @@ public class AppUsage extends AccessibilityService {
     private static final String[][] top3AppName = new String[3][];
     private static final Drawable[][] appIcon = new Drawable[3][];
     private static final ArrayList<int[]> breakTime = new ArrayList<>();
-    private static boolean patayAngCP = false;
 
     // d nmn nagana to e waaaaaaaaaaaahhhhhhhhhhh 😭
     private final BroadcastReceiver screenStateReceiver = new BroadcastReceiver() {
@@ -59,13 +61,12 @@ public class AppUsage extends AccessibilityService {
                         data[i].newEntry(lastApp.getValue1(), totalTime, currentTime);
                     }
                     lastApp.setPair(lastApp.getValue1(), currentTime); // Update last app time
-                    patayAngCP = true;
                 }
             } else if (Intent.ACTION_SCREEN_ON.equals(action)) {
+                Log.d("AppUsage.class", "Screen turned on");
                 // Handle screen-on event
                 if (!lastApp.bothEmpty()) {
                     lastApp.setPair(lastApp.getValue1(), currentTime); // Refresh last app timestamp
-                    patayAngCP = false;
                 }
             }
         }
@@ -83,16 +84,23 @@ public class AppUsage extends AccessibilityService {
             } catch (PackageManager.NameNotFoundException e) {
                 throw new RuntimeException(e);
             }
-            boolean isAnApp = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0 && (appInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 0;
-            isAnApp = true;
+            Log.d("APPPPPPP", appInfo.packageName + " " + getAppName(appInfo.packageName));
+            boolean isAnApp = (appInfo.packageName.contains("settings") ||
+                    appInfo.packageName.contains("com") ||
+                    appInfo.packageName.contains("org") ||
+                    appInfo.packageName.contains("google") ||
+                    appInfo.packageName.contains("chrome")) &&
+                    !(appInfo.packageName.contains("launcher") ||
+                    appInfo.packageName.contains("inputmethod"));
 
-            // finalize app time
+
+            ;
+
             if (isAnApp) {
                 LocalDateTime ldt = LocalDateTime.now();
 
-                // if date is null initialize value
                 if (date == null) {
-                    date = new int[] {
+                    date = new int[]{
                             ldt.getMonthValue(),
                             ldt.getDayOfMonth(),
                             ldt.getYear()
@@ -101,9 +109,10 @@ public class AppUsage extends AccessibilityService {
                 String app = event.getPackageName().toString();
                 int[] currentTime = Time.ldtToArray(ldt);
 
+
                 if (!lastApp.bothEmpty()) {
 
-                    int[] dateNow = new int[] {
+                    int[] dateNow = new int[]{
                             ldt.getMonthValue(),
                             ldt.getDayOfMonth(),
                             ldt.getYear()
@@ -111,49 +120,32 @@ public class AppUsage extends AccessibilityService {
 
                     int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
                     if (!Arrays.equals(date, dateNow)) {
-                        // pag kinabukasan na (adik mag phone)
-
-                        // hatiin yung time ng before and after 00:00:00
-                        /*
-                            example
-                            totalTime = 00:41:20
-                            currentTime = 00:20:19
-
-                            before = 24:00:00 - lastApp.getValue2();
-                            after = new int[] {
-                                ldt.getHour(),
-                                ldt.getMinute(),
-                                ldt.getSeconds()
-                            };
-                         */
                         int[] before = Time.getTimeDifference(Time.MIDNIGHT, lastApp.getValue2());
-                        int[] after = new int[] {
+                        int[] after = new int[]{
                                 ldt.getHour(),
                                 ldt.getMinute(),
                                 ldt.getSecond()
                         };
 
-                        for (int i = 0; i < data.length; i++)
-                            data[i].newEntry(lastApp.getValue1(), before, currentTime);
+                        for (TriMap<String, int[], int[]> datum : data)
+                            datum.newEntry(lastApp.getValue1(), before, currentTime);
 
-                        // new day, new data (walang kwentang comment)
                         initData(false, this);
 
                         data[0] = Data.getDataFromFile(files[0]);
                         data[1] = Data.getDataFromFile(files[1]);
                         data[2] = Data.getDataFromFile(files[2]);
 
-                        for (int i = 0; i < data.length; i++)
-                            data[i].newEntry(lastApp.getValue1(), after, currentTime);
+                        for (TriMap<String, int[], int[]> datum : data)
+                            datum.newEntry(lastApp.getValue1(), after, currentTime);
 
                         date = dateNow;
 
                         Home.checkForNotif(lastApp.getValue1(), Time.convertToSeconds(after));
                     } else {
-                        // pag ndi kinabukasan (duhh)
 
-                        for (int i = 0; i < data.length; i++)
-                            data[i].newEntry(lastApp.getValue1(), totalTime, currentTime);
+                        for (TriMap<String, int[], int[]> datum : data)
+                            datum.newEntry(lastApp.getValue1(), totalTime, currentTime);
                     }
                 }
 

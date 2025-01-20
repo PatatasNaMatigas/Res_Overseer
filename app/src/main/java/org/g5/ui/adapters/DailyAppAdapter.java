@@ -36,7 +36,6 @@ public class DailyAppAdapter extends RecyclerView.Adapter<DailyAppAdapter.ViewHo
         holder.icon.setImageDrawable(appEntry.getIcon());
         holder.name.setText(appEntry.getName());
         holder.timeSpent.setText(appEntry.getTimeSpent());
-        holder.timeRecordedRange.setText(appEntry.getTimeRecordedRange());
 
         int code = appEntry.getBg();
         if (code == 0)
@@ -71,7 +70,6 @@ public class DailyAppAdapter extends RecyclerView.Adapter<DailyAppAdapter.ViewHo
         private final ImageView icon;
         private final TextView name;
         private final TextView timeSpent;
-        private final TextView timeRecordedRange;
         private final View viewType;
 
         public ViewHolder(@NonNull View itemView) {
@@ -79,7 +77,6 @@ public class DailyAppAdapter extends RecyclerView.Adapter<DailyAppAdapter.ViewHo
             icon = itemView.findViewById(R.id.app_icon);
             name = itemView.findViewById(R.id.app_name);
             timeSpent = itemView.findViewById(R.id.time_spent);
-            timeRecordedRange = itemView.findViewById(R.id.time_recorded_range);
             viewType = itemView.findViewById(R.id.app_entry);
         }
     }

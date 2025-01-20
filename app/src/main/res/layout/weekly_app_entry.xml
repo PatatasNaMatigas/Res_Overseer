@@ -1,0 +1,154 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_corner_variant_2"
+    android:id="@+id/app_entry"
+    android:layout_marginHorizontal="20dp"
+    android:layout_marginBottom="20dp">
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/citrus"
+        android:textColor="@color/opposite"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintStart_toStartOf="@id/app_entry"
+        app:layout_constraintBottom_toTopOf="@id/month"
+        app:layout_constraintTop_toTopOf="@id/app_entry" />
+
+    <TextView
+        android:id="@+id/month"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/citrus"
+        android:textColor="@color/opposite"
+        android:layout_marginStart="10dp"
+        app:layout_constraintStart_toStartOf="@id/app_entry"
+        app:layout_constraintBottom_toTopOf="@id/day"
+        app:layout_constraintTop_toBottomOf="@id/date" />
+
+    <TextView
+        android:id="@+id/day"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:fontFamily="@font/citrus"
+        android:textColor="@color/opposite"
+        android:paddingBottom="10dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintStart_toStartOf="@id/app_entry"
+        app:layout_constraintBottom_toBottomOf="@id/app_entry"
+        app:layout_constraintTop_toBottomOf="@id/month" />
+
+    <View
+        android:id="@+id/div1"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="@color/opposite"
+        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintBottom_toBottomOf="@id/day"
+        app:layout_constraintStart_toStartOf="@id/app_entry"
+        app:layout_constraintEnd_toEndOf="@id/app_entry"
+        app:layout_constraintHorizontal_bias="0.2" />
+
+    <TextView
+        android:id="@+id/time_spent_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="15dp"
+        android:fontFamily="@font/citrus"
+        android:textColor="@color/opposite"
+        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintStart_toEndOf="@id/div1"
+        app:layout_constraintEnd_toStartOf="@id/div2" />
+
+    <ImageView
+        android:id="@+id/app_icon_1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="5dp"
+        android:paddingBottom="20dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintTop_toBottomOf="@id/time_spent_1"
+        app:layout_constraintBottom_toBottomOf="@id/app_entry"
+        app:layout_constraintStart_toEndOf="@id/div1"
+        app:layout_constraintEnd_toStartOf="@id/div2" />
+
+    <View
+        android:id="@+id/div2"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="@color/opposite"
+        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintBottom_toBottomOf="@id/day"
+        app:layout_constraintStart_toEndOf="@id/app_icon_1"
+        app:layout_constraintEnd_toStartOf="@id/app_icon_2" />
+
+    <TextView
+        android:id="@+id/time_spent_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15dp"
+        android:fontFamily="@font/citrus"
+        android:textColor="@color/opposite"
+        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintStart_toEndOf="@id/div2"
+        app:layout_constraintEnd_toStartOf="@id/div3" />
+
+    <ImageView
+        android:id="@+id/app_icon_2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="5dp"
+        android:paddingBottom="20dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintTop_toBottomOf="@id/time_spent_1"
+        app:layout_constraintBottom_toBottomOf="@id/app_entry"
+        app:layout_constraintStart_toEndOf="@id/div2"
+        app:layout_constraintEnd_toStartOf="@id/div3" />
+
+    <View
+        android:id="@+id/div3"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="@color/opposite"
+        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintBottom_toBottomOf="@id/day"
+        app:layout_constraintStart_toEndOf="@id/app_icon_2"
+        app:layout_constraintEnd_toStartOf="@id/app_icon_3" />
+
+    <TextView
+        android:id="@+id/time_spent_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:textSize="15dp"
+        android:fontFamily="@font/citrus"
+        android:textColor="@color/opposite"
+        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintStart_toEndOf="@id/div3"
+        app:layout_constraintEnd_toEndOf="@id/app_entry" />
+
+    <ImageView
+        android:id="@+id/app_icon_3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="5dp"
+        android:paddingBottom="20dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintTop_toBottomOf="@id/time_spent_1"
+        app:layout_constraintBottom_toBottomOf="@id/app_entry"
+        app:layout_constraintStart_toEndOf="@id/div3"
+        app:layout_constraintEnd_toEndOf="@id/app_entry" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

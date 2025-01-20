@@ -26,17 +26,6 @@ public class Index extends AppCompatActivity {
 
     private static File fileDirectory;
 
-    private ActivityResultLauncher<Intent> accessibilityPermissionLauncher = registerForActivityResult
-            (new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (AccessibilityUtils.isAccessibilityServiceEnabled(Index.this, AppUsage.class)) {
-                    resume();
-                } else {
-
-                }
-            }
-    );
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,8 +33,10 @@ public class Index extends AppCompatActivity {
 
         if (!AccessibilityUtils.isAccessibilityServiceEnabled(this, AppUsage.class) || !FloatingWindow.permissionGranted(this)) {
             startActivity(new Intent(this, Permission.class));
+            finish();
         } else {
             resume();
+            finish();
         }
     }
 
@@ -57,11 +48,14 @@ public class Index extends AppCompatActivity {
             if (username != null && password != null && username.contains("[un]:") && password.contains("[pw]:")) {
                 Login.setAccount(username, password);
                 startActivity(new Intent(Index.this, Home.class));
+                finish();
             } else {
                 startActivity(new Intent(Index.this, Login.class));
+                finish();
             }
         } catch (IOException e) {
             startActivity(new Intent(Index.this, Login.class));
+            finish();
         }
     }
 

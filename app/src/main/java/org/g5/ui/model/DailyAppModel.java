@@ -6,14 +6,12 @@ public class DailyAppModel {
 
     private String name;
     private String timeSpent;
-    private String timeRecordedRange;
     private Drawable icon;
     private final int bg;
 
-    public DailyAppModel(DailyAppModel lastView, String name, String timeSpent, String timeRecordedRange, Drawable icon) {
+    public DailyAppModel(DailyAppModel lastView, String name, String timeSpent, Drawable icon) {
         this.name = name;
         this.timeSpent = timeSpent;
-        this.timeRecordedRange = timeRecordedRange;
         this.icon = icon;
 
         bg = (lastView != null)
@@ -29,10 +27,6 @@ public class DailyAppModel {
 
     public String getTimeSpent() {
         return timeSpent;
-    }
-
-    public String getTimeRecordedRange() {
-        return timeRecordedRange;
     }
 
     public Drawable getIcon() {
