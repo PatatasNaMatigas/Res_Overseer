@@ -82,7 +82,7 @@ public class AppUsage extends AccessibilityService {
             }
 
             Log.d("App Entry", appInfo.packageName + " isAnApp=" + isAnApp(appInfo.packageName));
-            Log.d("App Entry - B/A", "A) Last: " + lastApp.getValue1() + " Now:" + appInfo.packageName);
+            Log.d("App Entry - B/A", "A) Last: " + lastApp.getValue1() + " Now: " + appInfo.packageName);
 
             if (isAnApp(appInfo.packageName)) {
                 LocalDateTime ldt = LocalDateTime.now();

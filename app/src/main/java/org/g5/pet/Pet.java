@@ -23,7 +23,7 @@ public class Pet {
     private static int timeTillDeath = Time.hourToSecond(2);
     private static int decayRate = timeTillDeath / decayRatePerMin;
     private static int healthDecayRate = maxHealth / decayRate;
-    private static int lastDecayTime = Time.hourToSecond(8);
+    private static int lastDecayTime = 10;
     private static int regenRatePerMin = 5;
     private static float regenRate = (float) maxHealth / Time.hourToMin(6);
     private static boolean dead = false;
@@ -48,27 +48,26 @@ public class Pet {
 
     // Checks every after app switch
     public void start(String appName, int appTime) {
-        int minimumTime = Time.hourToSecond(2);
+        int minimumTime = 5;
 
-        String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " on " + AppUsage.getAppName(home, appName) + ". Maybe take a break??";
         Log.d("Accumulated time", Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " " + appTime);
         Log.d("Accumulated time", Pet.lastApp + " " + appName);
         if (Pet.lastApp.isEmpty())
             Pet.lastApp = appName;
-        if (Pet.lastApp.equals(appName)) {
+        if (Pet.lastApp.contains(appName)) {
             accumulatedTime += appTime;
             screenTime += appTime;
         } else {
-            accumulatedTime = 0;
+            if (accumulatedTime >= minimumTime) {
+                String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + Time.formatTime(Time.convertSecondsToArray(accumulatedTime), true) + " on " + AppUsage.getAppName(home, Pet.lastApp) + ". Maybe take a break??";
+                floatingWindow
+                        .name(name)
+                        .message(nahilo)
+                        .react(FloatingWindow.DIZZY)
+                        .start(home);
+                accumulatedTime = 0;
+            }
             Pet.lastApp = appName;
-        }
-        if (accumulatedTime >= minimumTime) {
-            floatingWindow
-                    .name(name)
-                    .message(nahilo)
-                    .react(FloatingWindow.DIZZY)
-                    .start(home);
-            accumulatedTime = 0;
         }
 
         if (screenTime > lastDecayTime) {
@@ -84,6 +83,7 @@ public class Pet {
     public static void updateHealth() {
         lastDecayTime += decayRatePerMin;
         health -= healthDecayRate;
+        home.findViewById(R.id.petHealth).setText("HEALTH: " + health + "/100");
 
         if (health <= 0) {
             dead = true;

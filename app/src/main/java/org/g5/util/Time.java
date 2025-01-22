@@ -173,6 +173,15 @@ public class Time {
         return time[0] + "h " + time[1] + "m " + time[2] + "s";
     }
 
+    public static String formatTime(int[] time, boolean extract) {
+        if (extract) {
+            String h = (time[0] == 0) ? "" : time[0] + "h ";
+            String m = (time[1] == 0) ? "" : time[1] + "m ";
+            String s = (time[2] == 0) ? "" : time[2] + "s";
+            return h + m + s;
+        }
+        return "";
+    }
     public static String formatClockTime(int[] time, String period) {
         return time[0] + ":" + ((time[1] < 10) ? "0" + time[1] : time[1]) + period;
     }
