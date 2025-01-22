@@ -92,11 +92,6 @@ public class Data {
                     appName = parts[0];
                     timeParts = parts[1].split("\\s*[hms]\\s*");
                     timeRecordParts = parts[2].split("\\s*[hms]\\s*");
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    continue;
-                }
-
-                try {
                     int[] timeArray = {
                             Integer.parseInt(timeParts[0]),  // hours
                             Integer.parseInt(timeParts[1]),  // minutes
@@ -110,7 +105,9 @@ public class Data {
                     };
 
                     data.newEntry(appName, timeArray, timeRecordedArray);
-                } catch (NumberFormatException e) {}
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    Log.d("Overseer Error", line);
+                }
             }
         } catch (IOException e) {}
         return data;

@@ -17,6 +17,11 @@ public class Pair<V1, V2> {
         this.value2 = value2;
     }
 
+    public void clear() {
+        this.value1 = null;
+        this.value2 = null;
+    }
+
     public V1 getValue1() {
         return value1;
     }

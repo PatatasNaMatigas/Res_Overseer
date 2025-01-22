@@ -174,7 +174,7 @@ public class Time {
     }
 
     public static String formatClockTime(int[] time, String period) {
-        return time[0] + ":" + ((time[1] < 10) ? " " + time[1] : time[1]) + period;
+        return time[0] + ":" + ((time[1] < 10) ? "0" + time[1] : time[1]) + period;
     }
 
     public static List<LocalDate> getCurrentWeekDaysUntilToday() {

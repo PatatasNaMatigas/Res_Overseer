@@ -2,6 +2,7 @@ package org.g5.pet;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.g5.core.AppUsage;
 import org.g5.core.Data;
@@ -26,6 +27,7 @@ public class Pet {
     private static int regenRatePerMin = 5;
     private static float regenRate = (float) maxHealth / Time.hourToMin(6);
     private static boolean dead = false;
+    private static int screenTime = 0;
 
     private static String lastApp = "";
     private int accumulatedTime = 0;
@@ -35,7 +37,6 @@ public class Pet {
 
     private static Timer decayTimer;
 
-    // Dying message
     private static String name;
     private static String hulingTestamento = "You've been using your phone for a total of at least 8 hours... I'm starting to lose health T_T";
 
@@ -47,36 +48,40 @@ public class Pet {
 
     // Checks every after app switch
     public void start(String appName, int appTime) {
-        int screenTime = Time.convertToSeconds(Data.getScreenTime(AppUsage.files[0]));
-        int minimumTime = 10;
+        int minimumTime = Time.hourToSecond(2);
 
         String nahilo = "I'm feeling dizzy 😵‍💫. You've spent " + Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " on " + AppUsage.getAppName(home, appName) + ". Maybe take a break??";
+        Log.d("Accumulated time", Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " " + appTime);
+        Log.d("Accumulated time", Pet.lastApp + " " + appName);
+        if (Pet.lastApp.isEmpty())
+            Pet.lastApp = appName;
         if (Pet.lastApp.equals(appName)) {
             accumulatedTime += appTime;
-            Log.d("Accumulated time", Time.formatTime(Time.convertSecondsToArray(accumulatedTime)));
-            if (accumulatedTime >= minimumTime) {
-                floatingWindow
-                        .name(name)
-                        .message(nahilo)
-                        .react(FloatingWindow.DIZZY)
-                        .start(home);
-                Pet.lastApp = appName;
-            }
+            screenTime += appTime;
         } else {
-            accumulatedTime = appTime;
+            accumulatedTime = 0;
+            Pet.lastApp = appName;
         }
-//
-//        if (screenTime > lastDecayTime) {
-//            floatingWindow
-//                    .name(name)
-//                    .message(hulingTestamento)
-//                    .react(FloatingWindow.DYING)
-//                    .start(menu);
-//            startHealthDecay(screenTime);
-//        }
+        if (accumulatedTime >= minimumTime) {
+            floatingWindow
+                    .name(name)
+                    .message(nahilo)
+                    .react(FloatingWindow.DIZZY)
+                    .start(home);
+            accumulatedTime = 0;
+        }
+
+        if (screenTime > lastDecayTime) {
+            floatingWindow
+                    .name(name)
+                    .message(hulingTestamento)
+                    .react(FloatingWindow.DYING)
+                    .start(home);
+            startHealthDecay(screenTime);
+        }
     }
 
-    public static void updateHealth(int screenTime) {
+    public static void updateHealth() {
         lastDecayTime += decayRatePerMin;
         health -= healthDecayRate;
 
@@ -90,7 +95,7 @@ public class Pet {
         decayTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                updateHealth(screenTime);
+                updateHealth();
             }
         }, 0, decayRatePerMin);
     }

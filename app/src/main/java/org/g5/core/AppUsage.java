@@ -27,6 +27,7 @@ import org.g5.util.TriMap;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +46,6 @@ public class AppUsage extends AccessibilityService {
     private static final Drawable[][] appIcon = new Drawable[3][];
     private static final ArrayList<int[]> breakTime = new ArrayList<>();
 
-    // d nmn nagana to e waaaaaaaaaaaahhhhhhhhhhh 😭
     private final BroadcastReceiver screenStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -53,20 +53,16 @@ public class AppUsage extends AccessibilityService {
             int[] currentTime = Time.ldtToArray(LocalDateTime.now());
 
             if (Intent.ACTION_SCREEN_OFF.equals(action)) {
-                // Handle screen-off event
                 if (!lastApp.bothEmpty()) {
                     for (int i = 0; i < data.length; i++) {
-                        Log.d("AppUsage.class", "Screen turned off");
                         int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
                         data[i].newEntry(lastApp.getValue1(), totalTime, currentTime);
                     }
-                    lastApp.setPair(lastApp.getValue1(), currentTime); // Update last app time
+                    lastApp.clear();
                 }
             } else if (Intent.ACTION_SCREEN_ON.equals(action)) {
-                Log.d("AppUsage.class", "Screen turned on");
-                // Handle screen-on event
-                if (!lastApp.bothEmpty()) {
-                    lastApp.setPair(lastApp.getValue1(), currentTime); // Refresh last app timestamp
+                if (lastApp.bothEmpty()) {
+                    lastApp.setPair(lastApp.getValue1(), currentTime);
                 }
             }
         }
@@ -84,19 +80,11 @@ public class AppUsage extends AccessibilityService {
             } catch (PackageManager.NameNotFoundException e) {
                 throw new RuntimeException(e);
             }
-            Log.d("APPPPPPP", appInfo.packageName + " " + getAppName(appInfo.packageName));
-            boolean isAnApp = (appInfo.packageName.contains("settings") ||
-                    appInfo.packageName.contains("com") ||
-                    appInfo.packageName.contains("org") ||
-                    appInfo.packageName.contains("google") ||
-                    appInfo.packageName.contains("chrome")) &&
-                    !(appInfo.packageName.contains("launcher") ||
-                    appInfo.packageName.contains("inputmethod"));
 
+            Log.d("App Entry", appInfo.packageName + " isAnApp=" + isAnApp(appInfo.packageName));
+            Log.d("App Entry - B/A", "A) Last: " + lastApp.getValue1() + " Now:" + appInfo.packageName);
 
-            ;
-
-            if (isAnApp) {
+            if (isAnApp(appInfo.packageName)) {
                 LocalDateTime ldt = LocalDateTime.now();
 
                 if (date == null) {
@@ -108,17 +96,17 @@ public class AppUsage extends AccessibilityService {
                 }
                 String app = event.getPackageName().toString();
                 int[] currentTime = Time.ldtToArray(ldt);
-
+                int[] totalTime = new int[3];
 
                 if (!lastApp.bothEmpty()) {
-
                     int[] dateNow = new int[]{
                             ldt.getMonthValue(),
                             ldt.getDayOfMonth(),
                             ldt.getYear()
                     };
 
-                    int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
+                    totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
+                    Home.checkForNotif(lastApp.getValue1(), Time.convertToSeconds(totalTime));
                     if (!Arrays.equals(date, dateNow)) {
                         int[] before = Time.getTimeDifference(Time.MIDNIGHT, lastApp.getValue2());
                         int[] after = new int[]{
@@ -141,9 +129,7 @@ public class AppUsage extends AccessibilityService {
 
                         date = dateNow;
 
-                        Home.checkForNotif(lastApp.getValue1(), Time.convertToSeconds(after));
                     } else {
-
                         for (TriMap<String, int[], int[]> datum : data)
                             datum.newEntry(lastApp.getValue1(), totalTime, currentTime);
                     }
@@ -158,9 +144,22 @@ public class AppUsage extends AccessibilityService {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+                Log.d("App Entry - B/A", "B) Last: " + lastApp.getValue1() + " Now:" + event.getPackageName().toString());
                 refreshContent();
             }
         }
+    }
+
+    public boolean isAnApp(String packageName) {
+        if (packageName.contains("inputmethod"))
+            return false;
+        if (packageName.contains("settings") ||
+            packageName.contains("google") ||
+            packageName.contains("chrome"))
+            return true;
+        return !packageName.contains("android") &&
+                !packageName.contains("launcher") &&
+                !packageName.contains("games");
     }
 
     @Override
@@ -233,7 +232,6 @@ public class AppUsage extends AccessibilityService {
     }
 
     public static void refreshContent() {
-        Log.d("AppUsage.class", "test: " + Arrays.toString(top3AppName[0]));
         Home.setAppNameDaily(top3AppName[0]);
         Home.setAppTimeDaily(top3Apps[0]);
         Home.setAppIconDaily(appIcon[0]);
