@@ -25,7 +25,6 @@
         android:layout_height="73dp"
         android:singleLine="true"
         android:backgroundTint="@color/none"
-        android:ems="10"
         android:fontFamily="@font/segoeuithibd"
         android:hint="NAME"
         android:maxLength="7"
@@ -524,30 +523,6 @@
         app:layout_constraintEnd_toEndOf="@+id/monthly"
         app:layout_constraintStart_toStartOf="@+id/monthly"
         app:layout_constraintTop_toBottomOf="@+id/monthlyAppName3" />
-
-    <Button
-        android:id="@+id/reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Reset Stats"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias=".3" />
-
-    <Button
-        android:id="@+id/logData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Log Data"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintVertical_bias="0.05"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/reset" />
 
     <me.grantland.widget.AutofitTextView
         android:id="@+id/daily_no_data"

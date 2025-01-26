@@ -1,5 +1,7 @@
 package org.g5.util;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -32,7 +34,8 @@ public class LineWriter {
     public void writeLine(String line, int lineIndex) {
 
         if (lineIndex < 0 || lineIndex > lines.size()) {
-            throw new IllegalArgumentException("Invalid lineIndex: " + lineIndex);
+            Log.e("LineWriter", "Invalid line index: " + lineIndex);
+            return;
         }
 
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, false))) {
@@ -60,10 +63,27 @@ public class LineWriter {
         }
     }
 
+    public void writeLine(String line) {
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, true))) {
+            bufferedWriter.write(line + '\n');
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public String getLine(int lineIndex) {
         if (lineIndex < 0 || lineIndex >= lines.size())
             return "";
 
         return lines.get(lineIndex);
+    }
+
+    public boolean hasLine(String line) {
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).contains(line)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

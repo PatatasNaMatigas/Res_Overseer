@@ -3,6 +3,8 @@ package org.g5.core;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.g5.overseer.Index;
 import org.g5.util.Family;
 import org.g5.util.Pair;
@@ -49,29 +51,29 @@ public class Data {
     }
 
     //delete a daily file
-    public static void deleteDailyFile() throws IOException {
+    public static void deleteDailyFile(Context context) throws IOException {
         String date = new SimpleDateFormat("dd_MM_yy").format(new Date());
-        File file = new File(Index.getFilesDirectory(), date + ".txt");
+        File file = new File(context.getFilesDir(), date + ".txt");
         if (file.exists()) {
             file.delete();
         }
     }
 
     //create a weekly file
-    public static void deleteWeeklyFile() throws IOException {
+    public static void deleteWeeklyFile(Context context) throws IOException {
         Calendar cal = Calendar.getInstance();
         int weekOfMonth = cal.get(Calendar.WEEK_OF_MONTH);
         String date = new SimpleDateFormat("MM").format(new Date()) + "week" + weekOfMonth + "" + new SimpleDateFormat("yy").format(new Date());
-        File file = new File(Index.getFilesDirectory(), date + ".txt");
+        File file = new File(context.getFilesDir(), date + ".txt");
         if (file.exists()) {
             file.delete();
         }
     }
 
     //create a monthly file
-    public static void deleteMonthlyFile() throws IOException {
+    public static void deleteMonthlyFile(Context context) throws IOException {
         String date = new SimpleDateFormat("MMyy").format(new Date());
-        File file = new File(Index.getFilesDirectory(), date + ".txt");
+        File file = new File(context.getFilesDir(), date + ".txt");
         if (file.exists()) {
             file.delete();
         }

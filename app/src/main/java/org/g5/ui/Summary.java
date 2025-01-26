@@ -46,6 +46,8 @@ import java.time.LocalDateTime;
 
 public class Summary extends AppCompatActivity {
 
+    private ScheduledExecutorService scheduler;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -180,16 +182,12 @@ public class Summary extends AppCompatActivity {
 
     private void initUi() {
         LocalDateTime localDateTime = LocalDateTime.now();
-        boolean am = (localDateTime.getHour() < 12);
-        String h = (!am ? localDateTime.getHour() - 12 : localDateTime.getHour()) + "";
-        String m = (localDateTime.getMinute() > 9) ? localDateTime.getMinute() + "" : ("0" + localDateTime.getMinute());
-        String time = h + ":" + m + (am ? "am" : "pm");
 
-        ((TextView) findViewById(R.id.time)).setText(time);
+        ((TextView) findViewById(R.id.time)).setText(Time.formatClockTime(Time.ldtToArray(localDateTime)));
         ((TextView) findViewById(R.id.day)).setText(String.valueOf(localDateTime.getDayOfMonth()));
         ((TextView) findViewById(R.id.month)).setText(localDateTime.getMonth().toString());
 
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler = Executors.newScheduledThreadPool(1);
 
         scheduler.schedule(() -> {
             long currentTimeMillis = System.currentTimeMillis();
@@ -198,13 +196,8 @@ public class Summary extends AppCompatActivity {
             scheduler.scheduleAtFixedRate (() -> {
                 LocalDateTime currentTime = LocalDateTime.now();
 
-                boolean morning = (currentTime.getHour() > 12);
-                String hour = (morning ? currentTime.getHour() - 12 : currentTime.getHour()) + "";
-                String minute = (currentTime.getMinute() > 9) ? currentTime.getMinute() + "" : ("0" + currentTime.getMinute());
-                String timeString = hour + ":" + minute + (morning ? "am" : "pm");
-
                 runOnUiThread(() -> {
-                    ((TextView) findViewById(R.id.time)).setText(timeString);
+                    ((TextView) findViewById(R.id.time)).setText(Time.formatClockTime(Time.ldtToArray(localDateTime)));
                     ((TextView) findViewById(R.id.day)).setText(String.valueOf(currentTime.getDayOfMonth()));
                     ((TextView) findViewById(R.id.month)).setText(currentTime.getMonth().toString());
                 });
@@ -299,6 +292,7 @@ public class Summary extends AppCompatActivity {
 
         findViewById(R.id.home).setOnClickListener(view -> {
             startActivity(new Intent(this, Home.class));
+            scheduler.shutdown();
             finish();
         });
 

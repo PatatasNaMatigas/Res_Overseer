@@ -81,7 +81,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageButton
-        android:id="@+id/display_over_other_apps_help"
+        android:id="@+id/notifications_help"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:background="@color/none"
@@ -93,22 +93,22 @@
         app:srcCompat="@drawable/help_dark" />
 
     <me.grantland.widget.AutofitTextView
-        android:id="@+id/display_over_other_apps_permission"
+        android:id="@+id/notifications_permission"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="23sp"
-        android:text="DISPLAY OVER OTHER APPS PERMISSION"
+        android:text="NOTIFICATION PERMISSION"
         android:textAlignment="viewStart"
         android:fontFamily="@font/citrus"
         android:textColor="@color/opposite"
         android:layout_marginTop="80dp"
         android:layout_marginStart="10dp"
-        app:layout_constraintEnd_toStartOf="@id/grant_display_over_other_apps"
-        app:layout_constraintStart_toEndOf="@+id/display_over_other_apps_help"
+        app:layout_constraintEnd_toStartOf="@id/grant_notifications"
+        app:layout_constraintStart_toEndOf="@+id/notifications_help"
         app:layout_constraintTop_toBottomOf="@+id/permission_help" />
 
     <Button
-        android:id="@+id/grant_display_over_other_apps"
+        android:id="@+id/grant_notifications"
         android:background="@drawable/unactivated_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -140,6 +140,24 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/query_apps_desc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="15dp"
+        android:fontFamily="@font/itc_avante_gothic"
+        android:textAlignment="center"
+        android:text="@string/query_desc"
+        android:textColor="@color/opposite"
+        android:textSize="15sp"
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintTop_toBottomOf="@id/notifications_permission"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/proceed" />
 
     <View
         android:id="@+id/filter"
@@ -210,7 +228,7 @@
         app:layout_constraintEnd_toEndOf="@+id/permission_view" />
 
     <View
-        android:id="@+id/display_over_other_apps_view"
+        android:id="@+id/notifications_view"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:elevation="2dp"
@@ -220,25 +238,25 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <me.grantland.widget.AutofitTextView
-        android:id="@+id/display_over_other_apps_title"
+        android:id="@+id/notifications_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="DISPLAY OVER OTHER APPS PERMISSION"
+        android:text="NOTIFICATIONS PERMISSION"
         android:textAlignment="center"
         android:fontFamily="@font/citrus"
         android:elevation="2dp"
         android:textSize="25sp"
         android:layout_marginTop="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/display_over_other_apps_desc"
-        app:layout_constraintTop_toTopOf="@+id/display_over_other_apps_view"
-        app:layout_constraintStart_toStartOf="@+id/display_over_other_apps_view"
-        app:layout_constraintEnd_toEndOf="@+id/display_over_other_apps_view" />
+        app:layout_constraintBottom_toTopOf="@+id/notification_desc"
+        app:layout_constraintTop_toTopOf="@+id/notifications_view"
+        app:layout_constraintStart_toStartOf="@+id/notifications_view"
+        app:layout_constraintEnd_toEndOf="@+id/notifications_view" />
 
     <TextView
-        android:id="@+id/display_over_other_apps_desc"
+        android:id="@+id/notification_desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/why_open_dooa"
+        android:text="@string/why_open_notifs"
         android:textAlignment="center"
         android:elevation="2dp"
         android:fontFamily="@font/itc_avante_gothic"
@@ -246,13 +264,13 @@
         android:layout_marginTop="20dp"
         android:layout_marginHorizontal="15dp"
         android:justificationMode="inter_word"
-        app:layout_constraintBottom_toTopOf="@+id/exit_display_over_other_apps_perms"
-        app:layout_constraintTop_toBottomOf="@+id/display_over_other_apps_title"
-        app:layout_constraintStart_toStartOf="@+id/display_over_other_apps_view"
-        app:layout_constraintEnd_toEndOf="@+id/display_over_other_apps_view" />
+        app:layout_constraintBottom_toTopOf="@+id/exit_notifications_perms"
+        app:layout_constraintTop_toBottomOf="@+id/notifications_title"
+        app:layout_constraintStart_toStartOf="@+id/notifications_view"
+        app:layout_constraintEnd_toEndOf="@+id/notifications_view" />
 
     <Button
-        android:id="@+id/exit_display_over_other_apps_perms"
+        android:id="@+id/exit_notifications_perms"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/unactivated_button_2"
@@ -264,8 +282,8 @@
         android:paddingHorizontal="27dp"
         android:paddingVertical="13dp"
         android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/display_over_other_apps_view"
-        app:layout_constraintTop_toBottomOf="@+id/display_over_other_apps_desc"
-        app:layout_constraintStart_toStartOf="@+id/display_over_other_apps_view"
-        app:layout_constraintEnd_toEndOf="@+id/display_over_other_apps_view" />
+        app:layout_constraintBottom_toBottomOf="@+id/notifications_view"
+        app:layout_constraintTop_toBottomOf="@+id/notification_desc"
+        app:layout_constraintStart_toStartOf="@+id/notifications_view"
+        app:layout_constraintEnd_toEndOf="@+id/notifications_view" />
 </androidx.constraintlayout.widget.ConstraintLayout>

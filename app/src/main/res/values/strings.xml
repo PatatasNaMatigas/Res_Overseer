@@ -1,46 +1,38 @@
 <resources>
     <string name="app_name">Overseer</string>
     <string name="permission_description">SOME PERMISSIONS ARE REQUIRED TO BE ALLOWED FOR THE APP TO BE FUNCTIONAL, PLEASE ENABLE THE PERMISSIONS BY CLICKING THE BUTTON BELOW.</string>
-    <string name="why_open_accessibility">THE ACCESSIBILITY SETTINGS ALLOWS THE APP TO TRACK TIME SPENT ON AN APP BY RECORDING THE TIME ON WHEN THE USER SWITCHES OR CLOSES AN APP.</string>
-    <string name="why_open_dooa">THE DISPLAY OVER OTHER APPS PERMISSION ALLOWS FOR FLOATING WINDOWS/INTERFACES.</string>
-    <string name="tac">Certainly! Below is a sample Terms and Conditions for your app, which is focused on tracking screen time but does not monitor specific app activities. Please ensure that the terms are reviewed by a legal professional to ensure compliance with relevant laws.
+    <string name="why_open_accessibility">THE ACCESSIBILITY SETTINGS ALLOW THE APP TO TRACK TIME SPENT ON AN APP BY RECORDING THE TIME ON WHEN THE USER SWITCHES OR CLOSES AN APP.</string>
+    <string name="why_open_notifs">THE NOTIFICATION SETTINGS IF GRANTED ALLOWS THE APP TO NOTIFY THE USER REGARDING THE PET\'S STATUS, SCREEN TIME REPORTS, AND DAILY CHECKUPS.</string>
+    <string name="tac">[TERMS AND CONDITIONS]\n
+Welcome to Overseer, an application made to maintain a healthy digital lifestyle!\n
+The following contents will introduce to you the Terms and Conditions that you are encouraged to read through and accept before you start using the application. Please read through them carefully.\n\n
+Our goal is to provide our users with an analysis of their screen time data, including, but not limited to distribution between mobile apps and average time spent during a daily and weekly time frame. We believe that this app will steer our users in the right direction towards responsible use of technology, and consequently encourage them to promote healthy habits associated with the subject of mental wellbeing.\n\n
+By using this application, you agree to the following terms and conditions:\n\n
+[USE OF SERVICE]\n
+- The user agrees to provide their screen time data for collection, analysis, and interpretation in partial fulfillment of the application\'s functionality.\n\n
+- The user will be asked to enable specific permissions in order to access and subsequently gather the data needed from their devices. By granting these said permissions, the user consents to the permission of the purposes outlined in these Terms and Conditions.\n\n
+- The user agrees to use the application strictly for personal matters, and will not be permitted to reverse-engineer, exploit, or tamper with the functions of the app.\n\n
+[USER DATA PRIVACY]\n
+In accordance with Republic Act No. 10173 or the Data Privacy Act of 2012, Overseer is obliged to protect the user\'s personal data and treat it with utmost respect and confidentiality. This law ensures that all of the user\'s gathered information will be collected, examined, stored, and used responsibly and securely.\n
+The user has the right to access their data being used in the application; they may inquire about the purposes, handling, and use of their data.\n
+The user is made aware that personal data that concerns sensitive information will NOT be used NOR collected by the application.\n
+The user is provided the option to withdraw at any time by uninstalling the application.\n
+The user has the right to request the deletion of their personal data once it is no longer necessary for the purposes for its collection, or if the user withdraws their consent.\n\n
+[DATA SHARING AND THIRD PARTIES]\n
+Our application, Overseer, collects and gives a complete analysis of the user\'s screen time data. The data collected by the app is used solely to provide answers to our ongoing research, as well as ideas about your screen time habits and to support your journey toward healthier technology usage. We are committed to protecting your privacy. Under no circumstances do we sell, trade, or rent your personal data, and we do not integrate it with any third-party software, nor do we share your data with it.\n\n
+[RETENTION OF DATA]\n
+We value your privacy and are dedicated to maintaining the confidentiality of your data. Our application collects data regarding your time of use of mobile devices and provides analysis.\n
+Your data will only be retained as long as necessary to deliver these services and improve user experience. Once the data is no longer required for these purposes, it will be securely deleted.\n\n
+[CHANGES TO PRIVACY &amp; POLICY]\n
+We reserve the right to update or modify this Privacy Policy as needed to reflect changes in our practices, legal requirements, or improvements in our services. Any updates will be communicated to you through the app, and the revised policy will include an updated \"Last Modified\" date.\n\n
+[AGREEMENT TO TERMS AND CONDITIONS]\n\n
+By downloading and using Overseer, you confirm that you have read, understood and will consent to be bound by these Terms and Conditions. If you disagree with any of these terms, you must discontinue the use of this application and uninstall it from your selected device.\n\n
+By continuing to use this application, you acknowledge that:\n
+You have provided truthful and accurate information in accordance with the app\'s design.\n
+You consent to the collection, processing, and analysis of your mobile screen time data as described in the Privacy Policy within these Terms and Conditions.\n
+You accept the responsibility of adhering to the rules, guidelines, and limitations outlined in this document.\n
+If you have any questions or concerns, please contact us at 09603950007. Thank you!</string>
 
-Terms and Conditions
-Introduction
-Welcome to [App Name]! These Terms and Conditions govern your use of the [App Name] mobile application (the "App"), which provides a screen time tracking service that monitors and records the total time spent on your device but does not track specific app usage or activity.
-
-By downloading and using the App, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these Terms, please do not use the App.
-
-1. Description of Service
-The App is designed to help users manage their screen time by tracking the total time spent on their device. The App does not monitor or collect data about individual apps, web browsing, or specific activities on the device.
-
-2. Privacy and Data Collection
-The App respects your privacy. We do not collect, store, or share any personal data related to your specific app usage or behavior. The App only tracks the duration of time your device screen is active, without identifying which apps are being used.
-
-For more information on how we handle your data, please refer to our [Privacy Policy].
-
-3. User Responsibilities
-You agree to use the App responsibly and in compliance with all applicable laws and regulations.
-You understand that the App is not intended to monitor or restrict access to specific applications, and is solely focused on tracking overall screen time.
-The App is intended for personal use only and is not a substitute for parental control tools or other monitoring applications.
-4. Disclaimer
-The App provides screen time tracking as a tool to help users become more aware of their digital habits. We make no guarantees regarding the accuracy of the time tracked. The information provided by the App should be used for informational purposes only.
-
-Additionally, while the App seeks to operate smoothly, we do not guarantee that it will be free from bugs or errors, nor that it will function uninterrupted at all times.
-
-5. Limitations of Liability
-In no event shall [App Name], its developers, or its affiliates be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your use or inability to use the App.
-
-You agree that your use of the App is at your sole risk and that [App Name] shall not be held responsible for any loss or damages arising from your reliance on the screen time data provided by the App.
-
-6. Changes to Terms
-We reserve the right to modify these Terms and Conditions at any time. If we make any material changes, we will notify you via the App or through other means. Continued use of the App after changes are made will constitute acceptance of the new Terms.
-
-7. Governing Law
-These Terms and Conditions are governed by and construed in accordance with the laws of [Your Country/State], without regard to its conflict of law principles.
-
-8. Contact Information
-If you have any questions or concerns about these Terms, feel free to contact us at [email address].
-    </string>
-    <string name="accessibility_service_description">aaaaa</string>
+    <string name="accessibility_service_description">Accessibility setting allows the ability to track time by recording the time on when the user switches or closes an app.</string>
+    <string name="query_desc">THIS APPLICATION USES QUERY_ALL_PACKAGES TO RETRIEVE APPLICATION NAME AND ICONS AND NOTHING ELSE.</string>
 </resources>

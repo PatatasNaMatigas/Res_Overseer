@@ -165,8 +165,8 @@ public class Time {
         return second / 3600f;
     }
 
-    public static float secondToMills(int second) {
-        return second * 1000;
+    public static long secondToMills(int second) {
+        return second * 1000L;
     }
 
     public static String formatTime(int[] time) {
@@ -182,8 +182,8 @@ public class Time {
         }
         return "";
     }
-    public static String formatClockTime(int[] time, String period) {
-        return time[0] + ":" + ((time[1] < 10) ? "0" + time[1] : time[1]) + period;
+    public static String formatClockTime(int[] time) {
+        return ((time[0] > 12) ? time[0] - 12 : time[0]) + ":" + ((time[1] < 10) ? "0" + time[1] : time[1]) + (time[0] > 12 ? " PM" : " AM");
     }
 
     public static List<LocalDate> getCurrentWeekDaysUntilToday() {

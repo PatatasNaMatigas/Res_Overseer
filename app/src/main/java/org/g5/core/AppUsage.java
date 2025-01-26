@@ -2,8 +2,8 @@ package org.g5.core;
 
 import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;
-import android.app.usage.UsageStats;
-import android.app.usage.UsageStatsManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,14 +11,14 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.g5.pet.Pet;
 import org.g5.ui.Home;
 import org.g5.ui.Permission;
 import org.g5.util.Pair;
@@ -27,26 +27,22 @@ import org.g5.util.TriMap;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-@RequiresApi(api = Build.VERSION_CODES.O)
 public class AppUsage extends AccessibilityService {
 
     private static int[] date;
-    private static final int[] breakTimeArray = new int[] {0, 0, 0};
+    private static int[] lastBreakTime = new int[] {0, 0, 0};
     private static final TriMap<String, int[], int[]>[] data = new TriMap[3];
     public static final Pair<String, int[]> lastApp = new Pair<>();
     public static File[] files = new File[3];
     private static final String[][][] top3Apps = new String[3][3][];
     private static final String[][] top3AppName = new String[3][];
     private static final Drawable[][] appIcon = new Drawable[3][];
-    private static final ArrayList<int[]> breakTime = new ArrayList<>();
+    private static boolean phoneOn = true;
 
-    private final BroadcastReceiver screenStateReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -54,19 +50,24 @@ public class AppUsage extends AccessibilityService {
 
             if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 if (!lastApp.bothEmpty()) {
-                    for (int i = 0; i < data.length; i++) {
-                        int[] totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
-                        data[i].newEntry(lastApp.getValue1(), totalTime, currentTime);
+                    int[] totalTime = new int[3];
+                    for (TriMap<String, int[], int[]> datum : data) {
+                        totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
+                        datum.newEntry(lastApp.getValue1(), totalTime, currentTime);
                     }
-                    lastApp.clear();
+                    phoneOn = false;
+                    lastBreakTime = currentTime;
+                    Pet.startHealthDecay(Time.convertToSeconds(totalTime));
                 }
-            } else if (Intent.ACTION_SCREEN_ON.equals(action)) {
-                if (lastApp.bothEmpty()) {
-                    lastApp.setPair(lastApp.getValue1(), currentTime);
-                }
+            } else if (Intent.ACTION_USER_PRESENT.equals(action)) {
+                lastApp.setPair(lastApp.getValue1(), currentTime);
+                lastBreakTime = Time.getTimeDifference(lastBreakTime, currentTime);
+                Pet.startHealthRegen(Time.convertToSeconds(lastBreakTime));
+                phoneOn = true;
             }
         }
     };
+
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -75,18 +76,22 @@ public class AppUsage extends AccessibilityService {
 
             PackageManager packageManager = getPackageManager();
             ApplicationInfo appInfo;
+            String appName;
+            Log.d("TEST DEBUG", getAppName(event.getPackageName().toString()));
             try {
                 appInfo = packageManager.getApplicationInfo(event.getPackageName().toString(), 0);
+                appName = appInfo.packageName;
             } catch (PackageManager.NameNotFoundException e) {
-                throw new RuntimeException(e);
+                appName = event.getPackageName().toString();
             }
 
-            Log.d("App Entry", appInfo.packageName + " isAnApp=" + isAnApp(appInfo.packageName));
-            Log.d("App Entry - B/A", "A) Last: " + lastApp.getValue1() + " Now: " + appInfo.packageName);
+            Log.d("App Entry", appName + " isAnApp=" + isAnApp(appName));
+            Log.d("App Entry - B/A", "A) Last: " + lastApp.getValue1() + " Now: " + appName);
 
-            if (isAnApp(appInfo.packageName)) {
-                LocalDateTime ldt = LocalDateTime.now();
-
+            LocalDateTime ldt = LocalDateTime.now();
+            int[] totalTime = new int[3];
+            int[] currentTime = Time.ldtToArray(ldt);
+            if (isAnApp(appName)) {
                 if (date == null) {
                     date = new int[]{
                             ldt.getMonthValue(),
@@ -95,8 +100,6 @@ public class AppUsage extends AccessibilityService {
                     };
                 }
                 String app = event.getPackageName().toString();
-                int[] currentTime = Time.ldtToArray(ldt);
-                int[] totalTime = new int[3];
 
                 if (!lastApp.bothEmpty()) {
                     int[] dateNow = new int[]{
@@ -104,9 +107,10 @@ public class AppUsage extends AccessibilityService {
                             ldt.getDayOfMonth(),
                             ldt.getYear()
                     };
-
+                    Log.d("PET TEST | If", "------------------------------------");
                     totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
-                    Home.checkForNotif(lastApp.getValue1(), Time.convertToSeconds(totalTime));
+                    Log.d("PET TEST | If", Time.convertToSeconds(totalTime) + "");
+                    Home.checkForNotif(lastApp.getValue1(), Time.convertToSeconds(Time.getTimeDifference(currentTime, lastApp.getValue2())));
                     if (!Arrays.equals(date, dateNow)) {
                         int[] before = Time.getTimeDifference(Time.MIDNIGHT, lastApp.getValue2());
                         int[] after = new int[]{
@@ -146,6 +150,14 @@ public class AppUsage extends AccessibilityService {
                 }
                 Log.d("App Entry - B/A", "B) Last: " + lastApp.getValue1() + " Now:" + event.getPackageName().toString());
                 refreshContent();
+            } else {
+                Log.d("PET TEST | Else", "------------------------------------");
+                Log.d("PET TEST | Else", Time.convertToSeconds(totalTime) + "");
+                try {
+                    Home.checkForNotif(lastApp.getValue1(), Time.convertToSeconds(Time.getTimeDifference(currentTime, lastApp.getValue2())));
+                } catch (Exception e) {
+                    Home.checkForNotif(lastApp.getValue1(), 0);
+                }
             }
         }
     }
@@ -154,8 +166,9 @@ public class AppUsage extends AccessibilityService {
         if (packageName.contains("inputmethod"))
             return false;
         if (packageName.contains("settings") ||
-            packageName.contains("google") ||
-            packageName.contains("chrome"))
+                packageName.contains("google") ||
+                !packageName.contains("com.android") ||
+                packageName.contains("chrome"))
             return true;
         return !packageName.contains("android") &&
                 !packageName.contains("launcher") &&
@@ -171,22 +184,24 @@ public class AppUsage extends AccessibilityService {
     @Override
     public void onCreate() {
         super.onCreate();
-        IntentFilter onOffFilter = new IntentFilter();
-        onOffFilter.addAction(Intent.ACTION_SCREEN_OFF);
-        onOffFilter.addAction(Intent.ACTION_SCREEN_ON);
-        onOffFilter.addAction(Intent.ACTION_USER_PRESENT);
-        registerReceiver(screenStateReceiver, onOffFilter);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+        registerReceiver(broadcastReceiver, intentFilter);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(screenStateReceiver);
+        unregisterReceiver(broadcastReceiver);
     }
-    
+
     @Override
     public boolean onUnbind(Intent intent) {
-        startActivity(new Intent(this, Permission.class));
+        Intent permissionIntent = new Intent(this, Permission.class);
+        permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(permissionIntent);
         return super.onUnbind(intent);
     }
 
@@ -300,14 +315,5 @@ public class AppUsage extends AccessibilityService {
 
     public static File[] getFiles() {
         return files;
-    }
-
-    public static ArrayList<int[]> getBreakTime() {
-        return breakTime;
-    }
-
-    public static void clearData() {
-        for (int i = 0; i < data.length; i++)
-            data[i].clear();
     }
 }

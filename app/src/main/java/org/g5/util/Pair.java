@@ -31,6 +31,6 @@ public class Pair<V1, V2> {
     }
 
     public boolean bothEmpty() {
-        return value1 == null || value2 == null;
+        return value1 == null && value2 == null;
     }
 }

@@ -1,12 +1,8 @@
 package org.g5.ui;
 
-import android.app.usage.UsageStats;
-import android.app.usage.UsageStatsManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -18,27 +14,26 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.app.NotificationCompat;
 
 import org.g5.core.AppUsage;
 import org.g5.core.Data;
 import org.g5.overseer.R;
 import org.g5.pet.Pet;
+import org.g5.ui.quiz.Q1Start;
+import org.g5.ui.quiz.QuizData;
 import org.g5.util.LineWriter;
+import org.g5.util.NotificationBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import me.grantland.widget.AutofitTextView;
 
@@ -169,98 +164,8 @@ public class Home extends AppCompatActivity {
             }
         });
 
-        {
-            if ((Login.getAccount()[0].equals("DebugVersion") || Login.getAccount()[0].equals("Developer")) && Login.getAccount()[1].equals("psvm")) {
-                findViewById(R.id.reset).setOnClickListener(view -> {
-                    try {
-                        Data.deleteDailyFile();
-                        Data.deleteWeeklyFile();
-                        Data.deleteMonthlyFile();
-
-                        StringBuilder logData = new StringBuilder();
-                        File[] files = AppUsage.getFiles();
-
-                        logData.append("[]=======LOG START=======[]\n\n");
-
-                        for (int i = 0; i < 3; i++) {
-                            switch (i) {
-                                case 0:
-                                    logData.append("[]=======DAILY=======[]\n");
-                                    break;
-                                case 1:
-                                    logData.append("[]=======WEEKLY=======[]\n");
-                                    break;
-                                case 2:
-                                    logData.append("[]=======MONTHLY=======[]\n");
-                                    break;
-                            }
-                            File file = files[i];
-                            BufferedReader reader;
-                            try {
-                                reader = new BufferedReader(new FileReader(file));
-                                String line;
-                                while ((line = reader.readLine()) != null) {
-                                    logData.append(file.getName()).append(" ").append(line).append("\n");
-                                }
-                                reader.close();
-                            } catch (IOException e) {
-                                logData.append("Error reading file: ").append(file.getName()).append("\n");
-                            }
-                        }
-
-                        // Set the generated log data to the TextView
-                        findViewById(R.id.scrollViewDebug).setVisibility(View.INVISIBLE);
-                        TextView logTextView = findViewById(R.id.logs);
-                        logTextView.setText(logData.toString());
-                        AppUsage.clearData();
-                    } catch (IOException e) {}
-                });
-                findViewById(R.id.logData).setOnClickListener(view -> {
-                    StringBuilder logData = new StringBuilder();
-                    File[] files = AppUsage.getFiles();
-
-                    logData.append("[]=======LOG START=======[]\n\n");
-
-                    for (int i = 0; i < 3; i++) {
-                        switch (i) {
-                            case 0:
-                                logData.append("[]=======DAILY=======[]\n");
-                                break;
-                            case 1:
-                                logData.append("[]=======WEEKLY=======[]\n");
-                                break;
-                            case 2:
-                                logData.append("[]=======MONTHLY=======[]\n");
-                                break;
-                        }
-                        File file = files[i];
-                        BufferedReader reader;
-                        try {
-                            reader = new BufferedReader(new FileReader(file));
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                logData.append(file.getName()).append(" ").append(line).append("\n");
-                            }
-                            reader.close();
-                        } catch (IOException e) {
-                            logData.append("Error reading file: ").append(file.getName()).append("\n");
-                        }
-                    }
-
-                    findViewById(R.id.scrollViewDebug).setVisibility(
-                            (findViewById(R.id.scrollViewDebug).getVisibility() == View.INVISIBLE ? View.VISIBLE : View.INVISIBLE)
-                    );
-                    TextView logTextView = findViewById(R.id.logs);
-                    logTextView.setText(logData.toString());
-                });
-
-            } else {
-                findViewById(R.id.reset).setVisibility(View.INVISIBLE);
-                findViewById(R.id.logData).setVisibility(View.INVISIBLE);
-            }
-        }
-
         pet = new Pet(this);
+        initData();
 
         ConstraintLayout constraintLayout = findViewById(R.id.menu_layout);
 
@@ -334,6 +239,16 @@ public class Home extends AppCompatActivity {
             constraintSet.connect(R.id.exit_drawer, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.END);
             TransitionManager.beginDelayedTransition(constraintLayout);
             constraintSet.applyTo(constraintLayout);
+        });
+
+        findViewById(R.id.mental_health_data).setOnClickListener(k -> {
+            new QuizData(this);
+            if (!QuizData.answeredToday()) {
+                startActivity(new Intent(this, Q1Start.class));
+                finish();
+            } else {
+                Toast.makeText(this, "You've answered the quiz already for today", Toast.LENGTH_LONG).show();
+            }
         });
 
         // Set input filter for pet name EditText
@@ -494,5 +409,17 @@ public class Home extends AppCompatActivity {
     public static void checkForNotif(String appName, int appTime) {
         if (pet != null)
             pet.start(appName, appTime);
+    }
+
+    public static void initData() {
+        if (pet != null) {
+            try {
+                pet.init();
+            } catch (IOException e) {}
+        }
+    }
+
+    public void updateHealth(String newHealth) {
+        ((TextView) findViewById(R.id.petHealth)).setText(newHealth);
     }
 }

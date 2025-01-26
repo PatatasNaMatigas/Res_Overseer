@@ -1,20 +1,20 @@
 package org.g5.overseer;
 
-
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import org.g5.core.AppUsage;
-import org.g5.pet.FloatingWindow;
 import org.g5.ui.Login;
 import org.g5.ui.Home;
 import org.g5.ui.Permission;
+import org.g5.ui.quiz.Q1Start;
 import org.g5.util.AccessibilityUtils;
 
 import java.io.BufferedReader;
@@ -24,20 +24,39 @@ import java.io.IOException;
 
 public class Index extends AppCompatActivity {
 
-    private static File fileDirectory;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        fileDirectory = getFilesDirectory();
 
-        if (!AccessibilityUtils.isAccessibilityServiceEnabled(this, AppUsage.class) || !FloatingWindow.permissionGranted(this)) {
+        if (!AccessibilityUtils.isAccessibilityServiceEnabled(this, AppUsage.class) || !checkNotifications(this)) {
             startActivity(new Intent(this, Permission.class));
             finish();
         } else {
             resume();
             finish();
         }
+    }
+
+    private boolean checkNotifications(AppCompatActivity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(activity, android.Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                // Check if we should show rationale
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, android.Manifest.permission.POST_NOTIFICATIONS)) {
+                    // Show a rationale to the user (optional Toast here)
+                    Toast.makeText(activity, "Notification permission is required for alerts!", Toast.LENGTH_SHORT).show();
+                }
+
+                // Request permission
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        1);
+
+                return false;  // Permission not granted yet, request made
+            }
+        }
+        return true;  // Always return true for Android 12 and below
     }
 
     private void resume() {
@@ -57,9 +76,5 @@ public class Index extends AppCompatActivity {
             startActivity(new Intent(Index.this, Login.class));
             finish();
         }
-    }
-
-    public static File getFilesDirectory() {
-        return fileDirectory;
     }
 }

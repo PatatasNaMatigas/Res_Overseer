@@ -10,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.g5.overseer.R;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -28,6 +30,8 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_page);
+        usernameField = findViewById(R.id.username);
+        passwordField = findViewById(R.id.password);
         fileDirectory = new File(getFilesDir().toString());
 
         File accountFile = new File(fileDirectory, "accounts.txt");
@@ -36,6 +40,17 @@ public class Login extends AppCompatActivity {
             if (!accountFile.exists())
                 accountFile.createNewFile();
         } catch (IOException e) {}
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(getFilesDir(), "accounts.txt")))) {
+            String username = reader.readLine();
+            String password = reader.readLine();
+
+            if (username != null && password != null && username.contains("[un]:") && password.contains("[pw]:"))
+                Login.setAccount(username, password);
+            startActivity(new Intent(this, Home.class));
+        } catch (IOException e) {
+            startActivity(new Intent(this, Home.class));
+        }
 
         agree = findViewById(R.id.agree);
         noAgree = findViewById(R.id.noAgree);
@@ -79,7 +94,7 @@ public class Login extends AppCompatActivity {
 
     public static void setAccount(String name, String password) {
         accountInfo = new String[] {
-                name, password
+                name.replace("[un]:", ""), password.replace("[pw]:", "")
         };
     }
 }

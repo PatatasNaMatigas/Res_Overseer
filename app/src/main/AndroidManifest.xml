@@ -2,9 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- for getting the name and icon of detected apps, we need this permission please 🥹🙏 -->
+    <!-- please excuse my poor coding skills, its my first time   -->
+
+    <!-- this permission is not intended to be use for other things than getting the app name and app icon
+         for the tracked apps from screen time -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
 
     <application
         android:allowBackup="true"
@@ -37,6 +42,24 @@
             android:screenOrientation="portrait" />
         <activity
             android:name="org.g5.ui.Summary"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="org.g5.ui.quiz.Q1Start"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="org.g5.ui.quiz.Q2Start"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="org.g5.ui.quiz.Q2Done"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="org.g5.ui.quiz.Q3Start"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="org.g5.ui.quiz.Q3Done"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="org.g5.ui.quiz.LikertQuestion"
             android:screenOrientation="portrait" />
 
         <service
