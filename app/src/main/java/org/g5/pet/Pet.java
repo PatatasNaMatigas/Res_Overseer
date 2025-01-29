@@ -193,6 +193,9 @@ public class Pet {
     }
 
     public static synchronized void startHealthDecay(int screenTime) {
+        if (screenTime < Time.hourToSecond(8))
+            return;
+
         Log.d("PET TEST", "DECAY | PAST HEALTH: " + health + " CURRENT HEALTH: " + calculateHealthDecay(screenTime));
         health = calculateHealthDecay(screenTime);
         petDataWriter.writeLine(health + "", 1);

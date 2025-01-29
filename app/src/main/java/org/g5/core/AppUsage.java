@@ -40,7 +40,6 @@ public class AppUsage extends AccessibilityService {
     private static final String[][][] top3Apps = new String[3][3][];
     private static final String[][] top3AppName = new String[3][];
     private static final Drawable[][] appIcon = new Drawable[3][];
-    private static boolean phoneOn = true;
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -55,7 +54,6 @@ public class AppUsage extends AccessibilityService {
                         totalTime = Time.getTimeDifference(currentTime, lastApp.getValue2());
                         datum.newEntry(lastApp.getValue1(), totalTime, currentTime);
                     }
-                    phoneOn = false;
                     lastBreakTime = currentTime;
                     Pet.startHealthDecay(Time.convertToSeconds(totalTime));
                 }
@@ -63,7 +61,6 @@ public class AppUsage extends AccessibilityService {
                 lastApp.setPair(lastApp.getValue1(), currentTime);
                 lastBreakTime = Time.getTimeDifference(lastBreakTime, currentTime);
                 Pet.startHealthRegen(Time.convertToSeconds(lastBreakTime));
-                phoneOn = true;
             }
         }
     };
