@@ -7,23 +7,19 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 
-import org.g5.core.AppUsage;
+import org.g5.core.ScreenTimeTracker;
 import org.g5.overseer.R;
-import org.g5.util.AccessibilityUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,22 +28,9 @@ import java.io.IOException;
 
 public class Permission extends AppCompatActivity {
 
-    private boolean accessibilityPermission;
+    private boolean appUsagePermission;
     private boolean notificationPermission;
     private Button proceed;
-
-    private ActivityResultLauncher<Intent> accessibilityPermissionLauncher = registerForActivityResult
-            (new ActivityResultContracts.StartActivityForResult(), result -> {
-                    if (AccessibilityUtils.isAccessibilityServiceEnabled(this, AppUsage.class)) {
-                        accessibilityPermission = checkAccessibilityPermission();
-                        if (accessibilityPermission && notificationPermission) {
-                            proceed.setBackgroundResource(R.drawable.activated_button);
-                        } else {
-                            proceed.setBackgroundResource(R.drawable.unactivated_button);
-                        }
-                    }
-            }
-    );
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,32 +43,32 @@ public class Permission extends AppCompatActivity {
 
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
             // Dark mode
-            ((ImageButton) findViewById(R.id.permission_help)).setImageResource(R.drawable.help_dark);
+            ((ImageButton) findViewById(R.id.app_usage_help)).setImageResource(R.drawable.help_dark);
             ((ImageButton) findViewById(R.id.notifications_help)).setImageResource(R.drawable.help_dark);
         } else {
             // Light mode
-            ((ImageButton) findViewById(R.id.permission_help)).setImageResource(R.drawable.help_light);
+            ((ImageButton) findViewById(R.id.app_usage_help)).setImageResource(R.drawable.help_light);
             ((ImageButton) findViewById(R.id.notifications_help)).setImageResource(R.drawable.help_light);
         }
 
-        accessibilityPermission = checkAccessibilityPermission();
+        appUsagePermission = checkAppUsageAccess();
+        notificationPermission = checkNotifications(this);
 
         proceed.setOnClickListener(view -> {
-            if (checkAccessibilityPermission() && checkNotifications(this)) {
+            if (checkAppUsageAccess() && checkNotifications(this)) {
                 proceed.setBackgroundResource(R.drawable.activated_button);
                 resume();
                 finish();
             }
         });
 
-        findViewById(R.id.grant_accessibility).setOnClickListener(view -> {
-           if (!checkAccessibilityPermission()) {
+        findViewById(R.id.grant_app_usage).setOnClickListener(view -> {
+           if (!checkAppUsageAccess()) {
                Toast.makeText(this, "Please enable accessibility permission in this app", Toast.LENGTH_LONG).show();
-               Intent settings = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-               launchAccessibilitySettings(settings);
+               ScreenTimeTracker.requestUsageAccess(this);
            } else {
-               accessibilityPermission = checkAccessibilityPermission();
-               if (accessibilityPermission && notificationPermission)
+               appUsagePermission = checkAppUsageAccess();
+               if (appUsagePermission && notificationPermission)
                    proceed.setBackgroundResource(R.drawable.activated_button);
                else
                    proceed.setBackgroundResource(R.drawable.unactivated_button);
@@ -103,15 +86,19 @@ public class Permission extends AppCompatActivity {
                    ((Button) findViewById(R.id.grant_notifications)).setText("Granted");
                    findViewById(R.id.grant_notifications).setBackgroundResource(R.drawable.activated_button);
                } else {
-                   proceed.setBackgroundResource(R.drawable.unactivated_button);
+                   notificationPermission = checkNotifications(this);
                    findViewById(R.id.grant_notifications).setBackgroundResource(R.drawable.unactivated_button);
                }
            }
+            if (appUsagePermission && notificationPermission)
+                proceed.setBackgroundResource(R.drawable.activated_button);
+            else
+                proceed.setBackgroundResource(R.drawable.unactivated_button);
         });
 
         View filter = findViewById(R.id.filter);
 
-        if (accessibilityPermission && notificationPermission) {
+        if (appUsagePermission && notificationPermission) {
             proceed.setBackgroundResource(R.drawable.activated_button);
         } else {
             proceed.setBackgroundResource(R.drawable.unactivated_button);
@@ -121,7 +108,7 @@ public class Permission extends AppCompatActivity {
 
         final boolean[] on = {false, false};
 
-        findViewById(R.id.permission_help).setOnClickListener(v -> {
+        findViewById(R.id.app_usage_help).setOnClickListener(v -> {
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(constraintLayout);
             if (!on[0] && !on[1]) {
@@ -132,7 +119,7 @@ public class Permission extends AppCompatActivity {
                         .setDuration(300)
                         .start();
                 proceed.setClickable(false);
-                findViewById(R.id.grant_accessibility).setClickable(false);
+                findViewById(R.id.grant_app_usage).setClickable(false);
                 filter.animate()
                         .alpha(1f)
                         .setDuration(300)
@@ -143,7 +130,7 @@ public class Permission extends AppCompatActivity {
             constraintSet.applyTo(constraintLayout);
         });
 
-        findViewById(R.id.exit_accessibility_perms).setOnClickListener(v -> {
+        findViewById(R.id.exit_app_usage_perms).setOnClickListener(v -> {
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(constraintLayout);
             if (on[0]) {
@@ -154,7 +141,7 @@ public class Permission extends AppCompatActivity {
                         .setDuration(300)
                         .start();
                 proceed.setClickable(true);
-                findViewById(R.id.grant_accessibility).setClickable(true);
+                findViewById(R.id.grant_app_usage).setClickable(true);
                 filter.animate()
                         .alpha(0f)
                         .setDuration(300)
@@ -176,7 +163,7 @@ public class Permission extends AppCompatActivity {
                         .setDuration(300)
                         .start();
                 proceed.setClickable(false);
-                findViewById(R.id.grant_accessibility).setClickable(false);
+                findViewById(R.id.grant_app_usage).setClickable(false);
                 filter.animate()
                         .alpha(1f)
                         .setDuration(300)
@@ -198,7 +185,7 @@ public class Permission extends AppCompatActivity {
                         .setDuration(300)
                         .start();
                 proceed.setClickable(true);
-                findViewById(R.id.grant_accessibility).setClickable(true);
+                findViewById(R.id.grant_app_usage).setClickable(true);
                 filter.animate()
                         .alpha(0f)
                         .setDuration(300)
@@ -209,22 +196,18 @@ public class Permission extends AppCompatActivity {
             constraintSet.applyTo(constraintLayout);
         });
 
-        if (accessibilityPermission && notificationPermission) {
+        if (appUsagePermission && notificationPermission) {
             resume();
         }
     }
 
-    private void launchAccessibilitySettings(Intent intent) {
-        accessibilityPermissionLauncher.launch(intent);
-    }
-
-    private boolean checkAccessibilityPermission() {
-        if (!AccessibilityUtils.isAccessibilityServiceEnabled(this, AppUsage.class)) {
-            findViewById(R.id.grant_accessibility).setBackgroundResource(R.drawable.unactivated_button);
+    private boolean checkAppUsageAccess() {
+        if (!ScreenTimeTracker.isUsageAccessGranted(this)) {
+            findViewById(R.id.grant_app_usage).setBackgroundResource(R.drawable.unactivated_button);
             return false;
         } else {
-            ((Button) findViewById(R.id.grant_accessibility)).setText("Granted");
-            findViewById(R.id.grant_accessibility).setBackgroundResource(R.drawable.activated_button);
+            ((Button) findViewById(R.id.grant_app_usage)).setText("Granted");
+            findViewById(R.id.grant_app_usage).setBackgroundResource(R.drawable.activated_button);
             return true;
         }
     }

@@ -19,20 +19,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.app.NotificationCompat;
-
-import org.g5.core.AppUsage;
-import org.g5.core.Data;
 import org.g5.overseer.R;
 import org.g5.pet.Pet;
 import org.g5.ui.quiz.Q1Start;
 import org.g5.ui.quiz.QuizData;
 import org.g5.util.LineWriter;
-import org.g5.util.NotificationBuilder;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
 import me.grantland.widget.AutofitTextView;
@@ -165,7 +158,7 @@ public class Home extends AppCompatActivity {
         });
 
         pet = new Pet(this);
-        initData();
+//        initData();
 
         ConstraintLayout constraintLayout = findViewById(R.id.menu_layout);
 
@@ -267,8 +260,8 @@ public class Home extends AppCompatActivity {
         }
 
         findViewById(R.id.summary).setOnClickListener(view -> {
-            startActivity(new Intent(this, Summary.class));
             finish();
+            startActivity(new Intent(this, Summary.class));
         });
     }
 
@@ -406,18 +399,18 @@ public class Home extends AppCompatActivity {
             dataAvailabilityText[2].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
     }
 
-    public static void checkForNotif(String appName, int appTime) {
-        if (pet != null)
-            pet.start(appName, appTime);
-    }
-
-    public static void initData() {
-        if (pet != null) {
-            try {
-                pet.init();
-            } catch (IOException e) {}
-        }
-    }
+//    public static void checkForNotif(String appName, int appTime) {
+//        if (pet != null)
+//            pet.start(appName, appTime);
+//    }
+//
+//    public static void initData() {
+//        if (pet != null) {
+//            try {
+//                pet.init();
+//            } catch (IOException e) {}
+//        }
+//    }
 
     public void updateHealth(String newHealth) {
         ((TextView) findViewById(R.id.petHealth)).setText(newHealth);

@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Overseer</string>
     <string name="permission_description">SOME PERMISSIONS ARE REQUIRED TO BE ALLOWED FOR THE APP TO BE FUNCTIONAL, PLEASE ENABLE THE PERMISSIONS BY CLICKING THE BUTTON BELOW.</string>
-    <string name="why_open_accessibility">THE ACCESSIBILITY SETTINGS ALLOW THE APP TO TRACK TIME SPENT ON AN APP BY RECORDING THE TIME ON WHEN THE USER SWITCHES OR CLOSES AN APP.</string>
     <string name="why_open_notifs">THE NOTIFICATION SETTINGS IF GRANTED ALLOWS THE APP TO NOTIFY THE USER REGARDING THE PET\'S STATUS, SCREEN TIME REPORTS, AND DAILY CHECKUPS.</string>
+    <string name="why_open_app_usage">THE APP USAGE PERMISSION ALLOWS THE APP TO TRACK THE TIME SPENT ON APPS.</string>
     <string name="tac">[TERMS AND CONDITIONS]\n
 Welcome to Overseer, an application made to maintain a healthy digital lifestyle!\n
 The following contents will introduce to you the Terms and Conditions that you are encouraged to read through and accept before you start using the application. Please read through them carefully.\n\n

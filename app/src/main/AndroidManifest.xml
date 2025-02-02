@@ -2,16 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- please excuse my poor coding skills, its my first time   -->
+    <!-- Please excuse my poor coding skills, it's my first time -->
 
-    <!-- this permission is not intended to be use for other things than getting the app name and app icon
-         for the tracked apps from screen time -->
+    <!-- Permission to query all installed packages -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
 
     <application
+        android:name="org.g5.core.Tracker"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -31,51 +31,16 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name="org.g5.ui.Login"
-            android:screenOrientation="portrait"/>
-        <activity
-            android:name="org.g5.ui.Home"
-            android:screenOrientation="portrait"/>
-        <activity
-            android:name="org.g5.ui.Permission"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="org.g5.ui.Summary"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="org.g5.ui.quiz.Q1Start"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="org.g5.ui.quiz.Q2Start"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="org.g5.ui.quiz.Q2Done"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="org.g5.ui.quiz.Q3Start"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="org.g5.ui.quiz.Q3Done"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="org.g5.ui.quiz.LikertQuestion"
-            android:screenOrientation="portrait" />
-
-        <service
-            android:name="org.g5.core.AppUsage"
-            android:exported="true"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/accessibility_service_config" />
-        </service>
-
+        <activity android:name="org.g5.ui.Login" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name="org.g5.ui.Home" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name="org.g5.ui.Permission" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name="org.g5.ui.Summary" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name="org.g5.ui.quiz.Q1Start" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name="org.g5.ui.quiz.Q2Start" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name="org.g5.ui.quiz.Q2Done" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name="org.g5.ui.quiz.Q3Start" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name="org.g5.ui.quiz.Q3Done" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name="org.g5.ui.quiz.LikertQuestion" android:screenOrientation="portrait" android:launchMode="singleTop"/>
     </application>
 
 </manifest>

@@ -1,25 +1,19 @@
 package org.g5.util;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
+import android.util.Log;
 
 import org.g5.core.Data;
+import org.g5.core.ScreenTimeTracker;
 
 import java.io.File;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 public class Time {
     public static int[] BLANK_TIME = new int[]{0, 0, 0};
@@ -88,23 +82,27 @@ public class Time {
         return time[0] * 3600 + time[1] * 60 + time[2];
     }
 
-    public static String[][] getTop3ByTime(TriMap<String, int[], int[]> map) {
-        ArrayList<Pair<String, Integer>> app = new ArrayList<>();
-        List<String> keys = map.getKeys();
+    public static String[][] getTop3ByTime(List<ScreenTimeTracker.AppUsageEntry> apps) {
+        ArrayList<ScreenTimeTracker.AppUsageEntry> top3 = new ArrayList<>();
 
-        for (String key : keys) {
-            int timeInSeconds = Time.convertToSeconds(Data.computeData(map, key));
-            app.add(new Pair<>(key, timeInSeconds));
+        for (ScreenTimeTracker.AppUsageEntry app : apps) {
+            int timeInSeconds = Data.computeTime(apps, app.packageName);
+            top3.add(new ScreenTimeTracker.AppUsageEntry(app.packageName, timeInSeconds));
+            Log.d("Time.class | Before", "App: " + app.packageName + " " + timeInSeconds);
         }
 
-        app.sort((a, b) -> b.getValue2() - a.getValue2());
+        top3.sort((a, b) -> Long.compare(b.time, a.time));
 
-        int min = Math.min(app.size(), 3);
+        for (ScreenTimeTracker.AppUsageEntry app : top3) {
+            Log.d("Time.class | After", "App: " + app.packageName + " " + app.time);
+        }
+
+        int min = Math.min(top3.size(), 3);
         String[][] entries = new String[3][2];
         for (int i = 0; i < 3; i++) {
             if (i < min) {
-                entries[i][0] = app.get(i).getValue1();
-                entries[i][1] = Time.formatTime(Time.convertSecondsToArray((app.get(i).getValue2())));
+                entries[i][0] = top3.get(i).packageName;
+                entries[i][1] = Time.formatTime(Time.convertSecondsToArray((int) top3.get(i).time));
             } else {
                 entries[i][0] = "";
                 entries[i][1] = "";
@@ -169,8 +167,45 @@ public class Time {
         return second * 1000L;
     }
 
+    public static float millsToSeconds(long mills) {
+        return (float) mills / 1000;
+    }
+
+    public static int[] millsToTime(long millis) {
+        long hours = millis / (1000 * 60 * 60);
+        long minutes = (millis % (1000 * 60 * 60)) / (1000 * 60);
+        long seconds = (millis % (1000 * 60)) / 1000;
+
+        return new int[] {
+                (int) hours,
+                (int) minutes,
+                (int) seconds
+        };
+    }
+
     public static String formatTime(int[] time) {
         return time[0] + "h " + time[1] + "m " + time[2] + "s";
+    }
+
+    public static String formatMillis(long millis) {
+        long totalSeconds = millis / 1000;
+        return formatSeconds((int) totalSeconds);
+    }
+
+    public static String formatSeconds(int seconds) {
+        int hours = seconds / 3600;
+        int minutes = (seconds % 3600) / 60;
+        int secs = seconds % 60;
+
+        return String.format("%dh%02dm%02ds", hours, minutes, secs);
+    }
+
+    public static String formatMinutes(int minutes) {
+        return formatSeconds(minutes * 60);
+    }
+
+    public static String formatHours(int hours) {
+        return formatSeconds(hours * 3600);
     }
 
     public static String formatTime(int[] time, boolean extract) {

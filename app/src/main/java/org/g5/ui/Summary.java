@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -29,9 +31,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.g5.core.AppUsage;
 import org.g5.core.Data;
-import org.g5.overseer.Index;
+import org.g5.core.ScreenTimeTracker;
+import org.g5.core.Tracker;
 import org.g5.overseer.R;
 import org.g5.ui.adapters.DailyAppAdapter;
 import org.g5.ui.adapters.MonthlyAppAdapter;
@@ -46,62 +48,62 @@ import java.time.LocalDateTime;
 
 public class Summary extends AppCompatActivity {
 
-    private ScheduledExecutorService scheduler;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.summary_page);
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            TriMap<String, Integer, int[]> apps = Data.sortAppsDescending(Data.getDataFromFile(AppUsage.getFiles()[0]));
-            String topApp = (!apps.getKeys().isEmpty()) ? apps.getKeys().get(0) : "";
-            Drawable topAppIcon = AppUsage.getAppIcon(this, topApp);
+        Log.d("Summary.class", "created");
 
-            RecyclerView dailyRecyclerView = findViewById(R.id.daily_recycler_view);
+        List<ScreenTimeTracker.AppUsageEntry> apps;
+        try {
+            apps = Data.sortAppsDescending(Data.getDataFromFile(Data.createDailyFile(this)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String topApp = (!apps.get(0).packageName.isEmpty()) ? apps.get(0).packageName : "";
+        Drawable topAppIcon = Tracker.getAppIcon(this, topApp);
 
-            DailyAppModel lastView = null;
-            List<DailyAppModel> dailyAppModels = new ArrayList<>();
-            for (String appName : apps.getKeys()) {
-                Drawable icon = AppUsage.getAppIcon(this, appName);
-                int[] time = Time.convertSecondsToArray(apps.getEntry(appName).getChildren().get(0).getValue1());
-                String timeSpent = Time.formatTime(time);
-                dailyAppModels.add(lastView = new DailyAppModel(
-                        lastView,
-                        AppUsage.getAppName(this, appName),
-                        timeSpent,
-                        icon)
-                );
-            }
+        RecyclerView dailyRecyclerView = findViewById(R.id.daily_recycler_view);
 
-            List<LocalDate> ld = Time.getCurrentWeekDaysUntilToday();
-            WeeklyAppModel weeklyAppEntry = null;
-            List<WeeklyAppModel> weeklyAppModels = new ArrayList<>();
-            for (LocalDate date : ld) {
-                weeklyAppEntry = createWeeklyAppEntry(weeklyAppEntry, Time.ldToDateArray(date));
-                if (weeklyAppEntry == null)
-                    continue;
-                weeklyAppModels.add(weeklyAppEntry);
-            }
+        DailyAppModel lastView = null;
+        List<DailyAppModel> dailyAppModels = new ArrayList<>();
+        for (ScreenTimeTracker.AppUsageEntry app : apps) {
+            Drawable icon = Tracker.getAppIcon(this, app.packageName);
+            String timeSpent = Time.formatTime(Time.millsToTime(app.time));
+            dailyAppModels.add(lastView = new DailyAppModel(
+                    lastView,
+                    Tracker.getAppName(this, app.packageName),
+                    timeSpent,
+                    icon)
+            );
+        }
 
-            RecyclerView weeklyRecyclerView = findViewById(R.id.weekly_recycler_view);
+        List<LocalDate> ld = Time.getCurrentWeekDaysUntilToday();
+        WeeklyAppModel weeklyAppEntry = null;
+        List<WeeklyAppModel> weeklyAppModels = new ArrayList<>();
+        for (LocalDate date : ld) {
+            weeklyAppEntry = createWeeklyAppEntry(weeklyAppEntry, Time.ldToDateArray(date));
+            if (weeklyAppEntry == null)
+                continue;
+            weeklyAppModels.add(weeklyAppEntry);
+        }
 
-            runOnUiThread(() -> {
-                initUi();
-                ((ImageView) findViewById(R.id.app_icon)).setImageDrawable(topAppIcon);
-                ((TextView) findViewById(R.id.app_name)).setText(AppUsage.getAppName(this, topApp));
+        RecyclerView weeklyRecyclerView = findViewById(R.id.weekly_recycler_view);
 
-                DailyAppAdapter adapter = new DailyAppAdapter(dailyAppModels);
-                dailyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-                dailyRecyclerView.setAdapter(adapter);
+        runOnUiThread(() -> {
+            initUi();
+            ((ImageView) findViewById(R.id.app_icon)).setImageDrawable(topAppIcon);
+            ((TextView) findViewById(R.id.app_name)).setText(Tracker.getAppName(this, topApp));
 
-                WeeklyAppAdapter weeklyAppAdapter = new WeeklyAppAdapter(weeklyAppModels);
-                weeklyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-                weeklyRecyclerView.setAdapter(weeklyAppAdapter);
-            });
+            DailyAppAdapter adapter = new DailyAppAdapter(dailyAppModels);
+            dailyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            dailyRecyclerView.setAdapter(adapter);
+
+            WeeklyAppAdapter weeklyAppAdapter = new WeeklyAppAdapter(weeklyAppModels);
+            weeklyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            weeklyRecyclerView.setAdapter(weeklyAppAdapter);
         });
-        executor.shutdown();
 
         RecyclerView recyclerView = findViewById(R.id.monthly_recycler_view);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
@@ -113,13 +115,13 @@ public class Summary extends AppCompatActivity {
         for (LocalDate date : localDate) {
             if (date.getMonthValue() > 12)
                 break;
-            TriMap<String, int[], int[]> dataFromFile = Data.getDataFromFile(Data.getMonthlyFile(this, date.getMonthValue(), date.getYear()));
+            List<ScreenTimeTracker.AppUsageEntry> dataFromFile = Data.sortAppsDescending(Data.getDataFromFile(Data.getMonthlyFile(this, date.getMonthValue(), date.getYear())));
             try {
                 monthlyAppModels.add(new MonthlyAppModel(date.getMonth().toString(), new Drawable[] {
-                        (!dataFromFile.getKeys().isEmpty()) ? AppUsage.getAppIcon(this, dataFromFile.getKeys().get(0)) : null,
-                        (dataFromFile.getKeys().size() > 1) ? AppUsage.getAppIcon(this, dataFromFile.getKeys().get(1)) : null,
-                        (dataFromFile.getKeys().size() > 2) ? AppUsage.getAppIcon(this, dataFromFile.getKeys().get(2)) : null,
-                        (dataFromFile.getKeys().size() > 3) ? AppUsage.getAppIcon(this, dataFromFile.getKeys().get(3)) : null,
+                        (!dataFromFile.isEmpty()) ? Tracker.getAppIcon(this, dataFromFile.get(0).packageName) : null,
+                        (dataFromFile.size() > 1) ? Tracker.getAppIcon(this, dataFromFile.get(1).packageName) : null,
+                        (dataFromFile.size() > 2) ? Tracker.getAppIcon(this, dataFromFile.get(2).packageName) : null,
+                        (dataFromFile.size() > 3) ? Tracker.getAppIcon(this, dataFromFile.get(3).packageName) : null,
                 }));
             } catch (IndexOutOfBoundsException e) {}
         }
@@ -128,44 +130,36 @@ public class Summary extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d("Summary.destroyed", "destroyed");
+    }
+
     private WeeklyAppModel createWeeklyAppEntry(WeeklyAppModel weeklyAppModel, int[] date) {
-        File fileByDate = Data.getFileByDate(this, date);
-        if (!fileByDate.exists()) {
+        File fileByDate = Data.getWeeklyFile(this, date);
+        if (!fileByDate.exists())
             return null;
-        }
-        TriMap<String, Integer, int[]> apps = Data.sortAppsDescending(Data.getDataFromFile(fileByDate));
+
+        List<ScreenTimeTracker.AppUsageEntry> apps = Data.sortAppsDescending(Data.getDataFromFile(fileByDate));
 
         String[] app = new String[]{
-                (!apps.getKeys().isEmpty() && apps.getEntry(apps.getKeys().get(0)) != null
-                        && !apps.getEntry(apps.getKeys().get(0)).getChildren().isEmpty())
-                        ? Time.formatTime(
-                        Time.convertSecondsToArray(
-                                apps.getEntry(apps.getKeys().get(0)).getChildren().get(0).getValue1()
-                        )
-                )
+                (!apps.isEmpty() && apps.get(0) != null)
+                        ? Time.formatTime(Time.millsToTime(apps.get(0).time))
                         : "",
-                (apps.getKeys().size() > 1 && apps.getEntry(apps.getKeys().get(1)) != null
-                        && !apps.getEntry(apps.getKeys().get(1)).getChildren().isEmpty())
-                        ? Time.formatTime(
-                        Time.convertSecondsToArray(
-                                apps.getEntry(apps.getKeys().get(1)).getChildren().get(0).getValue1()
-                        )
-                )
+                (apps.size() > 1 && apps.get(1) != null)
+                        ? Time.formatTime(Time.millsToTime(apps.get(1).time))
                         : "",
-                (apps.getKeys().size() > 2 && apps.getEntry(apps.getKeys().get(2)) != null
-                        && !apps.getEntry(apps.getKeys().get(2)).getChildren().isEmpty())
-                        ? Time.formatTime(
-                        Time.convertSecondsToArray(
-                                apps.getEntry(apps.getKeys().get(2)).getChildren().get(0).getValue1()
-                        )
-                )
+                (apps.size() > 2 && apps.get(2) != null)
+                        ? Time.formatTime(Time.millsToTime(apps.get(2).time))
                         : "",
         };
 
         Drawable[] appIcon = new Drawable[]{
-                (apps.getKeys().isEmpty()) ? null : AppUsage.getAppIcon(this, apps.getKeys().get(0)),
-                (apps.getKeys().size() > 1) ? AppUsage.getAppIcon(this, apps.getKeys().get(1)) : null,
-                (apps.getKeys().size() > 2)  ? AppUsage.getAppIcon(this, apps.getKeys().get(2)) : null,
+                (apps.isEmpty()) ? null : Tracker.getAppIcon(this, apps.get(0).packageName),
+                (apps.size() > 1) ? Tracker.getAppIcon(this, apps.get(1).packageName) : null,
+                (apps.size() > 2) ? Tracker.getAppIcon(this, apps.get(2).packageName) : null,
         };
 
         LocalDate localDate = LocalDate.of(date[2], date[1], date[0]);
@@ -186,23 +180,6 @@ public class Summary extends AppCompatActivity {
         ((TextView) findViewById(R.id.time)).setText(Time.formatClockTime(Time.ldtToArray(localDateTime)));
         ((TextView) findViewById(R.id.day)).setText(String.valueOf(localDateTime.getDayOfMonth()));
         ((TextView) findViewById(R.id.month)).setText(localDateTime.getMonth().toString());
-
-        scheduler = Executors.newScheduledThreadPool(1);
-
-        scheduler.schedule(() -> {
-            long currentTimeMillis = System.currentTimeMillis();
-            long delayUntilNextMinute = 60000 - (currentTimeMillis % 60000);
-
-            scheduler.scheduleAtFixedRate (() -> {
-                LocalDateTime currentTime = LocalDateTime.now();
-
-                runOnUiThread(() -> {
-                    ((TextView) findViewById(R.id.time)).setText(Time.formatClockTime(Time.ldtToArray(localDateTime)));
-                    ((TextView) findViewById(R.id.day)).setText(String.valueOf(currentTime.getDayOfMonth()));
-                    ((TextView) findViewById(R.id.month)).setText(currentTime.getMonth().toString());
-                });
-            }, delayUntilNextMinute, 60000, TimeUnit.MILLISECONDS);
-        }, 0, TimeUnit.MILLISECONDS);
 
         ConstraintLayout constraintLayout = findViewById(R.id.summary_layout);
 
@@ -291,9 +268,8 @@ public class Summary extends AppCompatActivity {
         });
 
         findViewById(R.id.home).setOnClickListener(view -> {
-            startActivity(new Intent(this, Home.class));
-            scheduler.shutdown();
             finish();
+            startActivity(new Intent(this, Home.class));
         });
 
         Button dailyId = findViewById(R.id.daily);

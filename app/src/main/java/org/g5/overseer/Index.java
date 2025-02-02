@@ -10,12 +10,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import org.g5.core.AppUsage;
+import org.g5.core.ScreenTimeTracker;
 import org.g5.ui.Login;
 import org.g5.ui.Home;
 import org.g5.ui.Permission;
-import org.g5.ui.quiz.Q1Start;
-import org.g5.util.AccessibilityUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,7 +26,7 @@ public class Index extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!AccessibilityUtils.isAccessibilityServiceEnabled(this, AppUsage.class) || !checkNotifications(this)) {
+        if (!checkNotifications(this) || !ScreenTimeTracker.isUsageAccessGranted(this)) {
             startActivity(new Intent(this, Permission.class));
             finish();
         } else {

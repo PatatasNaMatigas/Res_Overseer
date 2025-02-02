@@ -1,39 +1,46 @@
 package org.g5.core;
 
 import android.app.usage.UsageEvents;
+import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
+import android.util.Log;
 
+import org.g5.util.StringUtil;
+import org.g5.util.Time;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Stack;
 
 public class ScreenTimeTracker {
 
-    public static Map<String, Long> getAccurateAppUsage(Context context) {
+    public static List<AppUsageEntry> getApps(Context context, Calendar last) {
+        Log.d("ScreenTimeTracker | ScreenTimeTracker.class", "Getting apps");
         UsageStatsManager usageStatsManager =
                 (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
 
         if (usageStatsManager == null) {
-            return new HashMap<>();
+            Log.d("ScreenTimeTracker | ScreenTimeTracker.class", "nvm");
+            return new ArrayList<>();
         }
 
         // Define time range (last hour)
         Calendar calendar = Calendar.getInstance();
         long endTime = calendar.getTimeInMillis();
-        calendar.add(Calendar.HOUR, -1);
-        long startTime = calendar.getTimeInMillis();
+        long startTime = last.getTimeInMillis();
 
         // Get event logs
         UsageEvents events = usageStatsManager.queryEvents(startTime, endTime);
         UsageEvents.Event event = new UsageEvents.Event();
 
-        Map<String, Long> appUsageMap = new HashMap<>();
+        List<AppUsageEntry> appUsageMap = new ArrayList<>();
         Stack<AppUsageEntry> activeSessions = new Stack<>();
 
         while (events.hasNextEvent()) {
@@ -53,41 +60,46 @@ public class ScreenTimeTracker {
                     AppUsageEntry lastSession = activeSessions.pop();
 
                     if (lastSession.packageName.equals(packageName)) {
-                        long duration = eventTime - lastSession.startTime;
+                        long duration = eventTime - lastSession.time;
 
                         // Ignore very short interruptions from System UI
                         if (duration > 1000) { // Ignore events < 1s
-                            appUsageMap.put(packageName, appUsageMap.getOrDefault(packageName, 0L) + duration);
+                            appUsageMap.add(new AppUsageEntry(packageName, duration));
                         }
                     }
                 }
             }
         }
 
-        return appUsageMap; // Returns app package names with total usage duration
+        return refine(appUsageMap);
     }
 
-    private static String getAppName(Context context, String packageName) {
-        PackageManager packageManager = context.getPackageManager();
-        try {
-            return (String) packageManager.getApplicationLabel(
-                    packageManager.getApplicationInfo(packageName, 0));
-        } catch (PackageManager.NameNotFoundException e) {
-            return packageName;
+    private static List<AppUsageEntry> refine(List<AppUsageEntry> appList) {
+        List<AppUsageEntry> refinedList = new ArrayList<>();
+        if (appList.isEmpty()) return refinedList;
+
+        AppUsageEntry currentApp = appList.get(0);
+
+        for (int i = 1; i < appList.size(); i++) {
+            AppUsageEntry nextApp = appList.get(i);
+
+            Log.d("ScreenTimeTracker", currentApp.packageName + " " + currentApp.time);
+            if (isSystemApp(nextApp.packageName)) {
+                // Merge system UI time into the previous app
+                currentApp.time += (nextApp.time - currentApp.time);
+            } else {
+                // Move to the next app
+                refinedList.add(currentApp);
+                currentApp = nextApp;
+            }
         }
+        refinedList.add(currentApp); // Add last app
+
+        return refinedList;
     }
 
-    public static Map<String, String> getAppNamesAndUsage(Context context) {
-        Map<String, Long> usageMap = getAccurateAppUsage(context);
-        Map<String, String> appNamesWithUsage = new HashMap<>();
-
-        for (Map.Entry<String, Long> entry : usageMap.entrySet()) {
-            String appName = getAppName(context, entry.getKey());
-            long usageTimeInSeconds = entry.getValue() / 1000;
-            appNamesWithUsage.put(appName, usageTimeInSeconds + " seconds");
-        }
-
-        return appNamesWithUsage;
+    private static boolean isSystemApp(String packageName) {
+        return StringUtil.containsAny(packageName, "systemui", "launcher");
     }
 
     public static void requestUsageAccess(Context context) {
@@ -95,13 +107,25 @@ public class ScreenTimeTracker {
         context.startActivity(intent);
     }
 
-    private static class AppUsageEntry {
-        String packageName;
-        long startTime;
+    public static boolean isUsageAccessGranted(Context context) {
+        UsageStatsManager usm = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+        if (usm == null) {
+            return false;
+        }
+
+        long currentTime = System.currentTimeMillis();
+        List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, currentTime - 1000 * 60 * 60 * 24, currentTime);
+
+        return stats != null && !stats.isEmpty();
+    }
+
+    public static class AppUsageEntry {
+        public String packageName;
+        public long time;
 
         public AppUsageEntry(String packageName, long startTime) {
             this.packageName = packageName;
-            this.startTime = startTime;
+            this.time = startTime;
         }
     }
 }
