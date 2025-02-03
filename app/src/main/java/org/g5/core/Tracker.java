@@ -17,6 +17,7 @@ import org.g5.util.TriMap;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -62,7 +63,6 @@ public class Tracker extends Application {
                                             appEntries.get(i).packageName,
                                             appEntries.get(i).time)
                             );
-                            Log.d("Tracker.class | Init", "Apps: " + app.get(i).packageName + " " + app.get(i).time);
                         }
                     }
 
@@ -109,29 +109,33 @@ public class Tracker extends Application {
 
 
     public static void refreshContent() {
-        Home.setAppNameDaily(top3AppName[0]);
-        Home.setAppTimeDaily(top3Apps[0]);
-        Home.setAppIconDaily(appIcon[0]);
-        try {
-            Home.noDataDaily(top3Apps[0] == null);
-        } catch (Exception e) {
-            Home.noDataDaily(false);
-        }
-        Home.setAppNameWeekly(top3AppName[1]);
-        Home.setAppTimeWeekly(top3Apps[1]);
-        Home.setAppIconWeekly(appIcon[1]);
-        try {
-            Home.noDataWeekly(top3Apps[1] == null);
-        } catch (Exception e) {
-            Home.noDataWeekly(false);
-        }
-        Home.setAppNameMonthly(top3AppName[2]);
-        Home.setAppTimeMonthly(top3Apps[2]);
-        Home.setAppIconMonthly(appIcon[2]);
-        try {
-            Home.noDataMonthly(top3Apps[2] == null);
-        } catch (Exception e) {
-            Home.noDataMonthly(false);
+        Home home = Home.getInstance();
+
+        if (home != null) {
+            home.setAppNameDaily(top3AppName[0]);
+            Home.setAppTimeDaily(top3Apps[0]);
+            Home.setAppIconDaily(appIcon[0]);
+            try {
+                Home.noDataDaily(top3Apps[0] == null);
+            } catch (Exception e) {
+                Home.noDataDaily(false);
+            }
+            home.setAppNameWeekly(top3AppName[1]);
+            Home.setAppTimeWeekly(top3Apps[1]);
+            Home.setAppIconWeekly(appIcon[1]);
+            try {
+                Home.noDataWeekly(top3Apps[1] == null);
+            } catch (Exception e) {
+                Home.noDataWeekly(false);
+            }
+            home.setAppNameMonthly(top3AppName[2]);
+            Home.setAppTimeMonthly(top3Apps[2]);
+            Home.setAppIconMonthly(appIcon[2]);
+            try {
+                Home.noDataMonthly(top3Apps[2] == null);
+            } catch (Exception e) {
+                Home.noDataMonthly(false);
+            }
         }
     }
 
@@ -140,9 +144,9 @@ public class Tracker extends Application {
             Data.updateData(files[i], apps);
             top3Apps[i] = Time.getTop3ByTime(apps);
 
-            Log.d("Tracker.class | updateData", top3Apps[i][0][0]);
-            Log.d("Tracker.class | updateData", top3Apps[i][1][0]);
-            Log.d("Tracker.class | updateData", top3Apps[i][2][0]);
+            Log.d("Tracker.class | updateData init", top3Apps[i][0][0]);
+            Log.d("Tracker.class | updateData init", top3Apps[i][1][0]);
+            Log.d("Tracker.class | updateData init", top3Apps[i][2][0]);
         }
 
         for (int i = 0; i < 3; i++) {
@@ -156,6 +160,9 @@ public class Tracker extends Application {
                     getAppIcon(top3Apps[i][1][0]),
                     getAppIcon(top3Apps[i][2][0])
             };
+            Log.d("Tracker.class | updateData", top3Apps[i][0][0] + " " + top3AppName[0][0]);
+            Log.d("Tracker.class | updateData", top3Apps[i][1][0] + " " + top3AppName[0][1]);
+            Log.d("Tracker.class | updateData", top3Apps[i][2][0] + " " + top3AppName[0][2]);
         }
     }
 

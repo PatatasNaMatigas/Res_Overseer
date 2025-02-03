@@ -109,13 +109,16 @@ public class Data {
     }
 
     public static void updateData(File file, List<ScreenTimeTracker.AppUsageEntry> apps) {
+        if (apps.isEmpty())
+            return;
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 
             // app entry
             for (ScreenTimeTracker.AppUsageEntry app : apps) {
                 String dwadsadwa = app.packageName + ": " + Time.formatMillis(app.time);
                 writer.write(dwadsadwa + '\n');
+                Log.d("Data.class", dwadsadwa);
             }
 
             writer.close();
@@ -136,12 +139,18 @@ public class Data {
     public static List<ScreenTimeTracker.AppUsageEntry> sortAppsDescending(List<ScreenTimeTracker.AppUsageEntry> apps) {
         ArrayList<ScreenTimeTracker.AppUsageEntry> top3 = new ArrayList<>();
 
+        for (ScreenTimeTracker.AppUsageEntry app : apps)
+            Log.d("AFHASASFA | Before", app.packageName + "");
+
         for (ScreenTimeTracker.AppUsageEntry app : apps) {
             int timeInSeconds = Data.computeTime(apps, app.packageName);
             top3.add(new ScreenTimeTracker.AppUsageEntry(app.packageName, timeInSeconds));
         }
 
         top3.sort((a, b) -> Math.toIntExact(b.time - a.time));
+
+        for (ScreenTimeTracker.AppUsageEntry app : apps)
+            Log.d("AFHASASFA | After", app.packageName + "");
 
         return top3;
     }

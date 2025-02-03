@@ -76,7 +76,8 @@ public class ScreenTimeTracker {
 
     private static List<AppUsageEntry> refine(List<AppUsageEntry> appList) {
         List<AppUsageEntry> refinedList = new ArrayList<>();
-        if (appList.isEmpty()) return refinedList;
+        if (appList.isEmpty())
+            return refinedList;
 
         AppUsageEntry currentApp = appList.get(0);
 

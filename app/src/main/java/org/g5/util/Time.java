@@ -88,14 +88,9 @@ public class Time {
         for (ScreenTimeTracker.AppUsageEntry app : apps) {
             int timeInSeconds = Data.computeTime(apps, app.packageName);
             top3.add(new ScreenTimeTracker.AppUsageEntry(app.packageName, timeInSeconds));
-            Log.d("Time.class | Before", "App: " + app.packageName + " " + timeInSeconds);
         }
 
         top3.sort((a, b) -> Long.compare(b.time, a.time));
-
-        for (ScreenTimeTracker.AppUsageEntry app : top3) {
-            Log.d("Time.class | After", "App: " + app.packageName + " " + app.time);
-        }
 
         int min = Math.min(top3.size(), 3);
         String[][] entries = new String[3][2];

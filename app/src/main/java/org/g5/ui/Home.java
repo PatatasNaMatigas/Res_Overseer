@@ -1,5 +1,7 @@
 package org.g5.ui;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -8,6 +10,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,6 +30,8 @@ import org.g5.util.LineWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.Arrays;
 
 import me.grantland.widget.AutofitTextView;
 
@@ -34,7 +39,7 @@ public class Home extends AppCompatActivity {
     private static AutofitTextView[] dataAvailabilityText;
 
     private ImageButton popDrawer;
-    private static TextView[] dailyAppNames;
+    private TextView[] dailyAppNames;
     private static TextView[] weeklyAppNames;
     private static TextView[] monthlyAppNames;
     private static TextView[] dailyAppTimes;
@@ -47,10 +52,15 @@ public class Home extends AppCompatActivity {
     private String trimmedText = "";
     private static Pet pet;
 
+    private static WeakReference<Home> instance;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_page);
+
+        instance = new WeakReference<>(this);
 
         // Initialize app name arrays
         dailyAppNames = new TextView[]{
@@ -278,38 +288,50 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    public static void setAppNameDaily(String[] app) {
-        if (app == null) return;
-        for (int i = 0; i < app.length; i++) {
-            if (app[i] == null) return;
-            try {
-                dailyAppNames[i].setText(app[i]);
-            } catch (NullPointerException e) {
-                return;
-            }
+    public static Home getInstance() {
+        return instance != null ? instance.get() : null;
+    }
+
+    public void setAppNameDaily(String[] app) {
+        if (app == null)
+            return;
+
+        Log.d("Home.class | ofniuewfiugegfiw", app[0]);
+
+        if (app.length > 0 && !app[0].isEmpty()) {
+            Log.d("Home.class | ofniuewfiugegfiw", app[0]);
+            ((TextView) findViewById(R.id.dailyAppName1)).setText(app[0]);
+        } if (app.length > 1 && !app[1].isEmpty()) {
+            Log.d("Home.class | ofniuewfiugegfiw", app[1]);
+            ((TextView) findViewById(R.id.dailyAppName2)).setText(app[1]);
+        } if (app.length > 2 && !app[0].isEmpty()) {
+            Log.d("Home.class | ofniuewfiugegfiw", app[2]);
+            ((TextView) findViewById(R.id.dailyAppName3)).setText(app[2]);
         }
     }
 
-    public static void setAppNameWeekly(String[] app) {
-        if (app == null) return;
-        for (int i = 0; i < app.length; i++) {
-            try {
-                weeklyAppNames[i].setText(app[i]);
-            } catch (NullPointerException e) {
-                return;
-            }
-        }
+    public void setAppNameWeekly(String[] app) {
+        if (app == null)
+            return;
+
+        if (app.length > 0 && !app[0].isEmpty())
+            ((TextView) findViewById(R.id.weeklyAppName1)).setText(app[0]);
+        if (app.length > 1 && !app[1].isEmpty())
+            ((TextView) findViewById(R.id.weeklyAppName1)).setText(app[1]);
+        if (app.length > 2 && !app[0].isEmpty())
+            ((TextView) findViewById(R.id.weeklyAppName1)).setText(app[2]);
     }
 
-    public static void setAppNameMonthly(String[] app) {
-        if (app == null) return;
-        for (int i = 0; i < app.length; i++) {
-            try {
-                monthlyAppNames[i].setText(app[i]);
-            } catch (NullPointerException e) {
-                return;
-            }
-        }
+    public void setAppNameMonthly(String[] app) {
+        if (app == null)
+            return;
+
+        if (app.length > 0 && !app[0].isEmpty())
+            ((TextView) findViewById(R.id.monthlyAppName1)).setText(app[0]);
+        if (app.length > 1 && !app[1].isEmpty())
+            ((TextView) findViewById(R.id.monthlyAppName1)).setText(app[1]);
+        if (app.length > 2 && !app[0].isEmpty())
+            ((TextView) findViewById(R.id.monthlyAppName1)).setText(app[2]);
     }
 
     public static void setAppTimeDaily(String[][] app) {
