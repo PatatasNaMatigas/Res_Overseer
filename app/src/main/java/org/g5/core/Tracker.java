@@ -40,7 +40,7 @@ public class Tracker extends Application {
     public void onCreate() {
         super.onCreate();
 
-        startTime.add(Calendar.HOUR, -12);
+        startTime.add(Calendar.DATE, -2);
 
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
@@ -56,6 +56,10 @@ public class Tracker extends Application {
                     checked = true;
                     appEntries.addAll(ScreenTimeTracker.getApps(activity, startTime));
                     appEntries = Data.sortAppsDescending(appEntries);
+
+                    for (int i = 0; i < appEntries.size(); i++) {
+                        Log.d("All Apps", "App name:" + appEntries.get(i).packageName);
+                    }
 
                     try {
                         updateData(appEntries);
