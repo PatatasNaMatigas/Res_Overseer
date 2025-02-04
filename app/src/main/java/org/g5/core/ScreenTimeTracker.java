@@ -120,7 +120,7 @@ public class ScreenTimeTracker {
 
 
     private static boolean isSystemApp(String packageName) {
-        return StringUtil.containsAny(packageName, "systemui", "launcher", "searchbox");
+        return StringUtil.containsAny(packageName, "systemui", "launcher", "searchbox", "");
     }
 
     public static void requestUsageAccess(Context context) {

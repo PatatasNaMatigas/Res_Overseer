@@ -58,7 +58,7 @@ public class Tracker extends Application {
                     appEntries = Data.sortAppsDescending(appEntries);
 
                     for (int i = 0; i < appEntries.size(); i++) {
-                        Log.d("All Apps", "App name:" + appEntries.get(i).packageName);
+                        Log.d("All Apps And Time Yes", "App name: " + appEntries.get(i).packageName);
                     }
 
                     try {
