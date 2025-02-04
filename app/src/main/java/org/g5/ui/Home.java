@@ -296,30 +296,38 @@ public class Home extends AppCompatActivity {
         if (app == null)
             return;
 
-        Log.d("Home.class | ofniuewfiugegfiw", app[0]);
+        for (int i = 0; i < Math.min(app.length, 3); i++)
+            if (!app[i].isEmpty())
+                dailyAppNames[i].setText(app[i]);
+    }
 
-        if (app.length > 0 && !app[0].isEmpty()) {
-            Log.d("Home.class | ofniuewfiugegfiw", app[0]);
-            ((TextView) findViewById(R.id.dailyAppName1)).setText(app[0]);
-        } if (app.length > 1 && !app[1].isEmpty()) {
-            Log.d("Home.class | ofniuewfiugegfiw", app[1]);
-            ((TextView) findViewById(R.id.dailyAppName2)).setText(app[1]);
-        } if (app.length > 2 && !app[0].isEmpty()) {
-            Log.d("Home.class | ofniuewfiugegfiw", app[2]);
-            ((TextView) findViewById(R.id.dailyAppName3)).setText(app[2]);
+    public void setAppTimeDaily(String[][] app) {
+        if (app == null) return;
+        for (int i = 0; i < app.length; i++) {
+            if (app[i] == null || app[i][1] == null) return;
+            try {
+                dailyAppTimes[i].setText(app[i][1]);
+            } catch (NullPointerException e) {
+                return;
+            }
         }
+    }
+
+    public static void setAppIconDaily(Drawable[] app) {
+        if (app == null)
+            return;
+
+        for (int i = 0; i < Math.min(app.length, 3); i++)
+            dailyAppIcons[i].setImageDrawable(app[i]);
     }
 
     public void setAppNameWeekly(String[] app) {
         if (app == null)
             return;
 
-        if (app.length > 0 && !app[0].isEmpty())
-            ((TextView) findViewById(R.id.weeklyAppName1)).setText(app[0]);
-        if (app.length > 1 && !app[1].isEmpty())
-            ((TextView) findViewById(R.id.weeklyAppName1)).setText(app[1]);
-        if (app.length > 2 && !app[0].isEmpty())
-            ((TextView) findViewById(R.id.weeklyAppName1)).setText(app[2]);
+        for (int i = 0; i < Math.min(app.length, 3); i++)
+            if (!app[i].isEmpty())
+                weeklyAppNames[i].setText(app[i]);
     }
 
     public void setAppNameMonthly(String[] app) {
@@ -334,19 +342,8 @@ public class Home extends AppCompatActivity {
             ((TextView) findViewById(R.id.monthlyAppName1)).setText(app[2]);
     }
 
-    public static void setAppTimeDaily(String[][] app) {
-        if (app == null) return;
-        for (int i = 0; i < app.length; i++) {
-            if (app[i] == null || app[i][1] == null) return; // Check if app[i][1] is not null
-            try {
-                dailyAppTimes[i].setText(app[i][1]);
-            } catch (NullPointerException e) {
-                return;
-            }
-        }
-    }
 
-    public static void setAppTimeWeekly(String[][] app) {
+    public void setAppTimeWeekly(String[][] app) {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null || app[i][1] == null) return; // Check if app[i][1] is not null
@@ -364,18 +361,6 @@ public class Home extends AppCompatActivity {
             if (app[i] == null || app[i][1] == null) return; // Check if app[i][1] is not null
             try {
                 monthlyAppTimes[i].setText(app[i][1]);
-            } catch (NullPointerException e) {
-                return;
-            }
-        }
-    }
-
-    public static void setAppIconDaily(Drawable[] app) {
-        if (app == null) return;
-        for (int i = 0; i < app.length; i++) {
-            if (app[i] == null) return;
-            try {
-                dailyAppIcons[i].setImageDrawable(app[i]);
             } catch (NullPointerException e) {
                 return;
             }

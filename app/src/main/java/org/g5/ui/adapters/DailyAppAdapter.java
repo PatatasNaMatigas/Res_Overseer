@@ -1,5 +1,6 @@
 package org.g5.ui.adapters;
 
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,31 +9,32 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.g5.overseer.R;
-import org.g5.ui.model.DailyAppModel;
+import org.g5.ui.callbacks.DailyAppDiffCallback;
+import org.g5.ui.models.DailyAppModel;
 
-import java.util.List;
+import java.util.Objects;
 
-public class DailyAppAdapter extends RecyclerView.Adapter<DailyAppAdapter.ViewHolder> {
+public class DailyAppAdapter extends ListAdapter<DailyAppModel, DailyAppAdapter.ViewHolder> {
 
-    private final List<DailyAppModel> appEntries;
-
-    public DailyAppAdapter(List<DailyAppModel> appEntries) {
-        this.appEntries = appEntries;
+    public DailyAppAdapter() {
+        super(new DailyAppDiffCallback());
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.daily_app_entry, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.daily_app_entry, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        DailyAppModel appEntry = appEntries.get(position);
+        DailyAppModel appEntry = getItem(position);
         holder.icon.setImageDrawable(appEntry.getIcon());
         holder.name.setText(appEntry.getName());
         holder.timeSpent.setText(appEntry.getTimeSpent());
@@ -59,11 +61,6 @@ public class DailyAppAdapter extends RecyclerView.Adapter<DailyAppAdapter.ViewHo
                             R.drawable.rounded_corner_variant_4
                     )
             );
-    }
-
-    @Override
-    public int getItemCount() {
-        return appEntries.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

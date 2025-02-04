@@ -1,4 +1,4 @@
-package org.g5.ui.model;
+package org.g5.ui.models;
 
 import android.graphics.drawable.Drawable;
 

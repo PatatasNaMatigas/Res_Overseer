@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 public class ScreenTimeTracker {
@@ -71,7 +72,7 @@ public class ScreenTimeTracker {
             }
         }
 
-        return refine(appUsageMap);
+        return compute(refine(appUsageMap));
     }
 
     private static List<AppUsageEntry> refine(List<AppUsageEntry> appList) {
@@ -94,10 +95,32 @@ public class ScreenTimeTracker {
                 currentApp = nextApp;
             }
         }
-        refinedList.add(currentApp); // Add last app
+        refinedList.add(currentApp);
 
         return refinedList;
     }
+
+    public static List<AppUsageEntry> compute(List<AppUsageEntry> apps) {
+        Map<String, AppUsageEntry> appMap = new HashMap<>();
+
+        for (AppUsageEntry app : apps) {
+            if (appMap.containsKey(app.packageName)) {
+                AppUsageEntry existingApp = appMap.get(app.packageName);
+                existingApp.time += app.time;
+            } else {
+                appMap.put(app.packageName, new AppUsageEntry(app.packageName, app.time));
+            }
+        }
+
+        List<AppUsageEntry> result = new ArrayList<>(appMap.values());
+
+        for (AppUsageEntry app : result) {
+            Log.d("ScreenTimeTracker.class", "App: " + app.packageName + " Time: " + Time.formatTime(Time.millsToTime(app.time)));
+        }
+
+        return result;
+    }
+
 
     private static boolean isSystemApp(String packageName) {
         return StringUtil.containsAny(packageName, "systemui", "launcher");

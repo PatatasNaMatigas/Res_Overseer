@@ -1,12 +1,12 @@
-package org.g5.ui.model;
+package org.g5.ui.models;
 
 import android.graphics.drawable.Drawable;
 
 public class DailyAppModel {
 
-    private String name;
-    private String timeSpent;
-    private Drawable icon;
+    private final String name;
+    private final String timeSpent;
+    private final Drawable icon;
     private final int bg;
 
     public DailyAppModel(DailyAppModel lastView, String name, String timeSpent, Drawable icon) {

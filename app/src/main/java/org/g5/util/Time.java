@@ -92,6 +92,8 @@ public class Time {
 
         top3.sort((a, b) -> Long.compare(b.time, a.time));
 
+        Log.d("Time.class", "Sorted Length: " + top3.size() + " Original Length: " + apps.size());
+
         int min = Math.min(top3.size(), 3);
         String[][] entries = new String[3][2];
         for (int i = 0; i < 3; i++) {

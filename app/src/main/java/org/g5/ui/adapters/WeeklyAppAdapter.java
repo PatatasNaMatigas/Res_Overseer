@@ -11,8 +11,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.g5.overseer.R;
-import org.g5.ui.model.DailyAppModel;
-import org.g5.ui.model.WeeklyAppModel;
+import org.g5.ui.models.WeeklyAppModel;
 
 import java.util.List;
 

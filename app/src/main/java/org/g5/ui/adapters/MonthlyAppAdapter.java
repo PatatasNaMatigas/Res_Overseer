@@ -7,11 +7,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.g5.overseer.R;
-import org.g5.ui.model.MonthlyAppModel;
+import org.g5.ui.models.MonthlyAppModel;
 
 import java.util.List;
 

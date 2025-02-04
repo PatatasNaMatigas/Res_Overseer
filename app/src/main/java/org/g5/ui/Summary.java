@@ -12,73 +12,98 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.g5.core.Data;
 import org.g5.core.ScreenTimeTracker;
 import org.g5.core.Tracker;
 import org.g5.overseer.R;
 import org.g5.ui.adapters.DailyAppAdapter;
-import org.g5.ui.adapters.MonthlyAppAdapter;
 import org.g5.ui.adapters.WeeklyAppAdapter;
-import org.g5.ui.model.DailyAppModel;
-import org.g5.ui.model.MonthlyAppModel;
-import org.g5.ui.model.WeeklyAppModel;
+import org.g5.ui.models.DailyAppModel;
+import org.g5.ui.models.WeeklyAppModel;
 import org.g5.util.Time;
-import org.g5.util.TriMap;
 
 import java.time.LocalDateTime;
 
 public class Summary extends AppCompatActivity {
+
+    private Map<String, Drawable> iconCache = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.summary_page);
 
-        Log.d("Summary.class", "created");
+        // Initialize UI immediately without waiting for data
+        initUi();
 
-        List<ScreenTimeTracker.AppUsageEntry> apps;
-        try {
-            apps = Data.sortAppsDescending(Data.getDataFromFile(Data.createDailyFile(this)));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        String topApp = (!apps.get(0).packageName.isEmpty()) ? apps.get(0).packageName : "";
-        Drawable topAppIcon = Tracker.getAppIcon(this, topApp);
+        // Create separate executors for different tasks
+        ExecutorService dataExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
+        // Load top app information first
+        dataExecutor.execute(() -> {
+            List<ScreenTimeTracker.AppUsageEntry> sortedApps = Tracker.appEntries;
+            String topPackageName = !sortedApps.isEmpty() ? sortedApps.get(0).packageName : "";
+
+            runOnUiThread(() -> {
+                Drawable topAppIcon = getCachedIcon(this, topPackageName);
+                ((ImageView) findViewById(R.id.app_icon)).setImageDrawable(topAppIcon);
+                ((TextView) findViewById(R.id.app_name)).setText(Tracker.getAppName(this, topPackageName));
+
+                initializeDailyAdapter(sortedApps);
+                initializeWeeklyAdapter();
+                initializeMonthlyAdapter();
+            });
+        });
+    }
+
+    private void initializeDailyAdapter(List<ScreenTimeTracker.AppUsageEntry> apps) {
         RecyclerView dailyRecyclerView = findViewById(R.id.daily_recycler_view);
+        dailyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        DailyAppModel lastView = null;
-        List<DailyAppModel> dailyAppModels = new ArrayList<>();
+        DailyAppModel last = null;
+        List<DailyAppModel> dailyModels = new ArrayList<>();
         for (ScreenTimeTracker.AppUsageEntry app : apps) {
-            Drawable icon = Tracker.getAppIcon(this, app.packageName);
+            Drawable icon = getCachedIcon(this, app.packageName);
             String timeSpent = Time.formatTime(Time.millsToTime(app.time));
-            dailyAppModels.add(lastView = new DailyAppModel(
-                    lastView,
+            dailyModels.add(last = new DailyAppModel(
+                    last,
                     Tracker.getAppName(this, app.packageName),
                     timeSpent,
-                    icon)
-            );
+                    icon
+            ));
         }
 
+        // Initialize adapter
+        DailyAppAdapter adapter = new DailyAppAdapter();
+        dailyRecyclerView.setAdapter(adapter);
+        adapter.submitList(dailyModels);
+    }
+
+    private void initializeWeeklyAdapter() {
+        RecyclerView weeklyRecyclerView = findViewById(R.id.weekly_recycler_view);
+        weeklyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        List<WeeklyAppModel> weeklyModels = createWeeklyModels();
+        weeklyRecyclerView.setAdapter(new WeeklyAppAdapter(weeklyModels));
+    }
+
+    private List<WeeklyAppModel> createWeeklyModels() {
         List<LocalDate> ld = Time.getCurrentWeekDaysUntilToday();
         WeeklyAppModel weeklyAppEntry = null;
         List<WeeklyAppModel> weeklyAppModels = new ArrayList<>();
@@ -89,45 +114,23 @@ public class Summary extends AppCompatActivity {
             weeklyAppModels.add(weeklyAppEntry);
         }
 
-        RecyclerView weeklyRecyclerView = findViewById(R.id.weekly_recycler_view);
+        return weeklyAppModels;
+    }
 
-        runOnUiThread(() -> {
-            initUi();
-            ((ImageView) findViewById(R.id.app_icon)).setImageDrawable(topAppIcon);
-            ((TextView) findViewById(R.id.app_name)).setText(Tracker.getAppName(this, topApp));
+    private void initializeMonthlyAdapter() {
+//        RecyclerView monthlyRecyclerView = findViewById(R.id.monthly_recycler_view);
+//        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+//        monthlyRecyclerView.setLayoutManager(gridLayoutManager);
+//
+////        List<MonthlyAppModel> monthlyModels = createMonthlyModels();
+//        monthlyRecyclerView.setAdapter(new MonthlyAppAdapter(monthlyModels));
+    }
 
-            DailyAppAdapter adapter = new DailyAppAdapter(dailyAppModels);
-            dailyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            dailyRecyclerView.setAdapter(adapter);
-
-            WeeklyAppAdapter weeklyAppAdapter = new WeeklyAppAdapter(weeklyAppModels);
-            weeklyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            weeklyRecyclerView.setAdapter(weeklyAppAdapter);
-        });
-
-        RecyclerView recyclerView = findViewById(R.id.monthly_recycler_view);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
-        recyclerView.setLayoutManager(gridLayoutManager);
-
-        List<MonthlyAppModel> monthlyAppModels = new ArrayList<>();
-
-        List<LocalDate> localDate = Time.getMonths(getFilesDir());
-        for (LocalDate date : localDate) {
-            if (date.getMonthValue() > 12)
-                break;
-            List<ScreenTimeTracker.AppUsageEntry> dataFromFile = Data.sortAppsDescending(Data.getDataFromFile(Data.getMonthlyFile(this, date.getMonthValue(), date.getYear())));
-            try {
-                monthlyAppModels.add(new MonthlyAppModel(date.getMonth().toString(), new Drawable[] {
-                        (!dataFromFile.isEmpty()) ? Tracker.getAppIcon(this, dataFromFile.get(0).packageName) : null,
-                        (dataFromFile.size() > 1) ? Tracker.getAppIcon(this, dataFromFile.get(1).packageName) : null,
-                        (dataFromFile.size() > 2) ? Tracker.getAppIcon(this, dataFromFile.get(2).packageName) : null,
-                        (dataFromFile.size() > 3) ? Tracker.getAppIcon(this, dataFromFile.get(3).packageName) : null,
-                }));
-            } catch (IndexOutOfBoundsException e) {}
+    private Drawable getCachedIcon(AppCompatActivity context, String packageName) {
+        if (!iconCache.containsKey(packageName)) {
+            iconCache.put(packageName, Tracker.getAppIcon(context, packageName));
         }
-
-        MonthlyAppAdapter adapter = new MonthlyAppAdapter(monthlyAppModels);
-        recyclerView.setAdapter(adapter);
+        return iconCache.get(packageName);
     }
 
     @Override

@@ -34,6 +34,7 @@ public class Tracker extends Application {
 
     private static boolean checked = false;
     private static Calendar startTime = Calendar.getInstance();
+    public static List<ScreenTimeTracker.AppUsageEntry> appEntries = new ArrayList<>();
 
     @Override
     public void onCreate() {
@@ -53,18 +54,8 @@ public class Tracker extends Application {
                     initData(false, activity);
 
                     checked = true;
-
-                    List<ScreenTimeTracker.AppUsageEntry> appEntries = ScreenTimeTracker.getApps(activity, startTime);
-
-                    for (int i = 0; i < appEntries.size(); i++) {
-                        for (List<ScreenTimeTracker.AppUsageEntry> app : data) {
-                            app.add(
-                                    new ScreenTimeTracker.AppUsageEntry(
-                                            appEntries.get(i).packageName,
-                                            appEntries.get(i).time)
-                            );
-                        }
-                    }
+                    appEntries.addAll(ScreenTimeTracker.getApps(activity, startTime));
+                    appEntries = Data.sortAppsDescending(appEntries);
 
                     try {
                         updateData(appEntries);
@@ -113,40 +104,37 @@ public class Tracker extends Application {
 
         if (home != null) {
             home.setAppNameDaily(top3AppName[0]);
-            Home.setAppTimeDaily(top3Apps[0]);
-            Home.setAppIconDaily(appIcon[0]);
+            home.setAppTimeDaily(top3Apps[0]);
+            home.setAppIconDaily(appIcon[0]);
             try {
-                Home.noDataDaily(top3Apps[0] == null);
+                home.noDataDaily(top3Apps[0] == null);
             } catch (Exception e) {
-                Home.noDataDaily(false);
+                home.noDataDaily(false);
             }
             home.setAppNameWeekly(top3AppName[1]);
-            Home.setAppTimeWeekly(top3Apps[1]);
-            Home.setAppIconWeekly(appIcon[1]);
+            home.setAppTimeWeekly(top3Apps[1]);
+            home.setAppIconWeekly(appIcon[1]);
             try {
-                Home.noDataWeekly(top3Apps[1] == null);
+                home.noDataWeekly(top3Apps[1] == null);
             } catch (Exception e) {
-                Home.noDataWeekly(false);
+                home.noDataWeekly(false);
             }
             home.setAppNameMonthly(top3AppName[2]);
-            Home.setAppTimeMonthly(top3Apps[2]);
-            Home.setAppIconMonthly(appIcon[2]);
+            home.setAppTimeMonthly(top3Apps[2]);
+            home.setAppIconMonthly(appIcon[2]);
             try {
-                Home.noDataMonthly(top3Apps[2] == null);
+                home.noDataMonthly(top3Apps[2] == null);
             } catch (Exception e) {
-                Home.noDataMonthly(false);
+                home.noDataMonthly(false);
             }
         }
     }
 
     public void updateData(List<ScreenTimeTracker.AppUsageEntry> apps) throws IOException {
+        Log.d("Tracker.class", "Apps Length: " + apps.size());
         for (int i = 0; i < data.length; i++) {
             Data.updateData(files[i], apps);
             top3Apps[i] = Time.getTop3ByTime(apps);
-
-            Log.d("Tracker.class | updateData init", top3Apps[i][0][0]);
-            Log.d("Tracker.class | updateData init", top3Apps[i][1][0]);
-            Log.d("Tracker.class | updateData init", top3Apps[i][2][0]);
         }
 
         for (int i = 0; i < 3; i++) {
@@ -160,9 +148,6 @@ public class Tracker extends Application {
                     getAppIcon(top3Apps[i][1][0]),
                     getAppIcon(top3Apps[i][2][0])
             };
-            Log.d("Tracker.class | updateData", top3Apps[i][0][0] + " " + top3AppName[0][0]);
-            Log.d("Tracker.class | updateData", top3Apps[i][1][0] + " " + top3AppName[0][1]);
-            Log.d("Tracker.class | updateData", top3Apps[i][2][0] + " " + top3AppName[0][2]);
         }
     }
 
