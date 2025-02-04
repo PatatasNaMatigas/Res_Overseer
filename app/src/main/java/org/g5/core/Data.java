@@ -99,7 +99,6 @@ public class Data {
                     };
 
                     data.add(new ScreenTimeTracker.AppUsageEntry(appName, Time.convertToSeconds(timeArray)));
-                    Log.d("Tracker | getDataFromFile()", "App: " + appName + ", Time: " + Arrays.toString(timeArray));
                 } catch (ArrayIndexOutOfBoundsException e) {
                     throw new RuntimeException(e);
                 }
@@ -118,7 +117,6 @@ public class Data {
             for (ScreenTimeTracker.AppUsageEntry app : apps) {
                 String dwadsadwa = app.packageName + ": " + Time.formatMillis(app.time);
                 writer.write(dwadsadwa + '\n');
-                Log.d("Data.class", dwadsadwa);
             }
 
             writer.close();
@@ -139,9 +137,6 @@ public class Data {
     public static List<ScreenTimeTracker.AppUsageEntry> sortAppsDescending(List<ScreenTimeTracker.AppUsageEntry> apps) {
         ArrayList<ScreenTimeTracker.AppUsageEntry> top3 = new ArrayList<>();
 
-        for (ScreenTimeTracker.AppUsageEntry app : apps)
-            Log.d("AFHASASFA | Before", app.packageName + "");
-
         for (ScreenTimeTracker.AppUsageEntry app : apps) {
             int timeInSeconds = Data.computeTime(apps, app.packageName);
             top3.add(new ScreenTimeTracker.AppUsageEntry(app.packageName, timeInSeconds));
@@ -149,18 +144,12 @@ public class Data {
 
         top3.sort((a, b) -> Math.toIntExact(b.time - a.time));
 
-        for (ScreenTimeTracker.AppUsageEntry app : apps)
-            Log.d("AFHASASFA | After", app.packageName + "");
-
         return top3;
     }
 
     public static File getFileByDate(Context context, int[] date) {
         String formattedDate = String.format("%d_%02d_%02d.txt", date[0], date[1], date[2] % 100);
-        formattedDate = String.format("%d_%02d_%02d.txt", date[0], date[1], date[2] % 100);
-        File file = new File(context.getFilesDir(), formattedDate);
-        Log.d("Data.class | getFileByData()", "fileExists=" + file.exists() + " | " + formattedDate);
-        return file;
+        return new File(context.getFilesDir(), formattedDate);
     }
 
     public static File getWeeklyFile(Context context, int[] date) {

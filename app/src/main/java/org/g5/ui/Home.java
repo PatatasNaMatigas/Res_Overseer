@@ -248,7 +248,6 @@ public class Home extends AppCompatActivity {
             new QuizData(this);
             if (!QuizData.answeredToday()) {
                 startActivity(new Intent(this, Q1Start.class));
-                finish();
             } else {
                 Toast.makeText(this, "You've answered the quiz already for today", Toast.LENGTH_LONG).show();
             }
@@ -270,7 +269,6 @@ public class Home extends AppCompatActivity {
         }
 
         findViewById(R.id.summary).setOnClickListener(view -> {
-            finish();
             startActivity(new Intent(this, Summary.class));
         });
     }
@@ -313,7 +311,7 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    public static void setAppIconDaily(Drawable[] app) {
+    public void setAppIconDaily(Drawable[] app) {
         if (app == null)
             return;
 
@@ -337,9 +335,9 @@ public class Home extends AppCompatActivity {
         if (app.length > 0 && !app[0].isEmpty())
             ((TextView) findViewById(R.id.monthlyAppName1)).setText(app[0]);
         if (app.length > 1 && !app[1].isEmpty())
-            ((TextView) findViewById(R.id.monthlyAppName1)).setText(app[1]);
+            ((TextView) findViewById(R.id.monthlyAppName2)).setText(app[1]);
         if (app.length > 2 && !app[0].isEmpty())
-            ((TextView) findViewById(R.id.monthlyAppName1)).setText(app[2]);
+            ((TextView) findViewById(R.id.monthlyAppName3)).setText(app[2]);
     }
 
 
@@ -355,7 +353,7 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    public static void setAppTimeMonthly(String[][] app) {
+    public void setAppTimeMonthly(String[][] app) {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null || app[i][1] == null) return; // Check if app[i][1] is not null
@@ -367,7 +365,7 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    public static void setAppIconWeekly(Drawable[] app) {
+    public void setAppIconWeekly(Drawable[] app) {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null) return;
@@ -379,7 +377,7 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    public static void setAppIconMonthly(Drawable[] app) {
+    public void setAppIconMonthly(Drawable[] app) {
         if (app == null) return;
         for (int i = 0; i < app.length; i++) {
             if (app[i] == null) return;
@@ -391,17 +389,17 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    public static void noDataDaily(boolean noData) {
+    public void noDataDaily(boolean noData) {
         if (dataAvailabilityText != null)
             dataAvailabilityText[0].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
     }
 
-    public static void noDataWeekly(boolean noData) {
+    public void noDataWeekly(boolean noData) {
         if (dataAvailabilityText != null)
             dataAvailabilityText[1].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
     }
 
-    public static void noDataMonthly(boolean noData) {
+    public void noDataMonthly(boolean noData) {
         if (dataAvailabilityText != null)
             dataAvailabilityText[2].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
     }

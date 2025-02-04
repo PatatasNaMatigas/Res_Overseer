@@ -94,10 +94,9 @@ public class Time {
 
         Log.d("Time.class", "Sorted Length: " + top3.size() + " Original Length: " + apps.size());
 
-        int min = Math.min(top3.size(), 3);
         String[][] entries = new String[3][2];
         for (int i = 0; i < 3; i++) {
-            if (i < min) {
+            if (i < Math.min(top3.size(), 3)) {
                 entries[i][0] = top3.get(i).packageName;
                 entries[i][1] = Time.formatTime(Time.convertSecondsToArray((int) top3.get(i).time));
             } else {
@@ -194,7 +193,7 @@ public class Time {
         int minutes = (seconds % 3600) / 60;
         int secs = seconds % 60;
 
-        return String.format("%dh%02dm%02ds", hours, minutes, secs);
+        return String.format("%dh%2dm%2ds", hours, minutes, secs);
     }
 
     public static String formatMinutes(int minutes) {

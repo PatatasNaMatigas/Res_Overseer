@@ -240,10 +240,20 @@ public class Permission extends AppCompatActivity {
         if (requestCode == 1) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, proceed with showing notifications
-                Toast.makeText(this, "Permission granted!", Toast.LENGTH_SHORT).show();
+                notificationPermission = checkNotifications(this);
+                ((Button) findViewById(R.id.grant_notifications)).setText("Granted");
+                findViewById(R.id.grant_notifications).setBackgroundResource(R.drawable.activated_button);
+                if (appUsagePermission && notificationPermission)
+                    proceed.setBackgroundResource(R.drawable.activated_button);
+                else
+                    proceed.setBackgroundResource(R.drawable.unactivated_button);
             } else {
-                // Permission denied, inform the user
-                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show();
+                notificationPermission = checkNotifications(this);
+                findViewById(R.id.grant_notifications).setBackgroundResource(R.drawable.unactivated_button);
+                if (appUsagePermission && notificationPermission)
+                    proceed.setBackgroundResource(R.drawable.activated_button);
+                else
+                    proceed.setBackgroundResource(R.drawable.unactivated_button);
             }
         }
     }

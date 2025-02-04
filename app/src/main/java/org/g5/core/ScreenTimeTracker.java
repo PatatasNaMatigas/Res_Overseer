@@ -24,20 +24,17 @@ public class ScreenTimeTracker {
 
     public static List<AppUsageEntry> getApps(Context context, Calendar last) {
         Log.d("ScreenTimeTracker | ScreenTimeTracker.class", "Getting apps");
-        UsageStatsManager usageStatsManager =
-                (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+        UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
 
         if (usageStatsManager == null) {
             Log.d("ScreenTimeTracker | ScreenTimeTracker.class", "nvm");
             return new ArrayList<>();
         }
 
-        // Define time range (last hour)
         Calendar calendar = Calendar.getInstance();
         long endTime = calendar.getTimeInMillis();
         long startTime = last.getTimeInMillis();
 
-        // Get event logs
         UsageEvents events = usageStatsManager.queryEvents(startTime, endTime);
         UsageEvents.Event event = new UsageEvents.Event();
 
@@ -115,7 +112,7 @@ public class ScreenTimeTracker {
         List<AppUsageEntry> result = new ArrayList<>(appMap.values());
 
         for (AppUsageEntry app : result) {
-            Log.d("ScreenTimeTracker.class", "App: " + app.packageName + " Time: " + Time.formatTime(Time.millsToTime(app.time)));
+            Log.d("ScreenTimeTracker.class", "Compute | App: " + app.packageName + " Time: " + Time.formatTime(Time.millsToTime(app.time)));
         }
 
         return result;
@@ -123,7 +120,7 @@ public class ScreenTimeTracker {
 
 
     private static boolean isSystemApp(String packageName) {
-        return StringUtil.containsAny(packageName, "systemui", "launcher");
+        return StringUtil.containsAny(packageName, "systemui", "launcher", "searchbox");
     }
 
     public static void requestUsageAccess(Context context) {

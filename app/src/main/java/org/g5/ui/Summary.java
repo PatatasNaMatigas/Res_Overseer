@@ -49,23 +49,20 @@ public class Summary extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.summary_page);
 
-        // Initialize UI immediately without waiting for data
         initUi();
 
-        // Create separate executors for different tasks
         ExecutorService dataExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        // Load top app information first
         dataExecutor.execute(() -> {
-            List<ScreenTimeTracker.AppUsageEntry> sortedApps = Tracker.appEntries;
-            String topPackageName = !sortedApps.isEmpty() ? sortedApps.get(0).packageName : "";
+            List<ScreenTimeTracker.AppUsageEntry> apps = Tracker.appEntries;
+            String topPackageName = !apps.isEmpty() ? apps.get(0).packageName : "";
 
             runOnUiThread(() -> {
                 Drawable topAppIcon = getCachedIcon(this, topPackageName);
                 ((ImageView) findViewById(R.id.app_icon)).setImageDrawable(topAppIcon);
                 ((TextView) findViewById(R.id.app_name)).setText(Tracker.getAppName(this, topPackageName));
 
-                initializeDailyAdapter(sortedApps);
+                initializeDailyAdapter(apps);
                 initializeWeeklyAdapter();
                 initializeMonthlyAdapter();
             });
@@ -80,7 +77,7 @@ public class Summary extends AppCompatActivity {
         List<DailyAppModel> dailyModels = new ArrayList<>();
         for (ScreenTimeTracker.AppUsageEntry app : apps) {
             Drawable icon = getCachedIcon(this, app.packageName);
-            String timeSpent = Time.formatTime(Time.millsToTime(app.time));
+            String timeSpent = Time.formatTime(Time.convertSecondsToArray((int) app.time));
             dailyModels.add(last = new DailyAppModel(
                     last,
                     Tracker.getAppName(this, app.packageName),
@@ -149,13 +146,13 @@ public class Summary extends AppCompatActivity {
 
         String[] app = new String[]{
                 (!apps.isEmpty() && apps.get(0) != null)
-                        ? Time.formatTime(Time.millsToTime(apps.get(0).time))
+                        ? Time.formatTime(Time.convertSecondsToArray((int) apps.get(0).time))
                         : "",
                 (apps.size() > 1 && apps.get(1) != null)
-                        ? Time.formatTime(Time.millsToTime(apps.get(1).time))
+                        ? Time.formatTime(Time.convertSecondsToArray((int) apps.get(1).time))
                         : "",
                 (apps.size() > 2 && apps.get(2) != null)
-                        ? Time.formatTime(Time.millsToTime(apps.get(2).time))
+                        ? Time.formatTime(Time.convertSecondsToArray((int) apps.get(2).time))
                         : "",
         };
 
@@ -271,7 +268,6 @@ public class Summary extends AppCompatActivity {
         });
 
         findViewById(R.id.home).setOnClickListener(view -> {
-            finish();
             startActivity(new Intent(this, Home.class));
         });
 
