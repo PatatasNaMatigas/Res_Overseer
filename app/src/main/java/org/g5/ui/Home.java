@@ -22,11 +22,15 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+
+import org.g5.core.ScreenTimeTracker;
+import org.g5.core.Tracker;
 import org.g5.overseer.R;
 import org.g5.pet.Pet;
 import org.g5.ui.quiz.Q1Start;
 import org.g5.ui.quiz.QuizData;
 import org.g5.util.LineWriter;
+import org.g5.util.Time;
 
 import java.io.File;
 import java.io.IOException;
@@ -167,7 +171,7 @@ public class Home extends AppCompatActivity {
             }
         });
 
-        pet = new Pet(this);
+//        pet = new Pet(this);
 //        initData();
 
         ConstraintLayout constraintLayout = findViewById(R.id.menu_layout);
@@ -290,103 +294,85 @@ public class Home extends AppCompatActivity {
         return instance != null ? instance.get() : null;
     }
 
-    public void setAppNameDaily(String[] app) {
+    public void setAppNameDaily(ScreenTimeTracker.AppUsageEntry[] app) {
         if (app == null)
             return;
 
         for (int i = 0; i < Math.min(app.length, 3); i++)
-            if (!app[i].isEmpty())
-                dailyAppNames[i].setText(app[i]);
+            if (app[i] != null)
+                dailyAppNames[i].setText(Tracker.getAppName(this, app[i].packageName));
     }
 
-    public void setAppTimeDaily(String[][] app) {
-        if (app == null) return;
+    public void setAppTimeDaily(ScreenTimeTracker.AppUsageEntry[] app) {
+        if (app == null)
+            return;
         for (int i = 0; i < app.length; i++) {
-            if (app[i] == null || app[i][1] == null) return;
-            try {
-                dailyAppTimes[i].setText(app[i][1]);
-            } catch (NullPointerException e) {
-                return;
-            }
+            if (app[i] != null)
+                dailyAppTimes[i].setText(Time.formatTime(Time.convertSecondsToArray((int) app[i].time)));
         }
     }
 
-    public void setAppIconDaily(Drawable[] app) {
+    public void setAppIconDaily(ScreenTimeTracker.AppUsageEntry[] app) {
         if (app == null)
             return;
 
         for (int i = 0; i < Math.min(app.length, 3); i++)
-            dailyAppIcons[i].setImageDrawable(app[i]);
+            if (app[i] != null)
+                dailyAppIcons[i].setImageDrawable(Tracker.getAppIcon(this, app[i].packageName));
     }
 
-    public void setAppNameWeekly(String[] app) {
+    public void setAppNameWeekly(ScreenTimeTracker.AppUsageEntry[] app) {
         if (app == null)
             return;
 
         for (int i = 0; i < Math.min(app.length, 3); i++)
-            if (!app[i].isEmpty())
-                weeklyAppNames[i].setText(app[i]);
+            if (app[i] != null)
+                weeklyAppNames[i].setText(Tracker.getAppName(this, app[i].packageName));
     }
 
-    public void setAppNameMonthly(String[] app) {
+    public void setAppTimeWeekly(ScreenTimeTracker.AppUsageEntry[] app) {
+        if (app == null)
+            return;
+        for (int i = 0; i < app.length; i++) {
+            if (app[i] != null)
+                weeklyAppTimes[i].setText(Time.formatTime(Time.convertSecondsToArray((int) app[i].time)));
+        }
+    }
+
+    public void setAppIconWeekly(ScreenTimeTracker.AppUsageEntry[] app) {
         if (app == null)
             return;
 
-        if (app.length > 0 && !app[0].isEmpty())
-            ((TextView) findViewById(R.id.monthlyAppName1)).setText(app[0]);
-        if (app.length > 1 && !app[1].isEmpty())
-            ((TextView) findViewById(R.id.monthlyAppName2)).setText(app[1]);
-        if (app.length > 2 && !app[0].isEmpty())
-            ((TextView) findViewById(R.id.monthlyAppName3)).setText(app[2]);
+        for (int i = 0; i < Math.min(app.length, 3); i++)
+            if (app[i] != null)
+                weeklyAppIcons[i].setImageDrawable(Tracker.getAppIcon(this, app[i].packageName));
     }
 
+    public void setAppNameMonthly(ScreenTimeTracker.AppUsageEntry[] app) {
+        if (app == null)
+            return;
 
-    public void setAppTimeWeekly(String[][] app) {
-        if (app == null) return;
+        for (int i = 0; i < Math.min(app.length, 3); i++)
+            if (app[i] != null)
+                monthlyAppNames[i].setText(Tracker.getAppName(this, app[i].packageName));
+    }
+
+    public void setAppTimeMonthly(ScreenTimeTracker.AppUsageEntry[] app) {
+        if (app == null)
+            return;
         for (int i = 0; i < app.length; i++) {
-            if (app[i] == null || app[i][1] == null) return; // Check if app[i][1] is not null
-            try {
-                weeklyAppTimes[i].setText(app[i][1]);
-            } catch (NullPointerException e) {
-                return;
-            }
+            if (app[i] != null)
+                monthlyAppTimes[i].setText(Time.formatTime(Time.convertSecondsToArray((int) app[i].time)));
         }
     }
 
-    public void setAppTimeMonthly(String[][] app) {
-        if (app == null) return;
-        for (int i = 0; i < app.length; i++) {
-            if (app[i] == null || app[i][1] == null) return; // Check if app[i][1] is not null
-            try {
-                monthlyAppTimes[i].setText(app[i][1]);
-            } catch (NullPointerException e) {
-                return;
-            }
-        }
-    }
+    public void setAppIconMonthly(ScreenTimeTracker.AppUsageEntry[] app) {
+        if (app == null)
+            return;
 
-    public void setAppIconWeekly(Drawable[] app) {
-        if (app == null) return;
-        for (int i = 0; i < app.length; i++) {
-            if (app[i] == null) return;
-            try {
-                weeklyAppIcons[i].setImageDrawable(app[i]);
-            } catch (NullPointerException e) {
-                return;
-            }
-        }
-    }
-
-    public void setAppIconMonthly(Drawable[] app) {
-        if (app == null) return;
-        for (int i = 0; i < app.length; i++) {
-            if (app[i] == null) return;
-            try {
-                monthlyAppIcons[i].setImageDrawable(app[i]);
-            } catch (NullPointerException e) {
-                return;
-            }
-        }
+        for (int i = 0; i < Math.min(app.length, 3); i++)
+            if (app[i] != null)
+                monthlyAppIcons[i].setImageDrawable(Tracker.getAppIcon(this, app[i].packageName));
     }
 
     public void noDataDaily(boolean noData) {

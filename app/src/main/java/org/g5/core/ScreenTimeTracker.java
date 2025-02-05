@@ -69,7 +69,7 @@ public class ScreenTimeTracker {
             }
         }
 
-        return compute(refine(appUsageMap));
+        return compute(refine(appUsageMap), true);
     }
 
     private static List<AppUsageEntry> refine(List<AppUsageEntry> appList) {
@@ -97,22 +97,40 @@ public class ScreenTimeTracker {
         return refinedList;
     }
 
-    public static List<AppUsageEntry> compute(List<AppUsageEntry> apps) {
+    public static List<AppUsageEntry> compute(List<AppUsageEntry> apps, boolean convert) {
         Map<String, AppUsageEntry> appMap = new HashMap<>();
 
-        for (AppUsageEntry app : apps) {
-            if (appMap.containsKey(app.packageName)) {
-                AppUsageEntry existingApp = appMap.get(app.packageName);
-                existingApp.time += (long) Time.millsToSeconds(app.time);
-            } else {
-                appMap.put(app.packageName, new AppUsageEntry(app.packageName, (long) Time.millsToSeconds(app.time)));
+        List<AppUsageEntry> result = null;
+        if (convert) {
+            for (AppUsageEntry app : apps) {
+                if (appMap.containsKey(app.packageName)) {
+                    AppUsageEntry existingApp = appMap.get(app.packageName);
+                    existingApp.time += (long) Time.millsToSeconds(app.time);
+                } else {
+                    appMap.put(app.packageName, new AppUsageEntry(app.packageName, (long) Time.millsToSeconds(app.time)));
+                }
             }
-        }
 
-        List<AppUsageEntry> result = new ArrayList<>(appMap.values());
+            result = new ArrayList<>(appMap.values());
 
-        for (AppUsageEntry app : result) {
-            Log.d("ScreenTimeTracker.class", "Compute | App: " + app.packageName + " Time: " + Time.formatTime(Time.millsToTime(app.time)));
+            for (AppUsageEntry app : result) {
+                Log.d("ScreenTimeTracker.class", "Compute | App: " + app.packageName + " Time: " + Time.formatTime(Time.millsToTime(app.time)));
+            }
+        } else {
+            for (AppUsageEntry app : apps) {
+                if (appMap.containsKey(app.packageName)) {
+                    AppUsageEntry existingApp = appMap.get(app.packageName);
+                    existingApp.time += (long) Time.millsToSeconds(app.time);
+                } else {
+                    appMap.put(app.packageName, new AppUsageEntry(app.packageName, app.time));
+                }
+            }
+
+            result = new ArrayList<>(appMap.values());
+
+            for (AppUsageEntry app : result) {
+                Log.d("ScreenTimeTracker.class", "Compute | App: " + app.packageName + " Time: " + Time.formatTime(Time.convertSecondsToArray((int) app.time)));
+            }
         }
 
         return result;
@@ -130,8 +148,11 @@ public class ScreenTimeTracker {
                 lowerCase.contains("system") ||
                 lowerCase.contains("mtp") ||
                 lowerCase.contains("aod") ||
+                lowerCase.contains("microintelligence") ||
+                lowerCase.contains("traceur") ||
                 lowerCase.contains("gms") ||
                 lowerCase.contains("globalminusscreen") ||
+                lowerCase.contains("swiftkey") ||
                 lowerCase.contains("miui.home") ||
                 lowerCase.contains("ugc.trill") ||
                 lowerCase.contains("searchbox") ||

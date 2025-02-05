@@ -12,12 +12,11 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.g5.ui.Home;
+import org.g5.util.LineWriter;
 import org.g5.util.Time;
-import org.g5.util.TriMap;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,9 +26,9 @@ public class Tracker extends Application {
 
     private static final List<ScreenTimeTracker.AppUsageEntry>[] data = new ArrayList[3];
 
-    private static final String[][][] top3Apps = new String[3][3][];
-    private static final String[][] top3AppName = new String[3][];
-    private static final Drawable[][] appIcon = new Drawable[3][];
+    private static ScreenTimeTracker.AppUsageEntry[] top3DailyApps = new ScreenTimeTracker.AppUsageEntry[3];
+    private static ScreenTimeTracker.AppUsageEntry[] top3WeeklyApps = new ScreenTimeTracker.AppUsageEntry[3];
+    private static ScreenTimeTracker.AppUsageEntry[] top3MonthlyApps = new ScreenTimeTracker.AppUsageEntry[3];
     public static File[] files = new File[3];
 
     private static boolean checked = false;
@@ -39,8 +38,6 @@ public class Tracker extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        startTime.add(Calendar.DATE, -7);
 
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
@@ -54,8 +51,44 @@ public class Tracker extends Application {
                     initData(false, activity);
 
                     checked = true;
-//                    appEntries.addAll(ScreenTimeTracker.getApps(activity, startTime));
-//                    Data.sortAppsDescending(appEntries);
+
+                    File trackingRecord = new File(getFilesDir(), "trackingRecord");
+                    try {
+                        if (!trackingRecord.createNewFile())
+                            trackingRecord.createNewFile();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    LineWriter lineWriter = new LineWriter(trackingRecord);
+                    String lastTrack = lineWriter.getLine(0);
+                    LocalDateTime localDateTime = LocalDateTime.now();
+                    if (!lastTrack.isEmpty()) {
+                        String[] date = lastTrack.split("[a-z]+"); // Split using letters
+                        int year = Integer.parseInt(date[0]);
+                        int month = Integer.parseInt(date[1]) - 2; // Fix: Calendar months are 0-based
+                        int day = Integer.parseInt(date[2]);
+                        int hour = Integer.parseInt(date[3]);
+                        int minute = Integer.parseInt(date[4]);
+                        int second = Integer.parseInt(date[5]);
+
+                        startTime.set(year, month, day, hour, minute, second);
+                    } else {
+                        startTime.set(
+                                localDateTime.getYear(),
+                                localDateTime.getMonthValue() - 2, // Fix: Convert 1-based month to 0-based
+                                localDateTime.getDayOfMonth(), // Fix: Use day of month, not day of year
+                                0, 0, 1
+                        );
+                    }
+
+                    Log.d("Tracker.class_", startTime.getTime().toString());
+                    Log.d("Tracker.class_", lineWriter.getLine(0));
+                    appEntries.addAll(ScreenTimeTracker.getApps(activity, startTime));
+                    appEntries = ScreenTimeTracker.compute(appEntries, false);
+                    Data.sortAppsDescending(appEntries);
+
+                    String record = localDateTime.getYear() + "y" + localDateTime.getMonthValue() + "m" + localDateTime.getDayOfYear() + "d" + localDateTime.getHour() + "h" + localDateTime.getMinute() + "o" + localDateTime.getSecond() + "s";
+                    lineWriter.writeLine(record);
 
                     for (int i = 0; i < appEntries.size(); i++) {
                         Log.d("All Apps And Time Yes", "App name: " + appEntries.get(i).packageName);
@@ -107,62 +140,28 @@ public class Tracker extends Application {
         Home home = Home.getInstance();
 
         if (home != null) {
-            home.setAppNameDaily(top3AppName[0]);
-            home.setAppTimeDaily(top3Apps[0]);
-            home.setAppIconDaily(appIcon[0]);
-            try {
-                home.noDataDaily(top3Apps[0] == null);
-            } catch (Exception e) {
-                home.noDataDaily(false);
-            }
-            home.setAppNameWeekly(top3AppName[1]);
-            home.setAppTimeWeekly(top3Apps[1]);
-            home.setAppIconWeekly(appIcon[1]);
-            try {
-                home.noDataWeekly(top3Apps[1] == null);
-            } catch (Exception e) {
-                home.noDataWeekly(false);
-            }
-            home.setAppNameMonthly(top3AppName[2]);
-            home.setAppTimeMonthly(top3Apps[2]);
-            home.setAppIconMonthly(appIcon[2]);
-            try {
-                home.noDataMonthly(top3Apps[2] == null);
-            } catch (Exception e) {
-                home.noDataMonthly(false);
-            }
+            home.setAppNameDaily(top3DailyApps);
+            home.setAppTimeDaily(top3DailyApps);
+            home.setAppIconDaily(top3DailyApps);
+            home.noDataDaily(top3DailyApps[0] != null && top3DailyApps[0].packageName.isEmpty());
+            home.setAppNameWeekly(top3WeeklyApps);
+            home.setAppTimeWeekly(top3WeeklyApps);
+            home.setAppIconWeekly(top3WeeklyApps);
+            home.noDataWeekly(top3WeeklyApps[0] != null && top3WeeklyApps[0].packageName.isEmpty());
+            home.setAppNameMonthly(top3MonthlyApps);
+            home.setAppTimeMonthly(top3MonthlyApps);
+            home.setAppIconMonthly(top3MonthlyApps);
+            home.noDataMonthly(top3MonthlyApps[0] != null && top3MonthlyApps[0].packageName.isEmpty());
         }
     }
 
     public void updateData(List<ScreenTimeTracker.AppUsageEntry> apps) throws IOException {
-        Log.d("Tracker.class", "Apps Length: " + apps.size());
-        for (int i = 0; i < data.length; i++) {
-            Data.updateData(files[i], apps);
-            top3Apps[i] = Time.getTop3ByTime(apps);
-        }
-
-        for (int i = 0; i < 3; i++) {
-            top3AppName[i] = new String[]{
-                    getAppName(top3Apps[i][0][0]),
-                    getAppName(top3Apps[i][1][0]),
-                    getAppName(top3Apps[i][2][0])
-            };
-            appIcon[i] = new Drawable[]{
-                    getAppIcon(top3Apps[i][0][0]),
-                    getAppIcon(top3Apps[i][1][0]),
-                    getAppIcon(top3Apps[i][2][0])
-            };
-        }
-    }
-
-    private Drawable getAppIcon(String packageName) {
-        PackageManager packageManager = getPackageManager();
-        try {
-            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
-            return packageManager.getApplicationIcon(appInfo).getCurrent();
-        } catch (PackageManager.NameNotFoundException e) {
-            return null;
-        }
+        Data.updateData(files[0], apps);
+        top3DailyApps = Time.getTop3ByTime(apps);
+        Data.updateData(files[1], apps);
+        top3WeeklyApps = Time.getTop3ByTime(apps);
+        Data.updateData(files[2], apps);
+        top3MonthlyApps = Time.getTop3ByTime(apps);
     }
 
     public static Drawable getAppIcon(AppCompatActivity appCompatActivity, String packageName) {
@@ -172,16 +171,6 @@ public class Tracker extends Application {
             return packageManager.getApplicationIcon(appInfo).getCurrent();
         } catch (PackageManager.NameNotFoundException e) {
             return null;
-        }
-    }
-
-    private String getAppName(String packageName) {
-        PackageManager packageManager = getPackageManager();
-        try {
-            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
-            return packageManager.getApplicationLabel(appInfo).toString();
-        } catch (PackageManager.NameNotFoundException e) {
-            return packageName;
         }
     }
 

@@ -113,11 +113,8 @@ public class Data {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 
-            // app entry
-            for (ScreenTimeTracker.AppUsageEntry app : apps) {
-                String dwadsadwa = app.packageName + ": " + Time.formatMillis(app.time);
-                writer.write(dwadsadwa + '\n');
-            }
+            for (ScreenTimeTracker.AppUsageEntry app : apps)
+                writer.write(app.packageName + ": " + Time.formatMillis(app.time) + '\n');
 
             writer.close();
         } catch (IOException e) {

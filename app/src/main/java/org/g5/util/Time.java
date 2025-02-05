@@ -82,7 +82,7 @@ public class Time {
         return time[0] * 3600 + time[1] * 60 + time[2];
     }
 
-    public static String[][] getTop3ByTime(List<ScreenTimeTracker.AppUsageEntry> apps) {
+    public static ScreenTimeTracker.AppUsageEntry[] getTop3ByTime(List<ScreenTimeTracker.AppUsageEntry> apps) {
         ArrayList<ScreenTimeTracker.AppUsageEntry> top3 = new ArrayList<>();
 
         for (ScreenTimeTracker.AppUsageEntry app : apps) {
@@ -94,14 +94,12 @@ public class Time {
 
         Log.d("Time.class", "Sorted Length: " + top3.size() + " Original Length: " + apps.size());
 
-        String[][] entries = new String[3][2];
+        ScreenTimeTracker.AppUsageEntry[] entries = new ScreenTimeTracker.AppUsageEntry[3];
         for (int i = 0; i < 3; i++) {
             if (i < Math.min(top3.size(), 3)) {
-                entries[i][0] = top3.get(i).packageName;
-                entries[i][1] = Time.formatTime(Time.convertSecondsToArray((int) top3.get(i).time));
+                entries[i] = top3.get(i);
             } else {
-                entries[i][0] = "";
-                entries[i][1] = "";
+                entries[i] = null;
             }
         }
 
