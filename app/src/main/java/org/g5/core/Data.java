@@ -99,6 +99,7 @@ public class Data {
                     };
 
                     data.add(new ScreenTimeTracker.AppUsageEntry(appName, Time.convertToSeconds(timeArray)));
+                    Log.d("Data.class__", "App name: " + appName + " Time: " + Time.convertToSeconds(timeArray));
                 } catch (ArrayIndexOutOfBoundsException e) {
                     throw new RuntimeException(e);
                 }
@@ -111,10 +112,10 @@ public class Data {
         if (apps.isEmpty())
             return;
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
 
             for (ScreenTimeTracker.AppUsageEntry app : apps)
-                writer.write(app.packageName + ": " + Time.formatMillis(app.time) + '\n');
+                writer.write(app.packageName + ": " + Time.formatSeconds((int) app.time) + '\n');
 
             writer.close();
         } catch (IOException e) {

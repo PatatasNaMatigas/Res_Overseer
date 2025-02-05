@@ -36,6 +36,7 @@ import org.g5.ui.adapters.DailyAppAdapter;
 import org.g5.ui.adapters.WeeklyAppAdapter;
 import org.g5.ui.models.DailyAppModel;
 import org.g5.ui.models.WeeklyAppModel;
+import org.g5.ui.quiz.Q1Start;
 import org.g5.util.Time;
 
 import java.time.LocalDateTime;
@@ -54,7 +55,7 @@ public class Summary extends AppCompatActivity {
         ExecutorService dataExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         dataExecutor.execute(() -> {
-            List<ScreenTimeTracker.AppUsageEntry> apps = Tracker.appEntries;
+            List<ScreenTimeTracker.AppUsageEntry> apps = Tracker.data[0];
             String topPackageName = !apps.isEmpty() ? apps.get(0).packageName : "";
 
             runOnUiThread(() -> {
@@ -89,6 +90,7 @@ public class Summary extends AppCompatActivity {
         // Initialize adapter
         DailyAppAdapter adapter = new DailyAppAdapter();
         dailyRecyclerView.setAdapter(adapter);
+        adapter.submitList(new ArrayList<>());
         adapter.submitList(dailyModels);
     }
 
@@ -270,6 +272,12 @@ public class Summary extends AppCompatActivity {
 
         findViewById(R.id.home).setOnClickListener(view -> {
             startActivity(new Intent(this, Home.class));
+            finish();
+        });
+
+        findViewById(R.id.mental_health_data).setOnClickListener(view -> {
+            startActivity(new Intent(this, Q1Start.class));
+            finish();
         });
 
         Button dailyId = findViewById(R.id.daily);

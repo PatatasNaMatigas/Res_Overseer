@@ -252,6 +252,7 @@ public class Home extends AppCompatActivity {
             new QuizData(this);
             if (!QuizData.answeredToday()) {
                 startActivity(new Intent(this, Q1Start.class));
+                finish();
             } else {
                 Toast.makeText(this, "You've answered the quiz already for today", Toast.LENGTH_LONG).show();
             }
@@ -274,6 +275,7 @@ public class Home extends AppCompatActivity {
 
         findViewById(R.id.summary).setOnClickListener(view -> {
             startActivity(new Intent(this, Summary.class));
+            finish();
         });
     }
 

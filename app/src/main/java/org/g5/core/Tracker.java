@@ -24,7 +24,7 @@ import java.util.List;
 
 public class Tracker extends Application {
 
-    private static final List<ScreenTimeTracker.AppUsageEntry>[] data = new ArrayList[3];
+    public static final List<ScreenTimeTracker.AppUsageEntry>[] data = new ArrayList[3];
 
     private static ScreenTimeTracker.AppUsageEntry[] top3DailyApps = new ScreenTimeTracker.AppUsageEntry[3];
     private static ScreenTimeTracker.AppUsageEntry[] top3WeeklyApps = new ScreenTimeTracker.AppUsageEntry[3];
@@ -33,12 +33,12 @@ public class Tracker extends Application {
 
     private static boolean checked = false;
     private static Calendar startTime = Calendar.getInstance();
-    public static List<ScreenTimeTracker.AppUsageEntry> appEntries = new ArrayList<>();
+    private static List<ScreenTimeTracker.AppUsageEntry> appEntries = new ArrayList<>();
 
     @Override
     public void onCreate() {
         super.onCreate();
-
+        File trackingRecord = new File(getFilesDir(), "trackingRecord.txt");
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {}
@@ -52,7 +52,15 @@ public class Tracker extends Application {
 
                     checked = true;
 
-                    File trackingRecord = new File(getFilesDir(), "trackingRecord");
+
+                    try {
+                        Data.deleteDailyFile(activity);
+                        Data.deleteWeeklyFile(activity);
+                        Data.deleteMonthlyFile(activity);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
                     try {
                         if (!trackingRecord.createNewFile())
                             trackingRecord.createNewFile();
@@ -63,7 +71,7 @@ public class Tracker extends Application {
                     String lastTrack = lineWriter.getLine(0);
                     LocalDateTime localDateTime = LocalDateTime.now();
                     if (!lastTrack.isEmpty()) {
-                        String[] date = lastTrack.split("[a-z]+"); // Split using letters
+                        String[] date = lastTrack.split("\\s*[ymdhos]\\s*"); // Split using letters
                         int year = Integer.parseInt(date[0]);
                         int month = Integer.parseInt(date[1]) - 2; // Fix: Calendar months are 0-based
                         int day = Integer.parseInt(date[2]);
@@ -72,30 +80,32 @@ public class Tracker extends Application {
                         int second = Integer.parseInt(date[5]);
 
                         startTime.set(year, month, day, hour, minute, second);
+
+                        Log.d("Date true", localDateTime.getDayOfMonth() + "/" + localDateTime.getMonthValue() + "/" + localDateTime.getYear());
                     } else {
                         startTime.set(
                                 localDateTime.getYear(),
-                                localDateTime.getMonthValue() - 2, // Fix: Convert 1-based month to 0-based
+                                localDateTime.getMonthValue() - 1, // Fix: Convert 1-based month to 0-based
                                 localDateTime.getDayOfMonth(), // Fix: Use day of month, not day of year
                                 0, 0, 1
                         );
+                        Log.d("Date false", localDateTime.getDayOfMonth() + "/" + localDateTime.getMonthValue() + "/" + localDateTime.getYear());
                     }
 
-                    Log.d("Tracker.class_", startTime.getTime().toString());
-                    Log.d("Tracker.class_", lineWriter.getLine(0));
+                    String record = localDateTime.getYear() + "y" + localDateTime.getMonthValue() + "m" + localDateTime.getDayOfYear() + "d" + localDateTime.getHour() + "h" + localDateTime.getMinute() + "o" + localDateTime.getSecond() + "s";
+                    lineWriter.writeLine(record, 0);
+                    Log.d("Time period | update", record);
+
                     appEntries.addAll(ScreenTimeTracker.getApps(activity, startTime));
                     appEntries = ScreenTimeTracker.compute(appEntries, false);
                     Data.sortAppsDescending(appEntries);
 
-                    String record = localDateTime.getYear() + "y" + localDateTime.getMonthValue() + "m" + localDateTime.getDayOfYear() + "d" + localDateTime.getHour() + "h" + localDateTime.getMinute() + "o" + localDateTime.getSecond() + "s";
-                    lineWriter.writeLine(record);
-
                     for (int i = 0; i < appEntries.size(); i++) {
-                        Log.d("All Apps And Time Yes", "App name: " + appEntries.get(i).packageName);
+                        Log.d("All Apps And Time Yes", "App name: " + appEntries.get(i).packageName + " Time: " + appEntries.get(i).time);
                     }
 
                     try {
-                        updateData(appEntries);
+                        updateData(appEntries, activity);
                         refreshContent();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -135,7 +145,6 @@ public class Tracker extends Application {
         });
     }
 
-
     public static void refreshContent() {
         Home home = Home.getInstance();
 
@@ -155,13 +164,24 @@ public class Tracker extends Application {
         }
     }
 
-    public void updateData(List<ScreenTimeTracker.AppUsageEntry> apps) throws IOException {
-        Data.updateData(files[0], apps);
-        top3DailyApps = Time.getTop3ByTime(apps);
-        Data.updateData(files[1], apps);
-        top3WeeklyApps = Time.getTop3ByTime(apps);
-        Data.updateData(files[2], apps);
-        top3MonthlyApps = Time.getTop3ByTime(apps);
+    public static void updateData(List<ScreenTimeTracker.AppUsageEntry> apps, Context context) throws IOException {
+        List<ScreenTimeTracker.AppUsageEntry> daily = Data.getDataFromFile(Data.createDailyFile(context));
+        daily.addAll(apps);
+        daily = ScreenTimeTracker.compute(daily, false);
+        Data.sortAppsDescending(daily);
+        Data.updateData(files[0], daily);
+        data[0] = daily;
+        top3DailyApps = Time.getTop3ByTime(data[0]);
+
+        List<ScreenTimeTracker.AppUsageEntry> weekly = Data.getDataFromFile(Data.createWeeklyFile(context));
+        Data.updateData(files[1], weekly);
+        data[1] = weekly;
+        top3WeeklyApps = Time.getTop3ByTime(weekly);
+
+        List<ScreenTimeTracker.AppUsageEntry> monthly = Data.getDataFromFile(Data.createMonthlyFile(context));
+        Data.updateData(files[2], monthly);
+        data[2] = monthly;
+        top3MonthlyApps = Time.getTop3ByTime(monthly);
     }
 
     public static Drawable getAppIcon(AppCompatActivity appCompatActivity, String packageName) {
