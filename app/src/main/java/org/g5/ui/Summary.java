@@ -42,7 +42,7 @@ import java.time.LocalDateTime;
 
 public class Summary extends AppCompatActivity {
 
-    private Map<String, Drawable> iconCache = new HashMap<>();
+    private final Map<String, Drawable> iconCache = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -142,7 +142,8 @@ public class Summary extends AppCompatActivity {
         if (!fileByDate.exists())
             return null;
 
-        List<ScreenTimeTracker.AppUsageEntry> apps = Data.sortAppsDescending(Data.getDataFromFile(fileByDate));
+        List<ScreenTimeTracker.AppUsageEntry> apps = Data.getDataFromFile(fileByDate);
+        Data.sortAppsDescending(apps);
 
         String[] app = new String[]{
                 (!apps.isEmpty() && apps.get(0) != null)

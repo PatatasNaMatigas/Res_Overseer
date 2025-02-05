@@ -22,7 +22,7 @@ import java.util.Stack;
 
 public class ScreenTimeTracker {
 
-    public static List<AppUsageEntry> getApps(Context context, Calendar last) {
+    public static List<AppUsageEntry> getApps(Context context, Calendar start) {
         Log.d("ScreenTimeTracker | ScreenTimeTracker.class", "Getting apps");
         UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
 
@@ -33,7 +33,7 @@ public class ScreenTimeTracker {
 
         Calendar calendar = Calendar.getInstance();
         long endTime = calendar.getTimeInMillis();
-        long startTime = last.getTimeInMillis();
+        long startTime = start.getTimeInMillis();
 
         UsageEvents events = usageStatsManager.queryEvents(startTime, endTime);
         UsageEvents.Event event = new UsageEvents.Event();
@@ -103,9 +103,9 @@ public class ScreenTimeTracker {
         for (AppUsageEntry app : apps) {
             if (appMap.containsKey(app.packageName)) {
                 AppUsageEntry existingApp = appMap.get(app.packageName);
-                existingApp.time += app.time;
+                existingApp.time += (long) Time.millsToSeconds(app.time);
             } else {
-                appMap.put(app.packageName, new AppUsageEntry(app.packageName, app.time));
+                appMap.put(app.packageName, new AppUsageEntry(app.packageName, (long) Time.millsToSeconds(app.time)));
             }
         }
 
@@ -118,18 +118,29 @@ public class ScreenTimeTracker {
         return result;
     }
 
-
     private static boolean isSystemApp(String packageName) {
-        return packageName != null && (
-                packageName.equals("android") ||
-                        packageName.contains("systemui") ||
-                        packageName.contains("launcher") ||
-                        packageName.contains("packageinstaller") ||
-                        packageName.contains("system") ||
-                        packageName.contains("mtp") ||
-                        packageName.contains("searchbox") ||
-                        packageName.contains("settings")
-        );
+        if (packageName != null && packageName.isEmpty())
+            return false;
+
+        String lowerCase = packageName.toLowerCase();
+        boolean isSystemApp = lowerCase.equals("android") ||
+                lowerCase.contains("systemui") ||
+                lowerCase.contains("launcher") ||
+                lowerCase.contains("packageinstaller") ||
+                lowerCase.contains("system") ||
+                lowerCase.contains("mtp") ||
+                lowerCase.contains("aod") ||
+                lowerCase.contains("gms") ||
+                lowerCase.contains("globalminusscreen") ||
+                lowerCase.contains("miui.home") ||
+                lowerCase.contains("ugc.trill") ||
+                lowerCase.contains("searchbox") ||
+                lowerCase.contains("vending") ||
+                lowerCase.contains("intentresolver");
+
+        if (!isSystemApp)
+            Log.d("Not_system_app", packageName);
+        return isSystemApp;
     }
 
     public static void requestUsageAccess(Context context) {

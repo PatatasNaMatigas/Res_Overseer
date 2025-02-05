@@ -131,20 +131,11 @@ public class Data {
             if (app.packageName.equals(key))
                 time += app.time;
 
-        return (int) Time.millsToSeconds(time);
+        return (int) time;
     }
 
-    public static List<ScreenTimeTracker.AppUsageEntry> sortAppsDescending(List<ScreenTimeTracker.AppUsageEntry> apps) {
-        ArrayList<ScreenTimeTracker.AppUsageEntry> top3 = new ArrayList<>();
-
-        for (ScreenTimeTracker.AppUsageEntry app : apps) {
-            int timeInSeconds = Data.computeTime(apps, app.packageName);
-            top3.add(new ScreenTimeTracker.AppUsageEntry(app.packageName, timeInSeconds));
-        }
-
-        top3.sort((a, b) -> Math.toIntExact(b.time - a.time));
-
-        return top3;
+    public static void sortAppsDescending(List<ScreenTimeTracker.AppUsageEntry> apps) {
+        apps.sort((a, b) -> Math.toIntExact(b.time - a.time));
     }
 
     public static File getFileByDate(Context context, int[] date) {
