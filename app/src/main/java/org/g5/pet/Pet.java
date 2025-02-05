@@ -8,6 +8,8 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
 import org.g5.core.Data;
+import org.g5.core.ScreenTimeTracker;
+import org.g5.core.Tracker;
 import org.g5.overseer.R;
 import org.g5.ui.Home;
 import org.g5.util.LineWriter;
@@ -51,6 +53,11 @@ public class Pet {
     // Checks every after app switch
     public void start(String appName, int appTime) {
         if (appName != null && !appName.isEmpty()) {
+            // TODO implement this
+            int screenTime = 0;
+            for (int i = 0; i < Tracker.appEntries.size(); i++) {
+                screenTime += (int) Tracker.appEntries.get(i).time;
+            }
             updateScreenTime(Time.convertToSeconds(Data.getScreenTime(AppUsage.files[0])));
 
             Log.d("PET TEST", Time.formatTime(Time.convertSecondsToArray(accumulatedTime)) + " " + appTime);
@@ -166,9 +173,8 @@ public class Pet {
     }
 
     public void init() throws IOException {
+        // TODO same nung nasa taas
         updateScreenTime(Time.convertToSeconds(Data.getScreenTime(Data.createDailyFile(home))));
-        Pet.lastApp = AppUsage.lastApp.getValue1();
-        Log.d("PET TEST | Last app", AppUsage.lastApp.getValue1() + "");
         try {
             health = Float.parseFloat(petDataWriter.getLine(1));
             home.runOnUiThread(() -> {
@@ -206,6 +212,7 @@ public class Pet {
             dead = true;
         }
 
+        // TODO delete
         if (AppUsage.lastApp.getValue1().equals(home.getPackageName())) {
             home.runOnUiThread(() -> {
                 home.updateHealth(newHealth);
@@ -243,6 +250,7 @@ public class Pet {
             dying = false;
         }
 
+        // TODO delete
         if (AppUsage.lastApp.getValue1().equals(home.getPackageName())) {
             home.runOnUiThread(() -> {
                 home.updateHealth(newHealth);
