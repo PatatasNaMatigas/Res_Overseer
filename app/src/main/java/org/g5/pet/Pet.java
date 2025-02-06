@@ -25,7 +25,7 @@ public class Pet {
 
     private static float health = 100;
     private static int dyingTime = Time.hourToSecond(8);
-    private long screenTime = 0;
+    private static long screenTime = 0;
 
     private static Home home;
 
@@ -41,7 +41,7 @@ public class Pet {
         pet = home.findViewById(R.id.pet);
     }
 
-    public String getName() {
+    public static String getName() {
         return petDataWriter.getLine(0);
     }
 
@@ -177,7 +177,7 @@ public class Pet {
         }
     }
 
-    public long getScreenTime() {
+    public static long getScreenTime() {
         synchronized (Pet.class) {
             Log.d("Screentime-amount", "-----------------------------------------------------------------------------------------");
             Log.d("Screentime-amount", "(long) = " + screenTime);

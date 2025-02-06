@@ -1,5 +1,6 @@
 package org.g5.ui;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.app.NotificationCompat;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
@@ -36,6 +38,7 @@ import org.g5.ui.quiz.Q1Start;
 import org.g5.ui.quiz.QuizData;
 import org.g5.ui.quiz.Report;
 import org.g5.util.LineWriter;
+import org.g5.util.NotificationBuilder;
 import org.g5.util.Time;
 
 import java.io.File;
@@ -280,6 +283,31 @@ public class Home extends AppCompatActivity {
         });
 
         scheduleScreenTimeCheck();
+        Tracker.startTracking(this);
+        NotificationBuilder notificationBuilder = new NotificationBuilder();
+        notificationBuilder.createNotificationChannel(this);
+        notificationBuilder.getID();
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                new Intent(this, Home.class),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        notificationBuilder.showNotification(this,
+                new NotificationCompat.Builder(
+                        this,
+                        notificationBuilder.getID())
+                        .setSmallIcon(R.drawable.normal_icon)
+                        .setContentTitle(Pet.getName())
+                        .setContentText("Your total screen time is " + Time.formatTime(Time.convertSecondsToArray(Pet.getScreenTime())))
+                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                        .setPriority(NotificationCompat.PRIORITY_MAX)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+                        .setSound(null)
+        );
     }
 
     @Override
