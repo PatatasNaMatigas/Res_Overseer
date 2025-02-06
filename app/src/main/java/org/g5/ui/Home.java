@@ -1,10 +1,8 @@
 package org.g5.ui;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -17,15 +15,22 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import org.g5.core.ScreenTimeTracker;
 import org.g5.core.Tracker;
+import org.g5.employado.MagTrabahoKa;
 import org.g5.overseer.R;
+import org.g5.pet.HealthRegenHandler;
 import org.g5.pet.Pet;
 import org.g5.ui.quiz.Q1Start;
 import org.g5.ui.quiz.QuizData;
@@ -36,7 +41,7 @@ import org.g5.util.Time;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import me.grantland.widget.AutofitTextView;
 
@@ -56,6 +61,8 @@ public class Home extends AppCompatActivity {
 
     private String trimmedText = "";
     private static Pet pet;
+
+    HealthRegenHandler healthRegenHandler = new  HealthRegenHandler();
 
     private static WeakReference<Home> instance;
 
@@ -271,6 +278,17 @@ public class Home extends AppCompatActivity {
             startActivity(new Intent(this, Summary.class));
             finish();
         });
+
+        scheduleScreenTimeCheck();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_USER_PRESENT);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(healthRegenHandler, filter);
     }
 
     @Override
@@ -399,5 +417,29 @@ public class Home extends AppCompatActivity {
 
     public boolean isLightMode() {
         return (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    private void scheduleScreenTimeCheck() {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+
+        PeriodicWorkRequest healthCheckRequest = new PeriodicWorkRequest.Builder(
+                MagTrabahoKa.class,
+                1,
+                TimeUnit.HOURS,
+                10,
+                TimeUnit.MINUTES
+        )
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager.getInstance(this)
+                .enqueueUniquePeriodicWork(
+                        "health_check",
+                        ExistingPeriodicWorkPolicy.KEEP,
+                        healthCheckRequest
+                );
     }
 }

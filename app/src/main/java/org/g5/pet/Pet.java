@@ -23,17 +23,17 @@ import java.util.List;
 @SuppressLint("NewApi")
 public class Pet {
 
-    private float health = 100;
-    private final int dyingTime = Time.hourToSecond(8);
+    private static float health = 100;
+    private static int dyingTime = Time.hourToSecond(8);
     private long screenTime = 0;
 
-    private Home home;
+    private static Home home;
 
     private String hulingTestamento = "You've been using your phone for more than 8 hours... I'm starting to lose health T_T";
 
-    private LineWriter petDataWriter;
+    private static LineWriter petDataWriter;
 
-    private ImageView pet;
+    private static ImageView pet;
 
     public Pet(Home home) {
         this.home = home;
@@ -107,8 +107,13 @@ public class Pet {
     }
 
     public synchronized void startHealthDecay(long screenTime) {
-        if (screenTime < Time.hourToSecond(8))
-            return;
+        try {
+            if (screenTime < Integer.parseInt(petDataWriter.getLine(2)))
+                return;
+        } catch (NumberFormatException e) {
+            if (screenTime < dyingTime)
+                return;
+        }
 
         Log.d("PET TEST", "DECAY | PAST HEALTH: " + health + " CURRENT HEALTH: " + calculateHealthDecay(screenTime));
         health = calculateHealthDecay(screenTime);
@@ -139,17 +144,26 @@ public class Pet {
         }
     }
 
-    public synchronized void startHealthRegen(int breakTime) {
-        Log.d("PET TEST", "HEAL | PAST HEALTH: " + health + " CURRENT HEALTH: " + Math.min(100, health + (breakTime / 7200.0f) * (100 - health)));
-        health = Math.min(100, health + (breakTime / 7200.0f) * (100 - health));
+    public static synchronized void startHealthRegen(long breakTime) {
+        Log.d("HEALTH-REGEN", "HEAL AMOUNT: " + Math.min(100, health + ((float) breakTime / Time.hourToSecond(5)) * (100 - health)));
+        health = Math.min(100, health + ((float) breakTime / Time.hourToSecond(5)) * (100 - health));
+        breakTime += Time.minToSecond(60);
+
+        if (breakTime > Time.minToSecond(30)) {
+            float breakTimeInMinutes = Time.secondToMin(breakTime); // Convert to minutes
+
+            float hours = (breakTimeInMinutes / 30); // Every 30 minutes contributes to 1 hour
+            float remainingMinutes = breakTimeInMinutes % 30; // Remaining minutes
+
+            Log.d("HEALTH-REGEN", "old decay time: " + dyingTime);
+            dyingTime += Time.hourToSecond((hours + (remainingMinutes > 0 ? 1 : 0)));
+            Log.d("HEALTH-REGEN", "new decay time: " + dyingTime);
+        }
 
         petDataWriter.writeLine(health + "", 1);
+        petDataWriter.writeLine(dyingTime + "", 2);
 
         String newHealth = "HEALTH: " + String.format("%.2f", health) + "/100";
-
-        if (health >= 100) {
-            health = 100;
-        }
 
         home.runOnUiThread(() -> {
             home.updateHealth(newHealth);
@@ -172,9 +186,9 @@ public class Pet {
         }
     }
 
-    public void updatePetStatus(boolean lightMode) {
+    public static void updatePetStatus(boolean lightMode) {
         if (lightMode) {
-            if (health <= 0) {
+            if (health <= 1) {
                 pet.setImageResource(R.drawable.dead_pet_light);
             } else if (health <= 60) {
                 pet.setImageResource(R.drawable.tired_pet_light);
@@ -184,7 +198,7 @@ public class Pet {
                 pet.setImageResource(R.drawable.happy_pet_light);
             }
         } else {
-            if (health <= 0) {
+            if (health <= 1) {
                 pet.setImageResource(R.drawable.dead_pet_dark);
             } else if (health <= 60) {
                 pet.setImageResource(R.drawable.tired_pet_dark);

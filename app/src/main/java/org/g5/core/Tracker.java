@@ -46,8 +46,6 @@ public class Tracker extends Application {
             @Override
             public void onActivityStarted(Activity activity) {
                 if (!checked) {
-                    Log.d("ScreenTimeTracker | Tracker.class", "Activity started " + Time.formatClockTime(Time.ldtToArray(LocalDateTime.now())));
-
                     initData(false, activity);
 
                     checked = true;
@@ -134,6 +132,65 @@ public class Tracker extends Application {
                 checked = false;
             }
         });
+    }
+
+    public static void startTracking(Context activity) {
+        File trackingRecord = new File(activity.getFilesDir(), "trackingRecord.txt");
+        initData(false, activity);
+
+        checked = true;
+
+        try {
+            if (!trackingRecord.createNewFile())
+                trackingRecord.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        LineWriter lineWriter = new LineWriter(trackingRecord);
+        String lastTrack = lineWriter.getLine(0);
+        LocalDateTime localDateTime = LocalDateTime.now();
+        if (!lastTrack.isEmpty()) {
+            String[] date = lastTrack.split("\\s*[ymdhos]\\s*"); // Split using letters
+            int year = Integer.parseInt(date[0]);
+            int month = Integer.parseInt(date[1]) - 1; // Fix: Calendar months are 0-based
+            int day = Integer.parseInt(date[2]);
+            int hour = Integer.parseInt(date[3]);
+            int minute = Integer.parseInt(date[4]);
+            int second = Integer.parseInt(date[5]);
+
+            startTime.set(year, month, day, hour, minute, second);
+
+            Log.d("Date true", localDateTime.getDayOfMonth() + "/" + localDateTime.getMonthValue() + "/" + localDateTime.getYear());
+        } else {
+            startTime.set(
+                    localDateTime.getYear(),
+                    localDateTime.getMonthValue() - 1, // Fix: Convert 1-based month to 0-based
+                    localDateTime.getDayOfMonth(), // Fix: Use day of month, not day of year
+                    0, 0, 1
+            );
+            Log.d("Date false", localDateTime.getDayOfMonth() + "/" + localDateTime.getMonthValue() + "/" + localDateTime.getYear());
+        }
+
+        String record = localDateTime.getYear() + "y" + localDateTime.getMonthValue() + "m" + localDateTime.getDayOfMonth() + "d" + localDateTime.getHour() + "h" + localDateTime.getMinute() + "o" + localDateTime.getSecond() + "s";
+        lineWriter.writeLine(record, 0);
+        Log.d("Time period | update", record);
+
+        appEntries.addAll(ScreenTimeTracker.getApps(activity, startTime));
+        appEntries = ScreenTimeTracker.compute(appEntries, false);
+        Data.sortAppsDescending(appEntries);
+
+        for (int i = 0; i < appEntries.size(); i++) {
+            Log.d("All Apps And Time Yes", "App name: " + appEntries.get(i).packageName + " Time: " + appEntries.get(i).time);
+        }
+
+        try {
+            updateData(appEntries, activity);
+            refreshContent();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        startTime = Calendar.getInstance();
     }
 
     public static void refreshContent() {

@@ -131,6 +131,10 @@ public class Time {
         return hour * 3600;
     }
 
+    public static int hourToSecond(float hour) {
+        return (int) (hour * 3600);
+    }
+
     public static int hourToMin(int hour) {
         return hour * 60;
     }
@@ -152,6 +156,10 @@ public class Time {
     }
 
     public static float secondToMin(int second) {
+        return second / 60f;
+    }
+
+    public static float secondToMin(long second) {
         return second / 60f;
     }
 
