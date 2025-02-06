@@ -1,6 +1,7 @@
 package org.g5.ui.quiz;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.g5.util.LineWriter;
 import org.g5.util.Time;
@@ -37,9 +38,14 @@ public class QuizData {
         return answer[qNum];
     }
 
+    public static int getFinalAnswer(int qNum) {
+        return Integer.parseInt(lineWriter.getLine(1).split("\\s*\\|")[qNum]);
+    }
+
     public static void done() {
         int[] date = Time.ldToDateArray(LocalDate.now());
         String answers = answer[0] + "|" + answer[1] + "|" + answer[2];
-        lineWriter.writeLine(date[0] + "_" + date[1] + "_" + date[2] + ": " + answers);
+        lineWriter.writeLine(date[0] + "_" + date[1] + "_" + date[2], 0);
+        lineWriter.writeLine(answers, 1);
     }
 }

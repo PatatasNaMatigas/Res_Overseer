@@ -8,19 +8,21 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.g5.overseer.R;
+import org.g5.ui.callbacks.DailyAppDiffCallback;
+import org.g5.ui.callbacks.WeeklyAppDiffCallback;
+import org.g5.ui.models.DailyAppModel;
 import org.g5.ui.models.WeeklyAppModel;
 
 import java.util.List;
 
-public class WeeklyAppAdapter extends RecyclerView.Adapter<WeeklyAppAdapter.ViewHolder> {
+public class WeeklyAppAdapter extends ListAdapter<WeeklyAppModel, WeeklyAppAdapter.ViewHolder> {
 
-    private final List<WeeklyAppModel> appEntries;
-
-    public WeeklyAppAdapter(List<WeeklyAppModel> appEntries) {
-        this.appEntries = appEntries;
+    public WeeklyAppAdapter() {
+        super(new WeeklyAppDiffCallback());
     }
 
     @NonNull
@@ -32,7 +34,7 @@ public class WeeklyAppAdapter extends RecyclerView.Adapter<WeeklyAppAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        WeeklyAppModel appEntry = appEntries.get(position);
+        WeeklyAppModel appEntry = getItem(position);
 
         for (int i = 0; i < 3; i++) {
             holder.icon[i].setImageDrawable(appEntry.getIcon()[i]);
@@ -64,11 +66,6 @@ public class WeeklyAppAdapter extends RecyclerView.Adapter<WeeklyAppAdapter.View
                             R.drawable.rounded_corner_variant_4
                     )
             );
-    }
-
-    @Override
-    public int getItemCount() {
-        return appEntries.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

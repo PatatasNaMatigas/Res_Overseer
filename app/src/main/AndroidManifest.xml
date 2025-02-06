@@ -41,6 +41,7 @@
         <activity android:name="org.g5.ui.quiz.Q3Start" android:screenOrientation="portrait" android:launchMode="singleTop"/>
         <activity android:name="org.g5.ui.quiz.Q3Done" android:screenOrientation="portrait" android:launchMode="singleTop"/>
         <activity android:name="org.g5.ui.quiz.LikertQuestion" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name="org.g5.ui.quiz.Report" android:screenOrientation="portrait" android:launchMode="singleTop"/>
     </application>
 
 </manifest>

@@ -58,21 +58,6 @@ public class Index extends AppCompatActivity {
     }
 
     private void resume() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(getFilesDir(), "accounts.txt")))) {
-            String username = reader.readLine();
-            String password = reader.readLine();
-
-            if (username != null && password != null && username.contains("[un]:") && password.contains("[pw]:")) {
-                Login.setAccount(username, password);
-                startActivity(new Intent(Index.this, Home.class));
-                finish();
-            } else {
-                startActivity(new Intent(Index.this, Login.class));
-                finish();
-            }
-        } catch (IOException e) {
-            startActivity(new Intent(Index.this, Login.class));
-            finish();
-        }
+        startActivity(new Intent(Index.this, Login.class));
     }
 }

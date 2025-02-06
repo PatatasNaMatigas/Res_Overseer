@@ -2,6 +2,7 @@ package org.g5.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -9,9 +10,11 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.g5.overseer.R;
+import org.g5.util.LineWriter;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -41,15 +44,20 @@ public class Login extends AppCompatActivity {
                 accountFile.createNewFile();
         } catch (IOException e) {}
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(getFilesDir(), "accounts.txt")))) {
-            String username = reader.readLine();
-            String password = reader.readLine();
+        LineWriter accountWriter = new LineWriter(accountFile);
 
-            if (username != null && password != null && username.contains("[un]:") && password.contains("[pw]:"))
+        String username = accountWriter.getLine(0);
+        String password = accountWriter.getLine(1);
+        Log.d("Login--", "Username: " + username + " Password: " + password);
+
+        if (username.contains("[un]:") && password.contains("[pw]:")) {
+            username = username.replace("[un]:", "");
+            password = password.replace("[pw]:", "");
+            if (!username.isEmpty() && !password.isEmpty()) {
                 Login.setAccount(username, password);
-            startActivity(new Intent(this, Home.class));
-        } catch (IOException e) {
-            startActivity(new Intent(this, Home.class));
+                startActivity(new Intent(this, Home.class));
+                finish();
+            }
         }
 
         agree = findViewById(R.id.agree);
@@ -70,17 +78,12 @@ public class Login extends AppCompatActivity {
 
         submit.setOnClickListener(view -> {
             if (!usernameField.getText().toString().isEmpty() && !passwordField.getText().toString().isEmpty()) {
-                try (FileWriter fileWriter = new FileWriter(accountFile)) {
-                    fileWriter.write("[un]:" + usernameField.getText().toString());
-                    fileWriter.write("\n");
-                    fileWriter.write("[pw]:" + passwordField.getText().toString());
-                    fileWriter.write("\n");
-
-                    accountInfo = new String[] {
-                            usernameField.getText().toString(),
-                            passwordField.getText().toString()
-                    };
-                } catch (IOException e) {}
+                accountWriter.writeLine("[un]:" + usernameField.getText().toString());
+                accountWriter.writeLine("[pw]:" + passwordField.getText().toString());
+                accountInfo = new String[] {
+                        usernameField.getText().toString(),
+                        passwordField.getText().toString()
+                };
                 startActivity(new Intent(Login.this, Home.class));
             } else {
                 findViewById(R.id.missingFieldText).setVisibility(View.VISIBLE);

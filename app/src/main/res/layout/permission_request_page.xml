@@ -13,10 +13,10 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="16dp"
         android:text="APP PERMISSIONS"
         android:fontFamily="@font/citrus"
-        android:textSize="35sp"
+        android:textSize="37sp"
         android:textColor="@color/opposite" />
 
     <TextView

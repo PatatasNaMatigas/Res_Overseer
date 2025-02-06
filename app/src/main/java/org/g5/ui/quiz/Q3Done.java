@@ -21,7 +21,7 @@ public class Q3Done extends AppCompatActivity {
 
         findViewById(R.id.start_button).setOnClickListener(v -> {
             QuizData.done();
-            Intent intent = new Intent(this, Home.class);
+            Intent intent = new Intent(this, Report.class);
             startActivity(intent);
             finish();
         });

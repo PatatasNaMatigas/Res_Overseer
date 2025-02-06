@@ -88,7 +88,7 @@
                 android:layout_margin="8dp"
                 android:scaleType="fitCenter"
                 android:background="@android:color/transparent"
-                android:src="@drawable/dizzy_icon" />
+                android:src="@drawable/wow" />
 
             <TextView
                 android:id="@+id/label_wow"
@@ -144,7 +144,7 @@
                 android:layout_margin="8dp"
                 android:scaleType="fitCenter"
                 android:background="@android:color/transparent"
-                android:src="@drawable/dead_icon" />
+                android:src="@drawable/angry" />
 
             <TextView
                 android:id="@+id/label_angry"

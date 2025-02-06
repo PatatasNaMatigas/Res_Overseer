@@ -7,49 +7,50 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.g5.overseer.R;
+import org.g5.ui.callbacks.MonthlyAppDiffCallback;
 import org.g5.ui.models.MonthlyAppModel;
 
 import java.util.List;
 
-public class MonthlyAppAdapter extends RecyclerView.Adapter<MonthlyAppAdapter.MonthlyViewHolder> {
-    private final List<MonthlyAppModel> data;
+public class MonthlyAppAdapter extends ListAdapter<MonthlyAppModel, MonthlyAppAdapter.ViewHolder> {
 
-    public MonthlyAppAdapter(List<MonthlyAppModel> data) {
-        this.data = data;
+    public MonthlyAppAdapter() {
+        super(new MonthlyAppDiffCallback());
     }
 
     @NonNull
     @Override
-    public MonthlyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.monthly_app_entry, parent, false);
-        return new MonthlyViewHolder(view);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MonthlyViewHolder holder, int position) {
-        MonthlyAppModel monthlyAppModel = data.get(position);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        MonthlyAppModel monthlyAppModel = getItem(position);
         holder.titleTextView.setText(monthlyAppModel.getMonth());
-        for (int i = 0; i < 4; i++) {
-            if (monthlyAppModel.getIcons()[i] == null)
-                return;
 
-            holder.icons[i].setImageDrawable(monthlyAppModel.getIcons()[i]);
+        // Only update icons that have changed
+        for (int i = 0; i < 4; i++) {
+            if (monthlyAppModel.getIcons()[i] != null) {
+                holder.icons[i].setImageDrawable(monthlyAppModel.getIcons()[i]);
+            }
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return data.size();
+    public void updateList(List<MonthlyAppModel> newList) {
+        submitList(newList);
     }
 
-    public static class MonthlyViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView;
         ImageView[] icons;
 
-        public MonthlyViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.month);
             icons = new ImageView[] {

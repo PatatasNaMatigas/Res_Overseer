@@ -52,15 +52,6 @@ public class Tracker extends Application {
 
                     checked = true;
 
-
-                    try {
-                        Data.deleteDailyFile(activity);
-                        Data.deleteWeeklyFile(activity);
-                        Data.deleteMonthlyFile(activity);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-
                     try {
                         if (!trackingRecord.createNewFile())
                             trackingRecord.createNewFile();
@@ -73,7 +64,7 @@ public class Tracker extends Application {
                     if (!lastTrack.isEmpty()) {
                         String[] date = lastTrack.split("\\s*[ymdhos]\\s*"); // Split using letters
                         int year = Integer.parseInt(date[0]);
-                        int month = Integer.parseInt(date[1]) - 2; // Fix: Calendar months are 0-based
+                        int month = Integer.parseInt(date[1]) - 1; // Fix: Calendar months are 0-based
                         int day = Integer.parseInt(date[2]);
                         int hour = Integer.parseInt(date[3]);
                         int minute = Integer.parseInt(date[4]);
@@ -92,7 +83,7 @@ public class Tracker extends Application {
                         Log.d("Date false", localDateTime.getDayOfMonth() + "/" + localDateTime.getMonthValue() + "/" + localDateTime.getYear());
                     }
 
-                    String record = localDateTime.getYear() + "y" + localDateTime.getMonthValue() + "m" + localDateTime.getDayOfYear() + "d" + localDateTime.getHour() + "h" + localDateTime.getMinute() + "o" + localDateTime.getSecond() + "s";
+                    String record = localDateTime.getYear() + "y" + localDateTime.getMonthValue() + "m" + localDateTime.getDayOfMonth() + "d" + localDateTime.getHour() + "h" + localDateTime.getMinute() + "o" + localDateTime.getSecond() + "s";
                     lineWriter.writeLine(record, 0);
                     Log.d("Time period | update", record);
 
@@ -174,11 +165,17 @@ public class Tracker extends Application {
         top3DailyApps = Time.getTop3ByTime(data[0]);
 
         List<ScreenTimeTracker.AppUsageEntry> weekly = Data.getDataFromFile(Data.createWeeklyFile(context));
+        weekly.addAll(apps);
+        weekly = ScreenTimeTracker.compute(weekly, false);
+        Data.sortAppsDescending(weekly);
         Data.updateData(files[1], weekly);
         data[1] = weekly;
         top3WeeklyApps = Time.getTop3ByTime(weekly);
 
         List<ScreenTimeTracker.AppUsageEntry> monthly = Data.getDataFromFile(Data.createMonthlyFile(context));
+        monthly.addAll(apps);
+        monthly = ScreenTimeTracker.compute(monthly, false);
+        Data.sortAppsDescending(monthly);
         Data.updateData(files[2], monthly);
         data[2] = monthly;
         top3MonthlyApps = Time.getTop3ByTime(monthly);

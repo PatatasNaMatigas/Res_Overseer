@@ -3,11 +3,7 @@ package org.g5.core;
 import android.content.Context;
 import android.util.Log;
 
-import org.g5.util.Family;
-import org.g5.util.LineWriter;
-import org.g5.util.Pair;
 import org.g5.util.Time;
-import org.g5.util.TriMap;
 
 import java.io.File;
 import java.io.IOException;
@@ -123,12 +119,25 @@ public class Data {
         }
     }
 
-    public static int computeTime(List<ScreenTimeTracker.AppUsageEntry> apps, String key) {
-        long time = 0;
-        for (ScreenTimeTracker.AppUsageEntry app : apps)
-            if (app.packageName.equals(key))
-                time += app.time;
+    public static List<ScreenTimeTracker.AppUsageEntry> computeTime(List<ScreenTimeTracker.AppUsageEntry> apps) {
+        Map<String, ScreenTimeTracker.AppUsageEntry> dataMap = new HashMap<>();
 
+        for (ScreenTimeTracker.AppUsageEntry app : apps) {
+            if (dataMap.containsKey(app.packageName)) {
+                dataMap.get(app.packageName).time += app.time;
+            } else {
+                dataMap.put(app.packageName, new ScreenTimeTracker.AppUsageEntry(app.packageName, app.time));
+            }
+        }
+
+        return new ArrayList<>(dataMap.values());
+    }
+
+    public static long computeAll(List<ScreenTimeTracker.AppUsageEntry> data) {
+        long time = 0;
+        for (ScreenTimeTracker.AppUsageEntry app : data) {
+            time += app.time;
+        }
         return (int) time;
     }
 
@@ -139,6 +148,17 @@ public class Data {
     public static File getFileByDate(Context context, int[] date) {
         String formattedDate = String.format("%d_%02d_%02d.txt", date[0], date[1], date[2] % 100);
         return new File(context.getFilesDir(), formattedDate);
+    }
+
+    public static File getDailyFile(Context context, LocalDate date) throws IOException {
+        Date d = new Date();
+        d.setDate(date.getDayOfMonth());
+        d.setMonth(date.getMonthValue() - 1);
+        d.setYear(date.getYear());
+        String formatted = new SimpleDateFormat("dd_MM_yy").format(d);
+        File file = new File(context.getFilesDir(), formatted + ".txt");
+        Log.d("Date--", file.getName() + " " + file.exists());
+        return file;
     }
 
     public static File getWeeklyFile(Context context, int[] date) {
@@ -152,12 +172,16 @@ public class Data {
                 Calendar.getInstance().get(Calendar.WEEK_OF_MONTH) +
                 dateFinal.format(yearFormatter);
 
-        return new File(context.getFilesDir(), formattedDate + ".txt");
+        File file = new File(context.getFilesDir(), formattedDate + ".txt");
+        return file;
     }
 
     public static File getMonthlyFile(Context context, int month, int year) {
-        String formattedDate = String.format("%02d%02d.txt", month, year % 100);
-        return new File(context.getFilesDir(), formattedDate);
+        Date date = new Date();
+        date.setMonth(month);
+        date.setYear(year);
+        String formatted = new SimpleDateFormat("MMyy").format(date);
+        return new File(context.getFilesDir(), formatted + ".txt");
     }
 }
 

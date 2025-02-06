@@ -78,21 +78,23 @@ public class Time {
         return new int[] {hours, minutes, s};
     }
 
+    public static long[] convertSecondsToArray(long seconds) {
+        long hours = seconds / 3600;
+        long minutes = (seconds % 3600) / 60;
+        long s = seconds % 60;
+
+        return new long[] {hours, minutes, s};
+    }
+
     public static int convertToSeconds(int[] time) {
         return time[0] * 3600 + time[1] * 60 + time[2];
     }
 
     public static ScreenTimeTracker.AppUsageEntry[] getTop3ByTime(List<ScreenTimeTracker.AppUsageEntry> apps) {
-        ArrayList<ScreenTimeTracker.AppUsageEntry> top3 = new ArrayList<>();
 
-        for (ScreenTimeTracker.AppUsageEntry app : apps) {
-            int timeInSeconds = Data.computeTime(apps, app.packageName);
-            top3.add(new ScreenTimeTracker.AppUsageEntry(app.packageName, timeInSeconds));
-        }
+        ArrayList<ScreenTimeTracker.AppUsageEntry> top3 = new ArrayList<>(Data.computeTime(apps));
 
         top3.sort((a, b) -> Long.compare(b.time, a.time));
-
-        Log.d("Time.class", "Sorted Length: " + top3.size() + " Original Length: " + apps.size());
 
         ScreenTimeTracker.AppUsageEntry[] entries = new ScreenTimeTracker.AppUsageEntry[3];
         for (int i = 0; i < 3; i++) {
@@ -111,7 +113,7 @@ public class Time {
         return new int[]{
                 localDateTime.getDayOfMonth(),
                 localDateTime.getMonthValue(),
-                localDateTime.getYear(),
+                localDateTime.getYear()
         };
     }
 
@@ -178,6 +180,10 @@ public class Time {
     }
 
     public static String formatTime(int[] time) {
+        return time[0] + "h " + time[1] + "m " + time[2] + "s";
+    }
+
+    public static String formatTime(long[] time) {
         return time[0] + "h " + time[1] + "m " + time[2] + "s";
     }
 

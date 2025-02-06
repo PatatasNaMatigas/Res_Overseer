@@ -29,6 +29,7 @@ import org.g5.overseer.R;
 import org.g5.pet.Pet;
 import org.g5.ui.quiz.Q1Start;
 import org.g5.ui.quiz.QuizData;
+import org.g5.ui.quiz.Report;
 import org.g5.util.LineWriter;
 import org.g5.util.Time;
 
@@ -171,8 +172,8 @@ public class Home extends AppCompatActivity {
             }
         });
 
-//        pet = new Pet(this);
-//        initData();
+        pet = new Pet(this);
+        initData();
 
         ConstraintLayout constraintLayout = findViewById(R.id.menu_layout);
 
@@ -254,7 +255,8 @@ public class Home extends AppCompatActivity {
                 startActivity(new Intent(this, Q1Start.class));
                 finish();
             } else {
-                Toast.makeText(this, "You've answered the quiz already for today", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, Report.class));
+                finish();
             }
         });
 
@@ -263,15 +265,7 @@ public class Home extends AppCompatActivity {
                 new InputFilter.AllCaps()
         });
 
-        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            // Dark mode
-            ((ImageView) findViewById(R.id.pet)).setImageResource(R.drawable.pet1);
-        } else {
-            // Light mode
-            ((ImageView) findViewById(R.id.pet)).setImageResource(R.drawable.pet2);
-        }
+        pet.updatePetStatus(isLightMode());
 
         findViewById(R.id.summary).setOnClickListener(view -> {
             startActivity(new Intent(this, Summary.class));
@@ -282,14 +276,7 @@ public class Home extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
-        int nightModeFlags = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            ((ImageView) findViewById(R.id.pet)).setImageResource(R.drawable.pet1);
-        } else if (nightModeFlags == Configuration.UI_MODE_NIGHT_NO) {
-            ((ImageView) findViewById(R.id.pet)).setImageResource(R.drawable.pet2);
-        }
+        pet.updatePetStatus(isLightMode());
     }
 
     public static Home getInstance() {
@@ -392,20 +379,25 @@ public class Home extends AppCompatActivity {
             dataAvailabilityText[2].setVisibility(noData ? View.VISIBLE : View.INVISIBLE);
     }
 
-//    public static void checkForNotif(String appName, int appTime) {
-//        if (pet != null)
-//            pet.start(appName, appTime);
-//    }
-//
-//    public static void initData() {
-//        if (pet != null) {
-//            try {
-//                pet.init();
-//            } catch (IOException e) {}
-//        }
-//    }
+    public static void checkForNotif() {
+        if (pet != null)
+            pet.start();
+    }
+
+    public void initData() {
+        if (pet == null) {
+            pet = new Pet(this);
+        }
+        try {
+            pet.init();
+        } catch (IOException e) {}
+    }
 
     public void updateHealth(String newHealth) {
         ((TextView) findViewById(R.id.petHealth)).setText(newHealth);
+    }
+
+    public boolean isLightMode() {
+        return (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
     }
 }

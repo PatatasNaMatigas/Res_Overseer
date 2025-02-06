@@ -15,13 +15,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +36,14 @@ import org.g5.core.ScreenTimeTracker;
 import org.g5.core.Tracker;
 import org.g5.overseer.R;
 import org.g5.ui.adapters.DailyAppAdapter;
+import org.g5.ui.adapters.MonthlyAppAdapter;
 import org.g5.ui.adapters.WeeklyAppAdapter;
 import org.g5.ui.models.DailyAppModel;
+import org.g5.ui.models.MonthlyAppModel;
 import org.g5.ui.models.WeeklyAppModel;
 import org.g5.ui.quiz.Q1Start;
+import org.g5.ui.quiz.QuizData;
+import org.g5.ui.quiz.Report;
 import org.g5.util.Time;
 
 import java.time.LocalDateTime;
@@ -63,7 +70,7 @@ public class Summary extends AppCompatActivity {
                 ((ImageView) findViewById(R.id.app_icon)).setImageDrawable(topAppIcon);
                 ((TextView) findViewById(R.id.app_name)).setText(Tracker.getAppName(this, topPackageName));
 
-                initializeDailyAdapter(apps);
+                initializeDailyAdapter(Tracker.data[0]);
                 initializeWeeklyAdapter();
                 initializeMonthlyAdapter();
             });
@@ -90,16 +97,15 @@ public class Summary extends AppCompatActivity {
         // Initialize adapter
         DailyAppAdapter adapter = new DailyAppAdapter();
         dailyRecyclerView.setAdapter(adapter);
-        adapter.submitList(new ArrayList<>());
         adapter.submitList(dailyModels);
     }
 
     private void initializeWeeklyAdapter() {
         RecyclerView weeklyRecyclerView = findViewById(R.id.weekly_recycler_view);
         weeklyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        List<WeeklyAppModel> weeklyModels = createWeeklyModels();
-        weeklyRecyclerView.setAdapter(new WeeklyAppAdapter(weeklyModels));
+        WeeklyAppAdapter weeklyAppAdapter = new WeeklyAppAdapter();
+        weeklyRecyclerView.setAdapter(weeklyAppAdapter);
+        weeklyAppAdapter.submitList(createWeeklyModels());
     }
 
     private List<WeeklyAppModel> createWeeklyModels() {
@@ -107,7 +113,7 @@ public class Summary extends AppCompatActivity {
         WeeklyAppModel weeklyAppEntry = null;
         List<WeeklyAppModel> weeklyAppModels = new ArrayList<>();
         for (LocalDate date : ld) {
-            weeklyAppEntry = createWeeklyAppEntry(weeklyAppEntry, Time.ldToDateArray(date));
+            weeklyAppEntry = createWeeklyAppEntry(weeklyAppEntry, date);
             if (weeklyAppEntry == null)
                 continue;
             weeklyAppModels.add(weeklyAppEntry);
@@ -117,12 +123,39 @@ public class Summary extends AppCompatActivity {
     }
 
     private void initializeMonthlyAdapter() {
-//        RecyclerView monthlyRecyclerView = findViewById(R.id.monthly_recycler_view);
-//        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
-//        monthlyRecyclerView.setLayoutManager(gridLayoutManager);
-//
-////        List<MonthlyAppModel> monthlyModels = createMonthlyModels();
-//        monthlyRecyclerView.setAdapter(new MonthlyAppAdapter(monthlyModels));
+        RecyclerView monthlyRecyclerView = findViewById(R.id.monthly_recycler_view);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+        monthlyRecyclerView.setLayoutManager(gridLayoutManager);
+
+        MonthlyAppAdapter adapter = new MonthlyAppAdapter();
+        monthlyRecyclerView.setAdapter(adapter);
+
+        // Update list when needed
+        List<MonthlyAppModel> monthlyModels = createMonthlyModels();
+        adapter.updateList(monthlyModels);
+    }
+
+    private List<MonthlyAppModel> createMonthlyModels() {
+        List<MonthlyAppModel> monthlyAppModels = new ArrayList<>();
+        List<LocalDate> months = Time.getMonths(getFilesDir());
+        List<ScreenTimeTracker.AppUsageEntry> dataFromFile;
+        for (LocalDate date : months) {
+            dataFromFile = Data.getDataFromFile(Data.getMonthlyFile(this, date.getMonthValue() - 1, date.getYear()));
+            if (dataFromFile.isEmpty())
+                continue;
+
+            Data.sortAppsDescending(dataFromFile);
+            monthlyAppModels.add(new MonthlyAppModel(
+                    date.getMonth().toString(),
+                    new Drawable[] {
+                            Tracker.getAppIcon(this, dataFromFile.get(0).packageName),
+                            Tracker.getAppIcon(this, dataFromFile.get(1).packageName),
+                            Tracker.getAppIcon(this, dataFromFile.get(2).packageName),
+                            Tracker.getAppIcon(this, dataFromFile.get(3).packageName),
+                    }
+            ));
+        }
+        return monthlyAppModels;
     }
 
     private Drawable getCachedIcon(AppCompatActivity context, String packageName) {
@@ -139,8 +172,13 @@ public class Summary extends AppCompatActivity {
         Log.d("Summary.destroyed", "destroyed");
     }
 
-    private WeeklyAppModel createWeeklyAppEntry(WeeklyAppModel weeklyAppModel, int[] date) {
-        File fileByDate = Data.getWeeklyFile(this, date);
+    private WeeklyAppModel createWeeklyAppEntry(WeeklyAppModel weeklyAppModel, LocalDate date) {
+        File fileByDate;
+        try {
+            fileByDate = Data.getDailyFile(this, date);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         if (!fileByDate.exists())
             return null;
 
@@ -165,12 +203,10 @@ public class Summary extends AppCompatActivity {
                 (apps.size() > 2) ? Tracker.getAppIcon(this, apps.get(2).packageName) : null,
         };
 
-        LocalDate localDate = LocalDate.of(date[2], date[1], date[0]);
-
         return new WeeklyAppModel(
-                localDate.format(DateTimeFormatter.ofPattern("E")),
-                localDate.format(DateTimeFormatter.ofPattern("dd")),
-                localDate.format(DateTimeFormatter.ofPattern("MMM")),
+                date.format(DateTimeFormatter.ofPattern("E")),
+                date.format(DateTimeFormatter.ofPattern("dd")),
+                date.format(DateTimeFormatter.ofPattern("MMM")),
                 weeklyAppModel,
                 app,
                 appIcon
@@ -275,9 +311,15 @@ public class Summary extends AppCompatActivity {
             finish();
         });
 
-        findViewById(R.id.mental_health_data).setOnClickListener(view -> {
-            startActivity(new Intent(this, Q1Start.class));
-            finish();
+        findViewById(R.id.mental_health_data).setOnClickListener(k -> {
+            new QuizData(this);
+            if (!QuizData.answeredToday()) {
+                startActivity(new Intent(this, Q1Start.class));
+                finish();
+            } else {
+                startActivity(new Intent(this, Report.class));
+                finish();
+            }
         });
 
         Button dailyId = findViewById(R.id.daily);

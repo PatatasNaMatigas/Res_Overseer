@@ -2,8 +2,11 @@ package org.g5.ui.models;
 
 import android.graphics.drawable.Drawable;
 
+import java.util.Objects;
+
 public class WeeklyAppModel {
 
+    private final String name;
     private final String day;
     private final String month;
     private final String date;
@@ -23,6 +26,8 @@ public class WeeklyAppModel {
                 ? lastView.getBg() + 1
                 : 0
                 : 0;
+
+        name = month + "_" + date + "_" + day;
     }
 
     public Drawable[] getIcon() {
@@ -47,5 +52,24 @@ public class WeeklyAppModel {
 
     public String getDate() {
         return date;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WeeklyAppModel that = (WeeklyAppModel) o;
+        return Objects.equals(day, that.day) &&
+                Objects.equals(month, that.month) &&
+                Objects.equals(date, that.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(day, month, date);
     }
 }

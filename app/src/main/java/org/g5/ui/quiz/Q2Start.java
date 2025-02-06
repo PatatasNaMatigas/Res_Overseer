@@ -19,7 +19,7 @@ public class Q2Start extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.quiz_start);
         if (QuizData.getAnswer(0) > 5)
-            text = "I'm glad you're ready to take on the day! Go get them, User!  I'll see you again tomorrow. <3";
+            text = "I'm glad you're ready to take on the day! Go get them " + Login.getAccount()[0] + "!  I'll see you again tomorrow. <3";
         else
             text = "I'm sad to see you so burnt out today :( Take all the rest you need, OK? I'm always looking out for you; I'll check back in tomorrow, " + Login.getAccount()[0] + "!";
         ((TextView) findViewById(R.id.question_text)).setText(text);
@@ -34,7 +34,7 @@ public class Q2Start extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             } else {
-                text = "Greetings, " + Login.getAccount()[0] + " For the purpose of achieving an extensive overview of your screen-time habits, we encourage you to kindly answer this short query regarding your stress levels honestly. Thank you!";
+                text = "Greetings " + Login.getAccount()[0] + ", For the purpose of achieving an extensive overview of your screen-time habits, we encourage you to kindly answer this short query regarding your stress levels honestly. Thank you!";
                 ((TextView) findViewById(R.id.question_text)).setText(text);
             }
             answered = true;

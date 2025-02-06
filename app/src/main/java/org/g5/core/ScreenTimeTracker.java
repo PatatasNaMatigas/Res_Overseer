@@ -41,7 +41,7 @@ public class ScreenTimeTracker {
         long startTime = start.getTimeInMillis();
 
         Log.d("Time period", "Time period: " + Time.formatMillis(endTime - startTime));
-        List<AppUsageEntry> appUsageMap = Collections.emptyList();
+        List<AppUsageEntry> appUsageMap;
         if (startTime > endTime) {
             Calendar endBeforeMidnight = Calendar.getInstance();
             endBeforeMidnight.add(Calendar.HOUR, 23);
@@ -92,7 +92,7 @@ public class ScreenTimeTracker {
             Calendar endAfterMidnight = Calendar.getInstance();
             endAfterMidnight.add(Calendar.HOUR, 0);
             endAfterMidnight.add(Calendar.MINUTE, 0);
-            endAfterMidnight.add(Calendar.SECOND, 0);
+            endAfterMidnight.add(Calendar.SECOND, 1);
             events = usageStatsManager.queryEvents(endAfterMidnight.getTimeInMillis(), endTime);
             event = new UsageEvents.Event();
 
