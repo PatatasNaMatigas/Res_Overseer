@@ -1,6 +1,5 @@
 package org.g5.ui;
 
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
@@ -9,7 +8,6 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,12 +18,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.app.NotificationCompat;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import org.g5.core.ScreenTimeTracker;
@@ -37,8 +33,7 @@ import org.g5.pet.Pet;
 import org.g5.ui.quiz.Q1Start;
 import org.g5.ui.quiz.QuizData;
 import org.g5.ui.quiz.Report;
-import org.g5.util.LineWriter;
-import org.g5.util.NotificationBuilder;
+import org.g5.util.LineIO;
 import org.g5.util.Time;
 
 import java.io.File;
@@ -142,10 +137,10 @@ public class Home extends AppCompatActivity {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        LineWriter lineWriter = new LineWriter(petData);
+        LineIO lineIO = new LineIO(petData);
 
         EditText petName = findViewById(R.id.petName);
-        petName.setText(lineWriter.getLine(0));
+        petName.setText(lineIO.getLine(0));
         petName.setOnFocusChangeListener((v, hasFocus) -> {
             petName.setCursorVisible(hasFocus);
         });
@@ -170,9 +165,9 @@ public class Home extends AppCompatActivity {
                     petName.setText(trimmedText);
                     petName.setSelection(trimmedText.length());
                     petName.addTextChangedListener(this);
-                    lineWriter.writeLine(trimmedText, 0);
+                    lineIO.writeLine(trimmedText, 0);
                 } else {
-                    lineWriter.writeLine(s.toString(), 0);
+                    lineIO.writeLine(s.toString(), 0);
                 }
             }
 
@@ -189,7 +184,7 @@ public class Home extends AppCompatActivity {
 
         Button exitDrawer = findViewById(R.id.exit_drawer);
 
-        popDrawer = findViewById(R.id.popDrawer);
+        popDrawer = findViewById(R.id.exit);
         popDrawer.setOnClickListener(view -> {
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(constraintLayout);
@@ -283,31 +278,7 @@ public class Home extends AppCompatActivity {
         });
 
         scheduleScreenTimeCheck();
-        Tracker.startTracking(this);
-        NotificationBuilder notificationBuilder = new NotificationBuilder();
-        notificationBuilder.createNotificationChannel(this);
-        notificationBuilder.getID();
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                this,
-                0,
-                new Intent(this, Home.class),
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        notificationBuilder.showNotification(this,
-                new NotificationCompat.Builder(
-                        this,
-                        notificationBuilder.getID())
-                        .setSmallIcon(R.drawable.normal_icon)
-                        .setContentTitle(Pet.getName())
-                        .setContentText("Your total screen time is " + Time.formatTime(Time.convertSecondsToArray(Pet.getScreenTime())))
-                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                        .setPriority(NotificationCompat.PRIORITY_MAX)
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true)
-                        .setSound(null)
-        );
+//        Tracker.startTracking(this);
     }
 
     @Override

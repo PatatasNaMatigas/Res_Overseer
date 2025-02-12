@@ -18,7 +18,7 @@ public class Q2Done extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.quiz_start);
-        if (QuizData.getAnswer(1) > 5)
+        if (QuizData.getAnswer(1) < 5)
             text = "I'm glad you're ready to take on the day! Go get them " + Login.getAccount()[0] + "!  I'll see you again tomorrow. <3";
         else
             text = "I'm sad to see you so burnt out today :( Take all the rest you need, OK? I'm always looking out for you; I'll check back in tomorrow, " + Login.getAccount()[0] + "!";

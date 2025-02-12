@@ -12,12 +12,8 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.g5.overseer.R;
-import org.g5.ui.callbacks.DailyAppDiffCallback;
 import org.g5.ui.callbacks.WeeklyAppDiffCallback;
-import org.g5.ui.models.DailyAppModel;
 import org.g5.ui.models.WeeklyAppModel;
-
-import java.util.List;
 
 public class WeeklyAppAdapter extends ListAdapter<WeeklyAppModel, WeeklyAppAdapter.ViewHolder> {
 
@@ -91,7 +87,7 @@ public class WeeklyAppAdapter extends ListAdapter<WeeklyAppModel, WeeklyAppAdapt
             date = itemView.findViewById(R.id.date);
             month = itemView.findViewById(R.id.month);
             day = itemView.findViewById(R.id.day);
-            viewType = itemView.findViewById(R.id.app_entry);
+            viewType = itemView.findViewById(R.id.screen_time_entry);
         }
     }
 }

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +67,7 @@ public class Summary extends AppCompatActivity {
             runOnUiThread(() -> {
                 Drawable topAppIcon = getCachedIcon(this, topPackageName);
                 ((ImageView) findViewById(R.id.app_icon)).setImageDrawable(topAppIcon);
-                ((TextView) findViewById(R.id.app_name)).setText(Tracker.getAppName(this, topPackageName));
+                ((TextView) findViewById(R.id.date)).setText(Tracker.getAppName(this, topPackageName));
 
                 initializeDailyAdapter(Tracker.data[0]);
                 initializeWeeklyAdapter();
@@ -223,7 +222,7 @@ public class Summary extends AppCompatActivity {
         ConstraintLayout constraintLayout = findViewById(R.id.summary_layout);
 
         Button exitDrawer = findViewById(R.id.exit_drawer);
-        ImageButton popDrawer = findViewById(R.id.popDrawer);
+        ImageButton popDrawer = findViewById(R.id.exit);
 
         popDrawer.setOnClickListener(view -> {
             ConstraintSet constraintSet = new ConstraintSet();
@@ -360,6 +359,11 @@ public class Summary extends AppCompatActivity {
             weeklyId.setTextColor(ContextCompat.getColor(this, R.color.unactivatedTextColor));
             monthlyId.setBackgroundResource(R.drawable.button_activated_rounded_pro_max);
             monthlyId.setTextColor(ContextCompat.getColor(this, R.color.activatedTextColor));
+        });
+
+        findViewById(R.id.screentime_summary).setOnClickListener(view -> {
+            startActivity(new Intent(this, ScreenTime.class));
+            finish();
         });
     }
 }

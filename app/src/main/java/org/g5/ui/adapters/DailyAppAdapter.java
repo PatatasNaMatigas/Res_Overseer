@@ -1,6 +1,5 @@
 package org.g5.ui.adapters;
 
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.g5.overseer.R;
 import org.g5.ui.callbacks.DailyAppDiffCallback;
 import org.g5.ui.models.DailyAppModel;
-
-import java.util.Objects;
 
 public class DailyAppAdapter extends ListAdapter<DailyAppModel, DailyAppAdapter.ViewHolder> {
 
@@ -72,9 +69,9 @@ public class DailyAppAdapter extends ListAdapter<DailyAppModel, DailyAppAdapter.
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             icon = itemView.findViewById(R.id.app_icon);
-            name = itemView.findViewById(R.id.app_name);
+            name = itemView.findViewById(R.id.date);
             timeSpent = itemView.findViewById(R.id.time_spent);
-            viewType = itemView.findViewById(R.id.app_entry);
+            viewType = itemView.findViewById(R.id.screen_time_entry);
         }
     }
 }

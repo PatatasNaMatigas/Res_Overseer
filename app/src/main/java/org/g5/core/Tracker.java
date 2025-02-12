@@ -12,11 +12,11 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.g5.ui.Home;
-import org.g5.util.LineWriter;
 import org.g5.util.Time;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,96 +31,43 @@ public class Tracker extends Application {
     private static ScreenTimeTracker.AppUsageEntry[] top3MonthlyApps = new ScreenTimeTracker.AppUsageEntry[3];
     public static File[] files = new File[3];
 
-    private static boolean checked = false;
-    private static Calendar startTime = Calendar.getInstance();
     private static List<ScreenTimeTracker.AppUsageEntry> appEntries = new ArrayList<>();
 
     @Override
     public void onCreate() {
         super.onCreate();
-        File trackingRecord = new File(getFilesDir(), "trackingRecord.txt");
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {}
 
             @Override
             public void onActivityStarted(Activity activity) {
-                if (!checked) {
-                    initData(false, activity);
+                initData(false, activity);
 
-                    checked = true;
+                appEntries = ScreenTimeTracker.getApps(activity, LocalDate.now());
+                Data.sortAppsDescending(appEntries);
 
-                    try {
-                        if (!trackingRecord.createNewFile())
-                            trackingRecord.createNewFile();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    LineWriter lineWriter = new LineWriter(trackingRecord);
-                    String lastTrack = lineWriter.getLine(0);
-                    LocalDateTime localDateTime = LocalDateTime.now();
-                    if (!lastTrack.isEmpty()) {
-                        String[] date = lastTrack.split("\\s*[ymdhos]\\s*"); // Split using letters
-                        int year = Integer.parseInt(date[0]);
-                        int month = Integer.parseInt(date[1]) - 1; // Fix: Calendar months are 0-based
-                        int day = Integer.parseInt(date[2]);
-                        int hour = Integer.parseInt(date[3]);
-                        int minute = Integer.parseInt(date[4]);
-                        int second = Integer.parseInt(date[5]);
-
-                        startTime.set(year, month, day, hour, minute, second);
-
-                        Log.d("Date true", localDateTime.getDayOfMonth() + "/" + localDateTime.getMonthValue() + "/" + localDateTime.getYear());
-                    } else {
-                        startTime.set(
-                                localDateTime.getYear(),
-                                localDateTime.getMonthValue() - 1, // Fix: Convert 1-based month to 0-based
-                                localDateTime.getDayOfMonth(), // Fix: Use day of month, not day of year
-                                0, 0, 1
-                        );
-                        Log.d("Date false", localDateTime.getDayOfMonth() + "/" + localDateTime.getMonthValue() + "/" + localDateTime.getYear());
-                    }
-
-                    String record = localDateTime.getYear() + "y" + localDateTime.getMonthValue() + "m" + localDateTime.getDayOfMonth() + "d" + localDateTime.getHour() + "h" + localDateTime.getMinute() + "o" + localDateTime.getSecond() + "s";
-                    lineWriter.writeLine(record, 0);
-                    Log.d("Time period | update", record);
-
-                    appEntries.addAll(ScreenTimeTracker.getApps(activity, startTime));
-                    appEntries = ScreenTimeTracker.compute(appEntries, false);
-                    Data.sortAppsDescending(appEntries);
-
-                    for (int i = 0; i < appEntries.size(); i++) {
-                        Log.d("All Apps And Time Yes", "App name: " + appEntries.get(i).packageName + " Time: " + appEntries.get(i).time);
-                    }
-
-                    try {
-                        updateData(appEntries, activity);
-                        refreshContent();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    startTime = Calendar.getInstance();
+                try {
+                    updateData(appEntries, activity);
+                    refreshContent();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
 
             @Override
             public void onActivityResumed(Activity activity) {
-                if (!checked) {
-                    Log.d("ScreenTimeTracker | Tracker.class", "Activity started " + Time.formatClockTime(Time.ldtToArray(LocalDateTime.now())));
-                }
+
             }
 
             @Override
             public void onActivityPaused(Activity activity) {
                 Log.d("ScreenTimeTracker | Tracker.class", "Activity paused " + Time.formatClockTime(Time.ldtToArray(LocalDateTime.now())));
-                checked = false;
             }
 
             @Override
             public void onActivityStopped(Activity activity) {
                 Log.d("ScreenTimeTracker | Tracker.class", "Activity stopped " + Time.formatClockTime(Time.ldtToArray(LocalDateTime.now())));
-                checked = false;
             }
 
             @Override
@@ -129,68 +76,18 @@ public class Tracker extends Application {
             @Override
             public void onActivityDestroyed(Activity activity) {
                 Log.e("ScreenTimeTracker | Tracker.class", "Main activity finished 😵 " + Time.formatClockTime(Time.ldtToArray(LocalDateTime.now())));
-                checked = false;
             }
         });
     }
 
     public static void startTracking(Context activity) {
-        File trackingRecord = new File(activity.getFilesDir(), "trackingRecord.txt");
         initData(false, activity);
 
-        checked = true;
-
-        try {
-            if (!trackingRecord.createNewFile())
-                trackingRecord.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        LineWriter lineWriter = new LineWriter(trackingRecord);
-        String lastTrack = lineWriter.getLine(0);
-        LocalDateTime localDateTime = LocalDateTime.now();
-        if (!lastTrack.isEmpty()) {
-            String[] date = lastTrack.split("\\s*[ymdhos]\\s*"); // Split using letters
-            int year = Integer.parseInt(date[0]);
-            int month = Integer.parseInt(date[1]) - 1; // Fix: Calendar months are 0-based
-            int day = Integer.parseInt(date[2]);
-            int hour = Integer.parseInt(date[3]);
-            int minute = Integer.parseInt(date[4]);
-            int second = Integer.parseInt(date[5]);
-
-            startTime.set(year, month, day, hour, minute, second);
-
-            Log.d("Date true", localDateTime.getDayOfMonth() + "/" + localDateTime.getMonthValue() + "/" + localDateTime.getYear());
-        } else {
-            startTime.set(
-                    localDateTime.getYear(),
-                    localDateTime.getMonthValue() - 1, // Fix: Convert 1-based month to 0-based
-                    localDateTime.getDayOfMonth(), // Fix: Use day of month, not day of year
-                    0, 0, 1
-            );
-            Log.d("Date false", localDateTime.getDayOfMonth() + "/" + localDateTime.getMonthValue() + "/" + localDateTime.getYear());
-        }
-
-        String record = localDateTime.getYear() + "y" + localDateTime.getMonthValue() + "m" + localDateTime.getDayOfMonth() + "d" + localDateTime.getHour() + "h" + localDateTime.getMinute() + "o" + localDateTime.getSecond() + "s";
-        lineWriter.writeLine(record, 0);
-        Log.d("Time period | update", record);
-
-        appEntries.addAll(ScreenTimeTracker.getApps(activity, startTime));
+        appEntries = ScreenTimeTracker.getApps(activity, LocalDate.now());
         appEntries = ScreenTimeTracker.compute(appEntries, false);
         Data.sortAppsDescending(appEntries);
 
-        for (int i = 0; i < appEntries.size(); i++) {
-            Log.d("All Apps And Time Yes", "App name: " + appEntries.get(i).packageName + " Time: " + appEntries.get(i).time);
-        }
-
-        try {
-            updateData(appEntries, activity);
-            refreshContent();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        startTime = Calendar.getInstance();
+        refreshContent();
     }
 
     public static void refreshContent() {

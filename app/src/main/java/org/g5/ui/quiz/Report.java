@@ -41,7 +41,7 @@ public class Report extends AppCompatActivity {
             String energy = "Energy level: " + QuizData.getFinalAnswer(0);
             String stress = "Stress level: " + QuizData.getFinalAnswer(1);
             ((TextView) findViewById(R.id.energy_level)).setText(energy);
-            ((TextView) findViewById(R.id.stress_level)).setText(stress);
+            ((TextView) findViewById(R.id.screen_time)).setText(stress);
         } catch (NumberFormatException e) {
             startActivity(new Intent(this, Q1Start.class));
         }

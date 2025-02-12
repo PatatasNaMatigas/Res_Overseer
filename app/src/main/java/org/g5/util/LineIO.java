@@ -10,12 +10,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class LineWriter {
+public class LineIO {
 
     private final ArrayList<String> lines = new ArrayList<>();
     private final File file;
 
-    public LineWriter(File file) {
+    public LineIO(File file) {
         this.file = file;
         initData();
     }
@@ -66,6 +66,7 @@ public class LineWriter {
     public void writeLine(String line) {
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, true))) {
             bufferedWriter.write(line + '\n');
+            lines.add(line);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -76,6 +77,15 @@ public class LineWriter {
             return "";
 
         return lines.get(lineIndex);
+    }
+
+    public String getLine(String contains) {
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).contains(contains)) {
+                return lines.get(i);
+            }
+        }
+        return "";
     }
 
     public boolean hasLine(String line) {

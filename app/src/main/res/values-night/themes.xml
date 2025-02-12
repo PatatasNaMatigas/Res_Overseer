@@ -12,6 +12,7 @@
     <color name="buttonColor">#07EADA</color>
     <color name="buttonBorderColor">#FFFFFF</color>
     <color name="opposite">#FFFFFF</color>
+    <color name="original">@color/black</color>
     <color name="unactivatedColor">@color/medj_black</color>
     <color name="unactivatedTextColor">@color/opposite</color>
     <color name="activatedTextColor">@color/unactivatedColor</color>

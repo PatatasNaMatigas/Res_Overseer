@@ -183,5 +183,45 @@ public class Data {
         String formatted = new SimpleDateFormat("MMyy").format(date);
         return new File(context.getFilesDir(), formatted + ".txt");
     }
+
+    public static List<LocalDate> getExistingDatum(LocalDate startDate, File directory) {
+        List<LocalDate> existingDates = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd_MM_yy");
+        LocalDate date = startDate;
+
+        while (true) {
+            String fileName = date.format(formatter) + ".txt";
+            File file = new File(directory, fileName);
+
+            if (file.exists()) {
+                existingDates.add(date);
+                date = date.minusDays(1); // Move to the previous date
+            } else {
+                break;
+            }
+        }
+
+        return existingDates;
+    }
+
+    public static List<File> getExistingFile(LocalDate startDate, File directory) {
+        List<File> existingDates = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd_MM_yy");
+        LocalDate date = startDate;
+
+        while (true) {
+            String fileName = date.format(formatter) + ".txt";
+            File file = new File(directory, fileName);
+
+            if (file.exists()) {
+                existingDates.add(file);
+                date = date.minusDays(1); // Move to the previous date
+            } else {
+                break;
+            }
+        }
+
+        return existingDates;
+    }
 }
 

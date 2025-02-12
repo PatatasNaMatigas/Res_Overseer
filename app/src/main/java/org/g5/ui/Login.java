@@ -10,13 +10,9 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.g5.overseer.R;
-import org.g5.util.LineWriter;
+import org.g5.util.LineIO;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 public class Login extends AppCompatActivity {
@@ -44,7 +40,7 @@ public class Login extends AppCompatActivity {
                 accountFile.createNewFile();
         } catch (IOException e) {}
 
-        LineWriter accountWriter = new LineWriter(accountFile);
+        LineIO accountWriter = new LineIO(accountFile);
 
         String username = accountWriter.getLine(0);
         String password = accountWriter.getLine(1);

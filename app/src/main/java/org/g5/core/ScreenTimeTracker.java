@@ -5,21 +5,19 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.util.Log;
 
-import org.g5.util.LineWriter;
-import org.g5.util.StringUtil;
+import org.g5.util.LineIO;
 import org.g5.util.Time;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,167 +25,39 @@ import java.util.Stack;
 
 public class ScreenTimeTracker {
 
-    public static List<AppUsageEntry> getApps(Context context, Calendar start) {
-        Log.d("ScreenTimeTracker | ScreenTimeTracker.class", "Getting apps");
+    public static List<AppUsageEntry> getApps(Context context, LocalDate date) {
         UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
 
         if (usageStatsManager == null) {
-            Log.d("ScreenTimeTracker | ScreenTimeTracker.class", "nvm");
             return new ArrayList<>();
         }
 
-        Calendar calendar = Calendar.getInstance();
-        long endTime = calendar.getTimeInMillis();
-        long startTime = start.getTimeInMillis();
+        // Convert LocalDate to start time in UTC+8
+        long startTime = date.atStartOfDay(ZoneId.of("GMT+8")).toInstant().toEpochMilli();
+        long endTime = Calendar.getInstance().getTimeInMillis(); // Current time
 
-        Log.d("Time period", "Time period: " + Time.formatMillis(endTime - startTime));
-        List<AppUsageEntry> appUsageMap;
-        if (startTime > endTime) {
-            Calendar endBeforeMidnight = Calendar.getInstance();
-            endBeforeMidnight.add(Calendar.HOUR, 23);
-            endBeforeMidnight.add(Calendar.MINUTE, 59);
-            endBeforeMidnight.add(Calendar.SECOND, 59);
-            UsageEvents events = usageStatsManager.queryEvents(startTime, endBeforeMidnight.getTimeInMillis());
-            UsageEvents.Event event = new UsageEvents.Event();
+        Log.d("ScreenTimeTracker--", "Tracking from " + startTime + " to " + endTime);
 
-            appUsageMap = new ArrayList<>();
-            Stack<AppUsageEntry> activeSessions = new Stack<>();
+        // Query usage stats
+        List<UsageStats> usageStatsList = usageStatsManager.queryUsageStats(
+                UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
 
-            while (events.hasNextEvent()) {
-                events.getNextEvent(event);
+        List<AppUsageEntry> appUsageEntries = new ArrayList<>();
 
-                String packageName = event.getPackageName();
-                int eventType = event.getEventType();
-                long eventTime = event.getTimeStamp();
+        if (usageStatsList != null) {
+            for (UsageStats stats : usageStatsList) {
+                String packageName = stats.getPackageName();
+                long timeInForeground = stats.getTotalTimeInForeground(); // Usage in ms
+                long lastUsed = stats.getLastTimeUsed(); // Last used timestamp
 
-                if (eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                    // App opened, start tracking
-                    activeSessions.push(new AppUsageEntry(packageName, eventTime));
-
-                } else if (eventType == UsageEvents.Event.MOVE_TO_BACKGROUND) {
-                    // App moved to background, calculate usage
-                    if (!activeSessions.isEmpty()) {
-                        AppUsageEntry lastSession = activeSessions.pop();
-
-                        if (lastSession.packageName.equals(packageName)) {
-                            long duration = eventTime - lastSession.time;
-
-                            // Ignore very short interruptions from System UI
-                            if (duration > 1000) { // Ignore events < 1s
-                                appUsageMap.add(new AppUsageEntry(packageName, duration));
-                            }
-                        }
-                    }
-                }
-            }
-            try {
-                Tracker.updateData(appUsageMap, context);
-                LocalDateTime localDateTime = LocalDateTime.now();
-                String record = localDateTime.getYear() + "y" + localDateTime.getMonthValue() + "m" + localDateTime.getDayOfYear() + "d" + localDateTime.getHour() + "h" + localDateTime.getMinute() + "o" + localDateTime.getSecond() + "s";
-                new LineWriter(new File(context.getFilesDir(), "trackingRecord.txt")).writeLine(record, 0);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            Tracker.initData(false, context);
-            Calendar endAfterMidnight = Calendar.getInstance();
-            endAfterMidnight.add(Calendar.HOUR, 0);
-            endAfterMidnight.add(Calendar.MINUTE, 0);
-            endAfterMidnight.add(Calendar.SECOND, 1);
-            events = usageStatsManager.queryEvents(endAfterMidnight.getTimeInMillis(), endTime);
-            event = new UsageEvents.Event();
-
-            appUsageMap = new ArrayList<>();
-            activeSessions = new Stack<>();
-
-            while (events.hasNextEvent()) {
-                events.getNextEvent(event);
-
-                String packageName = event.getPackageName();
-                int eventType = event.getEventType();
-                long eventTime = event.getTimeStamp();
-
-                if (eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                    // App opened, start tracking
-                    activeSessions.push(new AppUsageEntry(packageName, eventTime));
-
-                } else if (eventType == UsageEvents.Event.MOVE_TO_BACKGROUND) {
-                    // App moved to background, calculate usage
-                    if (!activeSessions.isEmpty()) {
-                        AppUsageEntry lastSession = activeSessions.pop();
-
-                        if (lastSession.packageName.equals(packageName)) {
-                            long duration = eventTime - lastSession.time;
-
-                            // Ignore very short interruptions from System UI
-                            if (duration > 1000) { // Ignore events < 1s
-                                appUsageMap.add(new AppUsageEntry(packageName, duration));
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            UsageEvents events = usageStatsManager.queryEvents(startTime, endTime);
-            UsageEvents.Event event = new UsageEvents.Event();
-
-            appUsageMap = new ArrayList<>();
-            Stack<AppUsageEntry> activeSessions = new Stack<>();
-
-            while (events.hasNextEvent()) {
-                events.getNextEvent(event);
-
-                String packageName = event.getPackageName();
-                int eventType = event.getEventType();
-                long eventTime = event.getTimeStamp();
-
-                if (eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                    // App opened, start tracking
-                    activeSessions.push(new AppUsageEntry(packageName, eventTime));
-
-                } else if (eventType == UsageEvents.Event.MOVE_TO_BACKGROUND) {
-                    // App moved to background, calculate usage
-                    if (!activeSessions.isEmpty()) {
-                        AppUsageEntry lastSession = activeSessions.pop();
-
-                        if (lastSession.packageName.equals(packageName)) {
-                            long duration = eventTime - lastSession.time;
-
-                            // Ignore very short interruptions from System UI
-                            if (duration > 1000) { // Ignore events < 1s
-                                appUsageMap.add(new AppUsageEntry(packageName, duration));
-                            }
-                        }
-                    }
+                // Strict filtering: Only count apps used today (after startTime)
+                if (timeInForeground > 0 && lastUsed >= startTime && !isSystemApp(packageName)) {
+                    appUsageEntries.add(new AppUsageEntry(packageName, timeInForeground));
                 }
             }
         }
 
-        return compute(refine(appUsageMap), true);
-    }
-
-    private static List<AppUsageEntry> refine(List<AppUsageEntry> appList) {
-        List<AppUsageEntry> refinedList = new ArrayList<>();
-        if (appList.isEmpty())
-            return refinedList;
-
-        AppUsageEntry currentApp = appList.get(0);
-
-        for (int i = 1; i < appList.size(); i++) {
-            AppUsageEntry nextApp = appList.get(i);
-
-            Log.d("ScreenTimeTracker", currentApp.packageName + " " + currentApp.time);
-            if (isSystemApp(nextApp.packageName)) {
-                // Merge system UI time into the previous app
-                currentApp.time += (nextApp.time - currentApp.time);
-            } else {
-                // Move to the next app
-                refinedList.add(currentApp);
-                currentApp = nextApp;
-            }
-        }
-        refinedList.add(currentApp);
-
-        return refinedList;
+        return compute(appUsageEntries, true);
     }
 
     public static List<AppUsageEntry> compute(List<AppUsageEntry> apps, boolean convert) {
@@ -229,6 +99,49 @@ public class ScreenTimeTracker {
         return result;
     }
 
+    public static long getTotalScreenTimeForDate(Context context, LocalDate date) {
+        UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+
+        if (usageStatsManager == null) {
+            return 0;
+        }
+
+        long startTime = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long endTime = startTime + 86399999;
+
+        long screenTime = 0;
+
+        UsageEvents events = usageStatsManager.queryEvents(startTime, endTime);
+        UsageEvents.Event event = new UsageEvents.Event();
+        Stack<AppUsageEntry> activeSessions = new Stack<>();
+
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event);
+
+            String packageName = event.getPackageName();
+            int eventType = event.getEventType();
+            long eventTime = event.getTimeStamp();
+
+            if (eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                activeSessions.push(new AppUsageEntry(packageName, eventTime));
+
+            } else if (eventType == UsageEvents.Event.MOVE_TO_BACKGROUND) {
+                if (!activeSessions.isEmpty()) {
+                    AppUsageEntry lastSession = activeSessions.pop();
+
+                    if (lastSession.packageName.equals(packageName)) {
+                        long duration = eventTime - lastSession.time;
+
+                        screenTime += duration;
+                    }
+                }
+            }
+        }
+
+        return screenTime / 1000;
+    }
+
+
     private static boolean isSystemApp(String packageName) {
         if (packageName != null && packageName.isEmpty())
             return false;
@@ -236,7 +149,7 @@ public class ScreenTimeTracker {
         String lowerCase = packageName.toLowerCase();
         boolean isSystemApp = lowerCase.equals("android") ||
                 lowerCase.contains("systemui") ||
-                lowerCase.contains("launcher") ||
+                lowerCase.equals("com.android.launcher") ||
                 lowerCase.contains("packageinstaller") ||
                 lowerCase.contains("system") ||
                 lowerCase.contains("mtp") ||
@@ -251,9 +164,6 @@ public class ScreenTimeTracker {
                 lowerCase.contains("searchbox") ||
                 lowerCase.contains("vending") ||
                 lowerCase.contains("intentresolver");
-
-        if (!isSystemApp)
-            Log.d("Not_system_app", packageName);
         return isSystemApp;
     }
 

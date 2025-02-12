@@ -12,7 +12,7 @@ import org.g5.core.Data;
 import org.g5.core.ScreenTimeTracker;
 import org.g5.overseer.R;
 import org.g5.ui.Home;
-import org.g5.util.LineWriter;
+import org.g5.util.LineIO;
 import org.g5.util.NotificationBuilder;
 import org.g5.util.Time;
 
@@ -31,13 +31,13 @@ public class Pet {
 
     private String hulingTestamento = "You've been using your phone for more than 8 hours... I'm starting to lose health T_T";
 
-    private static LineWriter petDataWriter;
+    private static LineIO petDataWriter;
 
     private static ImageView pet;
 
     public Pet(Home home) {
         this.home = home;
-        petDataWriter = new LineWriter(new File(home.getFilesDir(), "petData.txt"));
+        petDataWriter = new LineIO(new File(home.getFilesDir(), "petData.txt"));
         pet = home.findViewById(R.id.pet);
     }
 

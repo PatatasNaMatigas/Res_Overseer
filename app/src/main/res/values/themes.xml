@@ -11,6 +11,7 @@
     <color name="buttonColor">#ED5050</color>
     <color name="buttonBorderColor">@color/black</color>
     <color name="opposite">@color/black</color>
+    <color name="original">@color/medj_white</color>
     <color name="unactivatedColor">@color/medj_white</color>
     <color name="unactivatedTextColor">@color/opposite</color>
     <color name="activatedTextColor">@color/medj_white</color>

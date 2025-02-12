@@ -117,6 +117,15 @@ public class Time {
         };
     }
 
+    @SuppressLint("NewApi")
+    public static int[] ldToDateArray_MDY(LocalDate localDateTime) {
+        return new int[]{
+                localDateTime.getMonthValue(),
+                localDateTime.getDayOfMonth(),
+                localDateTime.getYear()
+        };
+    }
+
 
     @SuppressLint("NewApi")
     public static int[] ldtToArray(LocalDateTime localDateTime) {
@@ -206,6 +215,11 @@ public class Time {
         int secs = seconds % 60;
 
         return String.format("%dh%2dm%2ds", hours, minutes, secs);
+    }
+
+    public static String formatToDate(int[] date) {
+        LocalDate localDate = LocalDate.of(date[2], date[0], date[1]);
+        return localDate.format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
     }
 
     public static String formatMinutes(int minutes) {

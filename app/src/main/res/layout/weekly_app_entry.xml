@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/rounded_corner_variant_2"
-    android:id="@+id/app_entry"
+    android:id="@+id/screen_time_entry"
     android:layout_marginHorizontal="20dp"
     android:layout_marginBottom="20dp">
 
@@ -17,9 +17,9 @@
         android:textColor="@color/opposite"
         android:layout_marginTop="10dp"
         android:layout_marginStart="10dp"
-        app:layout_constraintStart_toStartOf="@id/app_entry"
+        app:layout_constraintStart_toStartOf="@id/screen_time_entry"
         app:layout_constraintBottom_toTopOf="@id/month"
-        app:layout_constraintTop_toTopOf="@id/app_entry" />
+        app:layout_constraintTop_toTopOf="@id/screen_time_entry" />
 
     <TextView
         android:id="@+id/month"
@@ -29,7 +29,7 @@
         android:fontFamily="@font/citrus"
         android:textColor="@color/opposite"
         android:layout_marginStart="10dp"
-        app:layout_constraintStart_toStartOf="@id/app_entry"
+        app:layout_constraintStart_toStartOf="@id/screen_time_entry"
         app:layout_constraintBottom_toTopOf="@id/day"
         app:layout_constraintTop_toBottomOf="@id/date" />
 
@@ -42,8 +42,8 @@
         android:textColor="@color/opposite"
         android:paddingBottom="10dp"
         android:layout_marginStart="10dp"
-        app:layout_constraintStart_toStartOf="@id/app_entry"
-        app:layout_constraintBottom_toBottomOf="@id/app_entry"
+        app:layout_constraintStart_toStartOf="@id/screen_time_entry"
+        app:layout_constraintBottom_toBottomOf="@id/screen_time_entry"
         app:layout_constraintTop_toBottomOf="@id/month" />
 
     <View
@@ -51,10 +51,10 @@
         android:layout_width="2dp"
         android:layout_height="0dp"
         android:background="@color/opposite"
-        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintTop_toTopOf="@id/screen_time_entry"
         app:layout_constraintBottom_toBottomOf="@id/day"
-        app:layout_constraintStart_toStartOf="@id/app_entry"
-        app:layout_constraintEnd_toEndOf="@id/app_entry"
+        app:layout_constraintStart_toStartOf="@id/screen_time_entry"
+        app:layout_constraintEnd_toEndOf="@id/screen_time_entry"
         app:layout_constraintHorizontal_bias="0.2" />
 
     <TextView
@@ -65,7 +65,7 @@
         android:textSize="15dp"
         android:fontFamily="@font/citrus"
         android:textColor="@color/opposite"
-        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintTop_toTopOf="@id/screen_time_entry"
         app:layout_constraintStart_toEndOf="@id/div1"
         app:layout_constraintEnd_toStartOf="@id/div2" />
 
@@ -78,7 +78,7 @@
         android:paddingBottom="20dp"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintTop_toBottomOf="@id/time_spent_1"
-        app:layout_constraintBottom_toBottomOf="@id/app_entry"
+        app:layout_constraintBottom_toBottomOf="@id/screen_time_entry"
         app:layout_constraintStart_toEndOf="@id/div1"
         app:layout_constraintEnd_toStartOf="@id/div2" />
 
@@ -87,7 +87,7 @@
         android:layout_width="2dp"
         android:layout_height="0dp"
         android:background="@color/opposite"
-        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintTop_toTopOf="@id/screen_time_entry"
         app:layout_constraintBottom_toBottomOf="@id/day"
         app:layout_constraintStart_toEndOf="@id/app_icon_1"
         app:layout_constraintEnd_toStartOf="@id/app_icon_2" />
@@ -99,7 +99,7 @@
         android:textSize="15dp"
         android:fontFamily="@font/citrus"
         android:textColor="@color/opposite"
-        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintTop_toTopOf="@id/screen_time_entry"
         app:layout_constraintStart_toEndOf="@id/div2"
         app:layout_constraintEnd_toStartOf="@id/div3" />
 
@@ -112,7 +112,7 @@
         android:paddingBottom="20dp"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintTop_toBottomOf="@id/time_spent_1"
-        app:layout_constraintBottom_toBottomOf="@id/app_entry"
+        app:layout_constraintBottom_toBottomOf="@id/screen_time_entry"
         app:layout_constraintStart_toEndOf="@id/div2"
         app:layout_constraintEnd_toStartOf="@id/div3" />
 
@@ -121,7 +121,7 @@
         android:layout_width="2dp"
         android:layout_height="0dp"
         android:background="@color/opposite"
-        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintTop_toTopOf="@id/screen_time_entry"
         app:layout_constraintBottom_toBottomOf="@id/day"
         app:layout_constraintStart_toEndOf="@id/app_icon_2"
         app:layout_constraintEnd_toStartOf="@id/app_icon_3" />
@@ -134,9 +134,9 @@
         android:textSize="15dp"
         android:fontFamily="@font/citrus"
         android:textColor="@color/opposite"
-        app:layout_constraintTop_toTopOf="@id/app_entry"
+        app:layout_constraintTop_toTopOf="@id/screen_time_entry"
         app:layout_constraintStart_toEndOf="@id/div3"
-        app:layout_constraintEnd_toEndOf="@id/app_entry" />
+        app:layout_constraintEnd_toEndOf="@id/screen_time_entry" />
 
     <ImageView
         android:id="@+id/app_icon_3"
@@ -147,8 +147,8 @@
         android:paddingBottom="20dp"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintTop_toBottomOf="@id/time_spent_1"
-        app:layout_constraintBottom_toBottomOf="@id/app_entry"
+        app:layout_constraintBottom_toBottomOf="@id/screen_time_entry"
         app:layout_constraintStart_toEndOf="@id/div3"
-        app:layout_constraintEnd_toEndOf="@id/app_entry" />
+        app:layout_constraintEnd_toEndOf="@id/screen_time_entry" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
