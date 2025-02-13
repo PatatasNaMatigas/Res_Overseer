@@ -100,45 +100,14 @@ public class ScreenTimeTracker {
     }
 
     public static long getTotalScreenTimeForDate(Context context, LocalDate date) {
-        UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
-
-        if (usageStatsManager == null) {
-            return 0;
-        }
-
-        long startTime = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        long endTime = startTime + 86399999;
-
         long screenTime = 0;
 
-        UsageEvents events = usageStatsManager.queryEvents(startTime, endTime);
-        UsageEvents.Event event = new UsageEvents.Event();
-        Stack<AppUsageEntry> activeSessions = new Stack<>();
-
-        while (events.hasNextEvent()) {
-            events.getNextEvent(event);
-
-            String packageName = event.getPackageName();
-            int eventType = event.getEventType();
-            long eventTime = event.getTimeStamp();
-
-            if (eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                activeSessions.push(new AppUsageEntry(packageName, eventTime));
-
-            } else if (eventType == UsageEvents.Event.MOVE_TO_BACKGROUND) {
-                if (!activeSessions.isEmpty()) {
-                    AppUsageEntry lastSession = activeSessions.pop();
-
-                    if (lastSession.packageName.equals(packageName)) {
-                        long duration = eventTime - lastSession.time;
-
-                        screenTime += duration;
-                    }
-                }
-            }
+        for (AppUsageEntry app : getApps(context, date)) {
+            screenTime += app.time;
+            Log.d("ScreenTimeTracker--", Time.formatSeconds((int) screenTime) + " | App: " + app.packageName + " Time: " + Time.formatSeconds((int) app.time));
         }
 
-        return screenTime / 1000;
+        return screenTime;
     }
 
 
