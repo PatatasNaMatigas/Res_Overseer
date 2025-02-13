@@ -14,6 +14,7 @@ import org.g5.ui.models.ScreenTimeSummaryModel;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,10 +42,16 @@ public class ScreenTime extends AppCompatActivity {
     }
 
     private List<ScreenTimeSummaryModel> createHistoryModels() {
-        List<LocalDate> existingFilesDate = Data.getExistingDatum(LocalDate.now(), getFilesDir());
+        LocalDate[] week = {
+                LocalDate.of(2025, Month.FEBRUARY, 7),
+                LocalDate.of(2025, Month.FEBRUARY, 8),
+                LocalDate.of(2025, Month.FEBRUARY, 9),
+                LocalDate.of(2025, Month.FEBRUARY, 10),
+                LocalDate.of(2025, Month.FEBRUARY, 11),
+        };
         List<ScreenTimeSummaryModel> checkupHistoryModels = new ArrayList<>();
-        for (int i = 0; i < existingFilesDate.size(); i++)
-            checkupHistoryModels.add(new ScreenTimeSummaryModel(this, existingFilesDate.get(i), true));
+        for (LocalDate day : week)
+            checkupHistoryModels.add(new ScreenTimeSummaryModel(this, day, true));
         checkupHistoryModels.add(new ScreenTimeSummaryModel(this, null, false));
         return checkupHistoryModels;
     }

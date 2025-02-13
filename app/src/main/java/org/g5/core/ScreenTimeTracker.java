@@ -60,6 +60,41 @@ public class ScreenTimeTracker {
         return compute(appUsageEntries, true);
     }
 
+    public static List<AppUsageEntry> getApps(Context context, LocalDate date, int aa) {
+        UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+
+        if (usageStatsManager == null) {
+            return new ArrayList<>();
+        }
+
+        // Convert LocalDate to start time in UTC+8
+        long startTime = date.atStartOfDay(ZoneId.of("GMT+8")).toInstant().toEpochMilli();
+        long endTime = startTime + 86400000; // Current time
+
+        Log.d("ScreenTimeTracker--", "Tracking from " + startTime + " to " + endTime);
+
+        // Query usage stats
+        List<UsageStats> usageStatsList = usageStatsManager.queryUsageStats(
+                UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
+
+        List<AppUsageEntry> appUsageEntries = new ArrayList<>();
+
+        if (usageStatsList != null) {
+            for (UsageStats stats : usageStatsList) {
+                String packageName = stats.getPackageName();
+                long timeInForeground = stats.getTotalTimeInForeground(); // Usage in ms
+                long lastUsed = stats.getLastTimeUsed(); // Last used timestamp
+
+                // Strict filtering: Only count apps used today (after startTime)
+                if (timeInForeground > 0 && lastUsed >= startTime && !isSystemApp(packageName)) {
+                    appUsageEntries.add(new AppUsageEntry(packageName, timeInForeground));
+                }
+            }
+        }
+
+        return compute(appUsageEntries, true);
+    }
+
     public static List<AppUsageEntry> compute(List<AppUsageEntry> apps, boolean convert) {
         Map<String, AppUsageEntry> appMap = new HashMap<>();
 
@@ -102,14 +137,13 @@ public class ScreenTimeTracker {
     public static long getTotalScreenTimeForDate(Context context, LocalDate date) {
         long screenTime = 0;
 
-        for (AppUsageEntry app : getApps(context, date)) {
+        for (AppUsageEntry app : getApps(context, date, 1)) {
             screenTime += app.time;
             Log.d("ScreenTimeTracker--", Time.formatSeconds((int) screenTime) + " | App: " + app.packageName + " Time: " + Time.formatSeconds((int) app.time));
         }
 
         return screenTime;
     }
-
 
     private static boolean isSystemApp(String packageName) {
         if (packageName != null && packageName.isEmpty())
